@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fin_Posterior_A_Inicio</fullName>
+    <active>true</active>
+    <errorConditionFormula>Fin__c &lt;= Inicio__c</errorConditionFormula>
+    <errorDisplayField>Fin__c</errorDisplayField>
+    <errorMessage>La hora de fin debe ser posterior a la de inicio.</errorMessage>
+</ValidationRule>

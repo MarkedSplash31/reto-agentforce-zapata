@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Version_Politica__c</fullName>
+    <description>Version y estado verificable de la politica. Los articulos sinteticos se marcan de forma explicita y no se presentan como fuente oficial.</description>
+    <externalId>false</externalId>
+    <inlineHelpText>Ejemplo: v1.0-sintetica-no-verificada.</inlineHelpText>
+    <label>Version de politica</label>
+    <length>40</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

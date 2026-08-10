@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <description>Subflow de trazabilidad. Plan seccion 8.2: todos los Flows de negocio lo invocan dentro de la misma ruta de exito o de error. Escribe un Log_Agente__c y devuelve su Id. Rellena solo el momento del evento y el actor; todo lo demas lo pasa quien lo llama.</description>
+    <environments>Default</environments>
+    <interviewLabel>Registrar Log Agente {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Registrar Log Agente</label>
+    <processType>AutoLaunchedFlow</processType>
+    <status>Active</status>
+
+    <formulas>
+        <name>frmTimestamp</name>
+        <dataType>DateTime</dataType>
+        <expression>NOW()</expression>
+    </formulas>
+    <formulas>
+        <name>frmOutcome</name>
+        <dataType>String</dataType>
+        <expression>IF( ISBLANK({!varOutcome}), &quot;SUCCESS&quot;, {!varOutcome} )</expression>
+    </formulas>
+    <formulas>
+        <name>frmActor</name>
+        <dataType>String</dataType>
+        <expression>IF( ISBLANK({!varActor}), {!$User.Username}, {!varActor} )</expression>
+    </formulas>
+
+    <decisions>
+        <name>Falta_Codigo_De_Error</name>
+        <label>Falta codigo de error</label>
+        <locationX>176</locationX>
+        <locationY>288</locationY>
+        <defaultConnector>
+            <targetReference>Crear_Log</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No falta</defaultConnectorLabel>
+        <rules>
+            <name>Si_falta</name>
+            <conditionLogic>(1 OR 2) AND 3 AND 4</conditionLogic>
+            <conditions>
+                <leftValueReference>frmOutcome</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>ERROR</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>frmOutcome</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <stringValue>BLOCKED</stringValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varErrorCode</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>varGuardrail</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Poner_Codigo_Generico</targetReference>
+            </connector>
+            <label>Si falta</label>
+        </rules>
+    </decisions>
+
+    <assignments>
+        <name>Poner_Codigo_Generico</name>
+        <label>Poner codigo generico</label>
+        <locationX>50</locationX>
+        <locationY>408</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SIN_CODIGO_REPORTADO</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Crear_Log</targetReference>
+        </connector>
+    </assignments>
+
+    <recordCreates>
+        <name>Crear_Log</name>
+        <label>Crear log</label>
+        <locationX>176</locationX>
+        <locationY>528</locationY>
+        <assignRecordIdToReference>varLogId</assignRecordIdToReference>
+        <inputAssignments>
+            <field>Action_Name__c</field>
+            <value>
+                <elementReference>varAccion</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Actor__c</field>
+            <value>
+                <elementReference>frmActor</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Asset__c</field>
+            <value>
+                <elementReference>varAssetId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Case__c</field>
+            <value>
+                <elementReference>varCaseId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Correlation_Id__c</field>
+            <value>
+                <elementReference>varCorrelationId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Error_Code__c</field>
+            <value>
+                <elementReference>varErrorCode</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Guardrail_Triggered__c</field>
+            <value>
+                <elementReference>varGuardrail</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Knowledge_Article_Version_Id__c</field>
+            <value>
+                <elementReference>varArticuloId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Odometer_Source__c</field>
+            <value>
+                <elementReference>varOdometroFuente</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Odometer_Used__c</field>
+            <value>
+                <elementReference>varOdometroUsado</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Outcome__c</field>
+            <value>
+                <elementReference>frmOutcome</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Policy_Version__c</field>
+            <value>
+                <elementReference>varPolicyVersion</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Related_Record_Id__c</field>
+            <value>
+                <elementReference>varRelatedRecordId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Session_Key__c</field>
+            <value>
+                <elementReference>varSessionKey</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Subagent__c</field>
+            <value>
+                <elementReference>varSubagent</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Timestamp__c</field>
+            <value>
+                <elementReference>frmTimestamp</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Unidad_Varada__c</field>
+            <value>
+                <elementReference>varUnidadVaradaId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Unit_Verified__c</field>
+            <value>
+                <elementReference>varUnidadVerificada</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>WorkOrder__c</field>
+            <value>
+                <elementReference>varWorkOrderId</elementReference>
+            </value>
+        </inputAssignments>
+        <object>Log_Agente__c</object>
+        <storeOutputAutomatically>false</storeOutputAutomatically>
+    </recordCreates>
+
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Falta_Codigo_De_Error</targetReference>
+        </connector>
+    </start>
+
+    <variables>
+        <name>varAccion</name>
+        <dataType>String</dataType>
+        <description>Nombre de la accion del catalogo P0, por ejemplo Evaluar_Cobertura_Garantia.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varActor</name>
+        <dataType>String</dataType>
+        <description>Identidad que ejecuto. Si viene vacio se usa el usuario en curso.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varArticuloId</name>
+        <dataType>String</dataType>
+        <description>Articulo citado. Admite Id de Salesforce o Id semantico.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varAssetId</name>
+        <dataType>String</dataType>
+        <description>Unidad relacionada.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varCaseId</name>
+        <dataType>String</dataType>
+        <description>Caso relacionado.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varCorrelationId</name>
+        <dataType>String</dataType>
+        <description>OBLIGATORIO. Hilo de la conversacion. Sin esto la traza no se puede reconstruir.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varErrorCode</name>
+        <dataType>String</dataType>
+        <description>Codigo estable de error. Nunca un stack trace.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varGuardrail</name>
+        <dataType>String</dataType>
+        <description>Regla que bloqueo o desvio la accion.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varLogId</name>
+        <dataType>String</dataType>
+        <description>SALIDA. Id del log creado.</description>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+    <variables>
+        <name>varOdometroFuente</name>
+        <dataType>String</dataType>
+        <description>Declarado, Verificado o Seed.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varOdometroUsado</name>
+        <dataType>Number</dataType>
+        <description>Kilometraje con el que se tomo la decision.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <scale>0</scale>
+    </variables>
+    <variables>
+        <name>varOutcome</name>
+        <dataType>String</dataType>
+        <description>SUCCESS, BLOCKED, NOT_FOUND o ERROR. Si viene vacio se asume SUCCESS.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varPolicyVersion</name>
+        <dataType>String</dataType>
+        <description>Version de la regla aplicada.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varRelatedRecordId</name>
+        <dataType>String</dataType>
+        <description>Registro creado o modificado por la accion.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varSessionKey</name>
+        <dataType>String</dataType>
+        <description>Referencia de sesion sin exponer PII.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varSubagent</name>
+        <dataType>String</dataType>
+        <description>Garantia, Diagnostico, Agenda o Compensacion.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varUnidadVaradaId</name>
+        <dataType>String</dataType>
+        <description>Reporte de unidad varada relacionado.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>varUnidadVerificada</name>
+        <dataType>Boolean</dataType>
+        <description>Gate de seguridad al momento del evento. Arranca en false porque un campo de casilla no admite nulo y el flujo revienta si se le pasa vacio.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+        <value>
+            <booleanValue>false</booleanValue>
+        </value>
+    </variables>
+    <variables>
+        <name>varWorkOrderId</name>
+        <dataType>String</dataType>
+        <description>Orden de servicio relacionada.</description>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Zapata Postventa - Inicio</masterLabel>
+    <flexiPageRegions>
+        <name>main</name>
+        <type>Region</type>
+            <itemInstances>
+                <componentInstance>
+                    <componentInstanceProperties>
+                        <name>richTextValue</name>
+                        <value>&lt;h2&gt;Torre de control de postventa&lt;/h2&gt;&lt;p&gt;&lt;b&gt;Un agente principal con cuatro subagents. Cada pestana de esta app es una intencion del agente, no un monton de objetos sueltos.&lt;/b&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;&lt;b&gt;Garantia y cobertura&lt;/b&gt; - identifica la unidad por VIN y decide si algo entra en garantia.&lt;/li&gt;&lt;li&gt;&lt;b&gt;Diagnostico y manuales&lt;/b&gt; - responde por modelo de unidad. No depende de sucursal.&lt;/li&gt;&lt;li&gt;&lt;b&gt;Agenda de taller&lt;/b&gt; - aqui si importa la sucursal, porque es donde se atiende la cita.&lt;/li&gt;&lt;li&gt;&lt;b&gt;Compensacion y escalamiento&lt;/b&gt; - lo autorizado, lo prohibido y cuando crear un caso.&lt;/li&gt;&lt;li&gt;Abajo esta la traza completa: cada accion del agente deja un registro con su Correlation Id.&lt;/li&gt;&lt;/ul&gt;</value>
+                    </componentInstanceProperties>
+                    <componentName>flexipage:richText</componentName>
+                    <identifier>texto0</identifier>
+                </componentInstance>
+            </itemInstances>
+            <itemInstances>
+                <componentInstance>
+                    <componentInstanceProperties>
+                        <name>entityName</name>
+                        <value>Log_Agente__c</value>
+                    </componentInstanceProperties>
+                    <componentInstanceProperties>
+                        <name>filterName</name>
+                        <value>Todos</value>
+                    </componentInstanceProperties>
+                    <componentName>flexipage:filterListCard</componentName>
+                    <identifier>lista1</identifier>
+                </componentInstance>
+            </itemInstances>
+    </flexiPageRegions>
+    <template>
+        <name>flexipage:defaultAppHomeTemplate</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

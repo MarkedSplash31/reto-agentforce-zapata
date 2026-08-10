@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <!--
+      WorkOrder tiene OWD Privado, asi que el usuario del agente solo veia las ordenes
+      que el mismo creo y respondia "no encontre esa orden" ante un folio levantado en
+      mostrador o por telefono. La licencia del Einstein Agent User no admite "Ver todos
+      los WorkOrder", asi que la via correcta es compartir por regla en vez de subir el
+      permiso de objeto o poner el Flow en modo sistema.
+    -->
+    <sharingOwnerRules>
+        <fullName>Zapata_Agente_Ve_Ordenes</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Zapata agente ve y mueve ordenes de servicio</label>
+        <sharedTo>
+            <group>Zapata_Agentes</group>
+        </sharedTo>
+        <sharedFrom>
+            <allInternalUsers></allInternalUsers>
+        </sharedFrom>
+    </sharingOwnerRules>
+</SharingRules>

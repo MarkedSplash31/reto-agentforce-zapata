@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="es-MX" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso de asesores · Zapata</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/css/tailwind.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<main class="pt-20">
+  <section class="max-w-7xl mx-auto px-6 py-24">
+    <div class="max-w-md mx-auto">
+
+      <div class="mb-16 text-center">
+        <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Interno</span>
+        <h1 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Acceso de asesores</h1>
+        <p class="text-gray-400 text-xs font-light mt-2 leading-relaxed">
+          Para el personal de postventa que atiende las conversaciones escaladas.
+          Si eres cliente, no necesitas cuenta.
+        </p>
+      </div>
+
+      <form id="form-acceso" class="border border-white/5 bg-[#0d0e12] p-6" novalidate>
+        <label class="block mb-4">
+          <span class="text-[10px] uppercase tracking-widest text-gray-500 block mb-1.5">Usuario</span>
+          <input id="usuario" name="usuario" autocomplete="username" required
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+        </label>
+
+        <label class="block mb-6">
+          <span class="text-[10px] uppercase tracking-widest text-gray-500 block mb-1.5">Contraseña</span>
+          <input id="clave" name="clave" type="password" autocomplete="current-password" required
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+        </label>
+
+        <button id="entrar" type="submit"
+          class="w-full bg-white text-black py-3 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
+          Entrar al panel
+        </button>
+
+        <div id="resultado" class="mt-5" aria-live="polite"></div>
+      </form>
+
+      <p class="text-center mt-8">
+        <a href="index.html" class="text-xs uppercase tracking-widest text-gray-400 hover:text-white transition-colors">
+          Volver al sitio &rarr;
+        </a>
+      </p>
+
+    </div>
+  </section>
+</main>
+
+<div id="footer"></div>
+
+<script type="module" src="/js/paginas/acceso.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Garantia_Vigente__c</fullName>
+    <description>Formula: la garantia basica cubre 24 meses o 250,000 km, lo que ocurra primero.</description>
+    <formula>AND( NOT(ISBLANK(InstallDate)), InstallDate &gt; (TODAY() - 730), NOT(ISBLANK(Odometro__c)), Odometro__c &lt; 250000 )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Garantia vigente</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

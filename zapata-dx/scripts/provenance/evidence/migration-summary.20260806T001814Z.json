@@ -1,0 +1,39 @@
+{
+  "generatedAtUtc": "2026-08-06T00:19:40.0426035Z",
+  "targetOrgAlias": "zapata",
+  "backups": [
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Knowledge__kav.before.20260806T001814Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Slot_Taller__c.before.20260806T001814Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Asset.before.20260806T001814Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\WorkOrder.before.20260806T001814Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Unidad_Varada__c.before.20260806T001814Z.json"
+  ],
+  "jobs": [
+    {
+      "object": "Knowledge__kav",
+      "rows": 20,
+      "operation": "Draft -> update Version_Politica__c -> publish",
+      "success": true
+    },
+    {
+      "object": "WorkOrder",
+      "rows": 30,
+      "jobId": "750gK00000aZPjbQAG",
+      "csv": "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\WorkOrder.migration.20260806T001814Z.csv"
+    },
+    {
+      "object": "Unidad_Varada__c",
+      "rows": 28,
+      "jobId": "750gK00000aZQUMQA4",
+      "csv": "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Unidad_Varada__c.migration.20260806T001814Z.csv"
+    }
+  ],
+  "post": {
+    "knowledgeSynthetic": 20,
+    "slotsAssumed": 729,
+    "slotsOperational": 0,
+    "assetsSyntheticUnverified": 15,
+    "workOrdersTestTransactional": 30,
+    "varadasTestTransactional": 28
+  }
+}

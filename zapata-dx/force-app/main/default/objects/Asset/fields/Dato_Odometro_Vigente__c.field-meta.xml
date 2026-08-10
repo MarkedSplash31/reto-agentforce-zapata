@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Dato_Odometro_Vigente__c</fullName>
+    <description>Verdadero si la lectura sigue siendo confiable. El umbral se edita en Parametros de garantia, no aqui. Si es falso, la evaluacion de cobertura devuelve REQUIERE_DATO.</description>
+    <formula>AND( NOT(ISBLANK(Fecha_Odometro_Verificado__c)), NOT(ISBLANK(Ultimo_Odometro_Verificado__c)), (TODAY() - Fecha_Odometro_Verificado__c) &lt;= $Setup.Parametros_Garantia__c.Vigencia_Odometro_Dias__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Dato de odometro vigente</label>
+    <trackHistory>false</trackHistory>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Preguntas_Descarte__c</fullName>
+    <description>Preguntas que el agente hace para acotar la causa antes de concluir.</description>
+    <label>Preguntas de descarte</label>
+    <length>4000</length>
+    <visibleLines>6</visibleLines>
+    <type>LongTextArea</type>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Manual_Completo__c</fullName>
+    <description>Verdadero solo cuando existe al menos un articulo publicado por cada sistema documentado. Permite saber de un vistazo que modelos ya tienen manual y cuales no.</description>
+    <label>Manual completo</label>
+    <defaultValue>false</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

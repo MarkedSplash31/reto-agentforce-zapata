@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sucursal__c</fullName>
+    <description>Taller propietario de la franja.</description>
+    <label>Sucursal</label>
+    <deleteConstraint>Cascade</deleteConstraint>
+    <referenceTo>Sucursal__c</referenceTo>
+    <relationshipLabel>Slots de taller</relationshipLabel>
+    <relationshipName>Slots_Taller</relationshipName>
+    <required>true</required>
+    <type>Lookup</type>
+</CustomField>

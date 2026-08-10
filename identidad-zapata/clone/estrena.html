@@ -1,0 +1,1541 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<!--
+      CLON DE ANÁLISIS — Corporación Zapata (zapata.com.mx), generación 2026.
+      Generado por skills/zapata-design/scripts/clonar-pagina.py
+      Uso interno. No se despliega públicamente.
+
+      Diferencias deliberadas respecto al original, todas y las únicas:
+        - Sin GTM / GA4 / Google Ads / Meta / TikTok / Clarity / reCAPTCHA.
+        - csrf-token con valor placeholder (no hay backend Laravel; el nodo
+          se conserva porque el JS del sitio lo lee y borrarlo daría TypeError).
+        - Assets locales bajo ../assets/ en vez de /public/ del origen.
+        - Formularios sin action funcional.
+      Todo lo demás — CDN de Tailwind, Google Fonts, Font Awesome, CSS y JS
+      inline, marcado y texto — es idéntico al original.
+-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="CLON-LOCAL-SIN-BACKEND">
+    <title>    Catálogo de Promociones | Zapata
+</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        .font-sans-clean { font-family: 'Inter', sans-serif; }
+
+        /* Mobile menu */
+        #mobile-menu {
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.4s;
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0s;
+        }
+
+        /* Hamburger lines */
+        .hamburger-line {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: currentColor;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s ease;
+            transform-origin: center;
+        }
+        #hamburger-btn.open .line-top    { transform: translateY(7px) rotate(45deg); }
+        #hamburger-btn.open .line-mid    { opacity: 0; transform: scaleX(0); }
+        #hamburger-btn.open .line-bottom { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Staggered link fade-in */
+        #mobile-menu a {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #mobile-menu.open a:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+        #mobile-menu.open a:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+        #mobile-menu.open a:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        #mobile-menu.open a:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+        #mobile-menu.open a:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+    </style>
+        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* Scrollbar oculto en filtros móvil */
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Chips de marca */
+        .chip {
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.10);
+            color: #d1d5db;
+            font-size: .65rem;
+            letter-spacing: .12em;
+            text-transform: uppercase;
+            padding: .4rem 1.25rem;
+            white-space: nowrap;
+            cursor: pointer;
+            transition: background .2s, border-color .2s, color .2s;
+        }
+        .chip:hover {
+            color: #fff;
+            border-color: rgba(255,255,255,.30);
+        }
+        .chip[data-active="true"] {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        /* Selects sin flecha nativa */
+        select { appearance: none; }
+
+        /* Fondo global */
+        body { background-color: #0b0c10; color: #f3f4f6; }
+    </style>
+    
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+    
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0c10]/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex flex-col tracking-[0.3em] text-white">
+                <a href="https://zapata.com.mx"><img src="../assets/public/images/home/logo-zapata-white.png" alt="logo_zapata" class="h-7 w-auto"></a>
+            </div>
+
+            <!-- Desktop links -->
+            <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-gray-400 uppercase">
+                <a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Marcas</a>
+                <a href="https://zapata.com.mx/estrena" class="hover:text-white transition-colors">Estrena</a>
+                <a href="https://zapata.com.mx/accesorios" class="hover:text-white transition-colors">Accesorios</a>
+                <a href="https://zapata.com.mx/citas-de-servicio" class="hover:text-white transition-colors">Servicio</a>
+            </div>
+
+            <!-- Desktop CTA -->
+            <div class="hidden md:block">
+                <a href="https://zapata.com.mx/citas-de-servicio" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+                    Cita de Servicio
+                </a>
+            </div>
+
+            <!-- Mobile: hamburger button -->
+            <button id="hamburger-btn"
+                aria-label="Abrir menú"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                class="md:hidden flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none">
+                <span class="hamburger-line line-top"></span>
+                <span class="hamburger-line line-mid"></span>
+                <span class="hamburger-line line-bottom"></span>
+            </button>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu"
+             role="dialog"
+             aria-label="Menú de navegación"
+             class="md:hidden absolute top-full left-0 w-full bg-[#0b0c10]/95 backdrop-blur-lg border-b border-white/5 px-6 pb-8 pt-6">
+            <a href="https://zapata.com.mx/marcas"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Marcas
+            </a>
+            <a href="https://zapata.com.mx/estrena"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Estrena
+            </a>
+            <a href="https://zapata.com.mx/accesorios"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Accesorios
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Servicio
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                Cita de Servicio
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            var btn  = document.getElementById('hamburger-btn');
+            var menu = document.getElementById('mobile-menu');
+
+            btn.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('open');
+                btn.classList.toggle('open', isOpen);
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+        })();
+    </script>
+    
+    
+    
+    <header class="pt-32 pb-12 bg-[#0b0c10] border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <span class="text-[10px] uppercase tracking-[0.4em] text-amber-400/80 font-medium block mb-2">Ofertas Vigentes</span>
+            <h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-wide font-light">ESTRENA EN ZAPATA</h1>
+            <p class="text-gray-400 text-xs md:text-sm font-light mt-2">Conduce la confianza. Explora planes flexibles y unidades disponibles para asignación inmediata.</p>
+        </div>
+    </header>
+
+    
+    <section class="md:sticky top-0 z-40 bg-[#0b0c10]/95 backdrop-blur-md border-b border-white/5 py-6">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 pb-6 border-b border-white/5">
+
+                <div class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1">
+                    <button class="chip" data-filter="all" data-active="true">Todas</button>
+                                            <button class="chip" data-filter="mazda">
+                            Mazda
+                        </button>
+                                            <button class="chip" data-filter="jac">
+                            Jac
+                        </button>
+                                    </div>
+
+                <div class="relative w-full lg:w-80 flex-shrink-0">
+                    <span class="absolute inset-y-0 left-3 flex items-center pointer-events-none">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                    </span>
+                    <input id="q" type="text"
+                           class="w-full bg-[#0d0e12] border border-white/10 text-white pl-10 pr-4 py-2.5 text-xs
+                                  focus:outline-none focus:border-white/40 transition-colors placeholder:text-gray-600 font-light font-sans-clean"
+                           placeholder="Buscar modelo…">
+                </div>
+            </div>
+
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pt-4">
+
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-gray-500 mb-1.5 font-medium font-sans-clean">
+                        Tipo de Vehículo
+                    </label>
+                    <select id="vehicleType"
+                            class="w-full bg-[#0d0e12] border border-white/5 text-gray-300 px-3 py-2.5 text-xs
+                                   focus:outline-none focus:border-white/20 font-light font-sans-clean">
+                        <option value="any">Todos los segmentos</option>
+                                                    <option class="capitalize" value="suv">Suv</option>
+                                                    <option class="capitalize" value="hatchback">Hatchback</option>
+                                                    <option class="capitalize" value="camioneta">Camioneta</option>
+                                                    <option class="capitalize" value="sedán">Sedán</option>
+                                                    <option class="capitalize" value="roadster">Roadster</option>
+                                            </select>
+                </div>
+
+                <div>
+                    <label class="block text-[9px] uppercase tracking-widest text-gray-500 mb-1.5 font-medium font-sans-clean">
+                        Localidad / Agencia
+                    </label>
+                    <select id="locationFilter"
+                            class="w-full bg-[#0d0e12] border border-white/5 text-gray-300 px-3 py-2.5 text-xs
+                                   focus:outline-none focus:border-white/20 font-light font-sans-clean">
+                        <option value="any">Todas las localidades</option>
+                                                    <option value="Varias Localidades">Varias Localidades</option>
+                                            </select>
+                </div>
+
+                <div class="flex items-end justify-end">
+                    <span class="text-[10px] text-gray-500 font-light tracking-wide mb-2">Mostrando 21 promociones activas</span>
+                </div>
+
+                
+
+            </div>
+        </div>
+    </section>
+
+    
+    <section id="catalogo" class="py-16 bg-[#0b0c10]">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+
+            
+            <div id="grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="499000.00"
+                             data-name="JAC 8 Pro Limited"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-8-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-jac8-26-cvt.jpg"
+                                         alt="JAC 8 Pro Limited"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    JAC 8 Pro Limited
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-8-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="hatchback"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="458900.00"
+                             data-name="Mazda3 Hatchback"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-3-hatchback-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mazda-3-hatchback-mazda.jpeg"
+                                         alt="Mazda3 Hatchback"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda3 Hatchback
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-3-hatchback-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="410000.00"
+                             data-name="JAC 4 Pro Active"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-4-pro-active-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/jac-4-general.jpg"
+                                         alt="JAC 4 Pro Active"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    JAC 4 Pro Active
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-4-pro-active-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="451900.00"
+                             data-name="Mazda CX-30"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-30-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-30-mazda.jpeg"
+                                         alt="Mazda CX-30"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-30
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-30-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="hatchback"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="556000.00"
+                             data-name="E30X"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/e30x-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-e30x.jpg"
+                                         alt="E30X"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    E30X
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/e30x-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="camioneta"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="829900.00"
+                             data-name="Mazda BT-50"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/bt-50-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/bt-50-mazda.jpeg"
+                                         alt="Mazda BT-50"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda BT-50
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/bt-50-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="837900.00"
+                             data-name="Mazda CX-50"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-50-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-50-mazda.jpeg"
+                                         alt="Mazda CX-50"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-50
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-50-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="551900.00"
+                             data-name="Mazda CX-5"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-5-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-5-mazda.jpeg"
+                                         alt="Mazda CX-5"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-5
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-5-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="camioneta"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="560000.00"
+                             data-name="Frison T9 4x2"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t9-4x2-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-t9-4x2-26.jpg"
+                                         alt="Frison T9 4x2"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Frison T9 4x2
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t9-4x2-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="403900.00"
+                             data-name="Mazda CX-3"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-3-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-3-mazda.jpeg"
+                                         alt="Mazda CX-3"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-3
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-3-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="camioneta"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="629000.00"
+                             data-name="Frison T9 4x4"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t9-4x4-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-t9-4x4-26.jpg"
+                                         alt="Frison T9 4x4"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Frison T9 4x4
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t9-4x4-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="1011900.00"
+                             data-name="Mazda CX-90"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-90-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-90-mazda.jpeg"
+                                         alt="Mazda CX-90"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-90
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-90-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="hatchback"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="331900.00"
+                             data-name="Mazda2 Hatchback"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-2-hatchback-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mazda-2-hatchback-mazda.jpeg"
+                                         alt="Mazda2 Hatchback"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda2 Hatchback
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-2-hatchback-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="sedán"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="301000.00"
+                             data-name="Mazda2 Sedán"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-2-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mazda-2-mazda.jpeg"
+                                         alt="Mazda2 Sedán"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda2 Sedán
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-2-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="sedán"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="403900.00"
+                             data-name="Mazda3 Sedán"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-3-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mazda-3-mazda.jpeg"
+                                         alt="Mazda3 Sedán"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda3 Sedán
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mazda-3-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="342000.00"
+                             data-name="JAC 2 Smart CVT"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-2-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/jac-2-general.jpg"
+                                         alt="JAC 2 Smart CVT"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    JAC 2 Smart CVT
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-2-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="996900.00"
+                             data-name="Mazda CX-70"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-70-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/cx-70-mazda.jpeg"
+                                         alt="Mazda CX-70"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda CX-70
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/cx-70-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="suv"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="358000.00"
+                             data-name="JAC 4 Pro Comfort"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-4-pro-comfort-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-JAC4-25.jpg"
+                                         alt="JAC 4 Pro Comfort"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    JAC 4 Pro Comfort
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/jac-4-pro-comfort-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="roadster"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="646900.00"
+                             data-name="Mazda-5 RF"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mx-5-rf-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mx-5-rf-mazda.jpeg"
+                                         alt="Mazda-5 RF"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda-5 RF
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mx-5-rf-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="mazda"
+                             data-body="roadster"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="546900.00"
+                             data-name="Mazda MX-5"
+                             data-marca="mazda"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mx-5-febrero-mazda">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/Mazda/General/mx-5-mazda.jpeg"
+                                         alt="Mazda MX-5"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Mazda
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Mazda MX-5
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/mazda/localidad/mx-5-febrero-mazda"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                                    <article class="card bg-[#0d0e12] border border-white/5 group hover:border-white/10
+                                    transition-all duration-300 flex flex-col justify-between"
+                             data-brand="jac"
+                             data-body="camioneta"
+                             data-gear="at"
+                             data-seats="5"
+                             data-electric="false"
+                             data-price="468000.00"
+                             data-name="Frison T8"
+                             data-marca="jac"
+                             data-localidad="Varias Localidades"
+                             tabindex="0">
+
+                        
+                        <div class="p-4">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t8-2025-febrero-jac">
+                                <div class="overflow-hidden aspect-[4/3] bg-[#121318] relative mb-5">
+                                    <div class="absolute inset-0 bg-gradient-to-b from-neutral-800/20 via-neutral-900/50 to-[#0d0e12] z-10"></div>
+                                    <img src="../assets/public/images/promociones/JAC/general/JAC02-t8-4x2-25.jpg"
+                                         alt="Frison T8"
+                                         class="w-full h-full object-cover brightness-90 group-hover:scale-105 transition-transform duration-500">
+                                    <div class="absolute top-4 left-4 right-4 flex justify-between items-start z-20">
+                                        
+                                        
+                                    </div>
+                                </div>
+                            </a>
+
+                            
+                            <div class="px-2">
+                                <span class="text-[10px] tracking-widest text-amber-400 font-medium uppercase block mb-1 font-sans-clean">
+                                    Jac
+                                </span>
+                                <h3 class="font-serif-luxury text-2xl text-white tracking-wide mb-2">
+                                    Frison T8
+                                </h3>
+                                <p class="text-gray-400 text-xs font-light leading-relaxed mb-1 font-sans-clean">
+                                    Localidad: Varias Localidades
+                                </p>
+                                                            </div>
+                        </div>
+
+                        
+                        <div class="p-6 pt-0">
+                            <a href="https://zapata.com.mx/estrena/detalle/ventas/jac/localidad/frison-t8-2025-febrero-jac"
+                               class="block text-center bg-white text-black py-3 text-xs uppercase tracking-widest
+                                      font-semibold hover:bg-neutral-200 transition-colors duration-300 font-sans-clean">
+                                Cotizar unidad
+                            </a>
+                        </div>
+
+                    </article>
+                            </div>
+
+        </div>
+    </section>
+
+    
+    <section class="py-16 bg-[#07080a] border-t border-white/5">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-10 items-center">
+            <div>
+                <span class="text-[10px] uppercase tracking-[0.4em] text-amber-400/80 font-medium block mb-2 font-sans-clean">
+                    Financiamiento
+                </span>
+                <h2 class="font-serif-luxury text-2xl sm:text-3xl text-white tracking-wide font-light">
+                    ESTRENA TU PRÓXIMO AUTO
+                </h2>
+                <p class="mt-2 text-gray-400 text-sm font-light font-sans-clean">
+                    Te ayudamos a elegir el plan ideal.
+                </p>
+                <ul class="mt-5 space-y-2 text-gray-300 text-sm font-light font-sans-clean">
+                    <li>• Compra con confianza</li>
+                    <li>• Recibe atención personalizada</li>
+                    <li>• Visítanos en nuestras agencias Zapata</li>
+                </ul>
+            </div>
+            <div class="overflow-hidden border border-white/5">
+                <img src="../assets/public/images/IMAGENES_WEB/CARRUSEL/HeaderWebZapata_1_Junio_2025.jpg"
+                     alt="Financiamiento Zapata"
+                     class="w-full h-64 object-cover brightness-75">
+            </div>
+        </div>
+    </section>
+
+
+    <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 text-left">
+            <div class="space-y-4">
+                <p class="font-serif-luxury tracking-widest text-white text-sm">CORPORACIÓN ZAPATA</p>
+                <p class="text-[11px] leading-relaxed font-light text-gray-400">
+                    Boulevard Manuel Ávila Camacho 685<br>
+                    Piso 10, Centro Industrial Alce Blanco,<br>
+                    CP 53370 Naucalpan de Juárez.
+                </p>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Nuestras marcas</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://lincolnzapatazonaesmeralda.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Lincoln</a></li>
+                    <li><a href="https://zapata.com.mx/distribuidora-nissan" class="hover:text-white transition-colors">Nissan</a></li>
+                    <li><a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">V4B</a></li>
+                    <li><a href="https://zapata.com.mx/autobuses" class="hover:text-white transition-colors">Mercedes-Benz Autobuses</a></li>
+                    <li><a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" class="hover:text-white transition-colors" target="_blank" rel="noopener">Vanes</a></li>
+                    <li><a href="https://zapata.com.mx/freightliner/distribuidoras" class="hover:text-white transition-colors">Freightliner</a></li>
+                    <li><a href="https://zapata.com.mx/greatdane/distribuidoras" class="hover:text-white transition-colors">Great Dane</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Links de interés</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://zapata.com.mx/quienes-somos" class="hover:text-white transition-colors">Quiénes somos</a></li>
+                    <li><a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Soluciones integrales</a></li>
+                    <li><a href="https://zapata.com.mx/nuestra-comunidad" class="hover:text-white transition-colors">Nuestra comunidad</a></li>
+                    <li><a href="https://zapata.com.mx/aviso-de-privacidad" class="hover:text-white transition-colors">Políticas de privacidad</a></li>
+                    <li><a href="https://zapata.com.mx/formulario-derechos-arco" class="hover:text-white transition-colors">Ejercicio de los Derechos ARCO</a></li>
+                    <li><a href="https://zapata.com.mx/directorio" class="hover:text-white transition-colors">Directorio</a></li>
+                    <li><a href="https://www.talentozapata.com.mx/bolsa-de-trabajo" target="_blank" rel="noopener"  class="hover:text-white transition-colors">Bolsa de trabajo</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Contacto rápido</p>
+                <p class="font-light text-gray-400">Teléfono: <span class="text-white font-medium"><a href="tel:+525521220370">(55) 2122-0370</a></span></p>
+                <div class="pt-2 flex flex-col space-y-1 text-gray-400 text-[11px]">
+                    <a href="https://twitter.com/GrupoZapataMX" target="_blank" rel="noopener" class="hover:text-white transition-colors">X / Twitter</a>
+                    <a href="https://www.instagram.com/grupo_zapata_mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Instagram</a>
+                    <a href="https://mx.linkedin.com/company/zapata-camiones-s-a-de-c-v-" target="_blank" rel="noopener"  class="hover:text-white transition-colors">LinkedIn</a>
+                    <a href="https://www.facebook.com/GrupoZapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">Facebook</a>
+                    <a href="https://www.youtube.com/user/grupozapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">YouTube</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-gray-600 font-light">
+            &copy; 2026  Zapata. Todos los derechos reservados.
+        </div>
+    </footer>
+
+         <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const chips  = document.querySelectorAll('.chip');
+            const cards  = document.querySelectorAll('.card');
+            const q      = document.getElementById('q');
+            const body   = document.getElementById('vehicleType');
+            // const sort   = document.getElementById('sort');
+            const locationFilter = document.getElementById('locationFilter');
+ 
+            let activeBrand = 'all';
+ 
+            chips.forEach(ch => ch.addEventListener('click', () => {
+                chips.forEach(c => c.dataset.active = 'false');
+                ch.dataset.active = 'true';
+                activeBrand = ch.dataset.filter;
+                filter();
+            }));
+ 
+            q.addEventListener('input', filter);
+            [body, locationFilter].forEach(el => el.addEventListener('input', filter));
+ 
+            function filter() {
+                const query   = q.value.trim().toLowerCase().replace(/\s+/g, '');
+                const bodyVal = body.value;
+                const locSel  = locationFilter.value;
+ 
+                // Ordenar
+                const sorted = Array.from(cards).sort((a, b) => {
+                    const pa = Number(a.dataset.price), pb = Number(b.dataset.price);
+                    const na = a.dataset.name.toLowerCase(), nb = b.dataset.name.toLowerCase();
+                    // switch (sort.value) {
+                    //     case 'price-asc':  return pa - pb;
+                    //     case 'price-desc': return pb - pa;
+                    //     case 'name-asc':   return na.localeCompare(nb);
+                    //     default:           return 0;
+                    // }
+                });
+                const grid = document.getElementById('grid');
+                sorted.forEach(node => grid.appendChild(node));
+ 
+                // Filtrar
+                cards.forEach(card => {
+                    const brand     = card.dataset.brand;
+                    const localidad = card.dataset.localidad || '';
+ 
+                    const matchBrandChip =
+                        activeBrand === 'all' ||
+                        brand === activeBrand ||
+                        (activeBrand === 'electric' && card.dataset.electric === 'true');
+ 
+                    const matchLoc  = locSel === 'any' || localidad === locSel;
+                    const matchBody = bodyVal === 'any' || card.dataset.body === bodyVal;
+                    const matchText = card.dataset.name.toLowerCase().replace(/\s+/g, '').includes(query);
+ 
+                    card.style.display = (matchBrandChip && matchLoc && matchBody && matchText) ? '' : 'none';
+                });
+            }
+ 
+            filter();
+        });
+    </script>
+
+</body>
+</html>

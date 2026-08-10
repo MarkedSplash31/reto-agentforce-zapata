@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Policy_Version__c</fullName>
+    <description>Regla aplicada en la decision. Admite los IDs semanticos de Knowledge del plan (K_REPROGRAMACION_TALLER, K_COMPENSACION_ESCALAMIENTO), que pasan de 20 caracteres.</description>
+    <externalId>false</externalId>
+    <label>Version de politica</label>
+    <length>40</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

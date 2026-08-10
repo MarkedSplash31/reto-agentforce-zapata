@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resuelta_Requiere_Fecha</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( OR(ISPICKVAL(Estado__c, "Resuelta en carretera"), ISPICKVAL(Estado__c, "Remolcada a taller")), ISBLANK(Fecha_Resolucion__c) )</errorConditionFormula>
+    <errorDisplayField>Fecha_Resolucion__c</errorDisplayField>
+    <errorMessage>Un reporte cerrado debe tener fecha de resolucion. Sin ella no se puede medir cuanto tiempo estuvo detenida la unidad.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Registra de forma idempotente un Case en la cola real, su resumen interno y un Log correlacionado; devuelve el folio. Reusar la llave con contenido distinto produce conflicto.</description>
+    <developerName>Crear_Escalamiento_Asesor</developerName>
+    <invocationTarget>EscalarAsesorHumano</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Crear_Escalamiento_Asesor</localDeveloperName>
+    <masterLabel>Crear escalamiento a asesor humano</masterLabel>
+    <progressIndicatorMessage>Registrando tu caso con un asesor...</progressIndicatorMessage>
+</GenAiFunction>

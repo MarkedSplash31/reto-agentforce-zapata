@@ -1,0 +1,27 @@
+{
+  "generatedAtUtc": "2026-08-06T00:25:00.7811527Z",
+  "targetOrgAlias": "zapata",
+  "backups": [
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Knowledge__kav.before.20260806T002353Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Slot_Taller__c.before.20260806T002353Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Asset.before.20260806T002353Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\WorkOrder.before.20260806T002353Z.json",
+    "C:\\Users\\Admin\\Desktop\\Workspace definitivo\\reto-agentforce\\zapata-dx\\scripts\\provenance\\evidence\\Unidad_Varada__c.before.20260806T002353Z.json"
+  ],
+  "jobs": [
+    {
+      "object": "Knowledge__kav",
+      "rows": 0,
+      "operation": "Draft -> update Version_Politica__c -> publish",
+      "success": true
+    }
+  ],
+  "post": {
+    "knowledgeSynthetic": 20,
+    "slotsAssumed": 729,
+    "slotsOperational": 0,
+    "assetsSyntheticUnverified": 15,
+    "workOrdersTestTransactional": 30,
+    "varadasTestTransactional": 28
+  }
+}

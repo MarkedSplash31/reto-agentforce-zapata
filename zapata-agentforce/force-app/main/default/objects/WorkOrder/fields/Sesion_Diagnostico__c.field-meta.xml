@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sesion_Diagnostico__c</fullName>
+    <description>Diagnostico que origino la cita. Permite que la orden llegue al taller con el sintoma ya capturado, que es el valor que el briefing promete a Zapata.</description>
+    <label>Sesion de diagnostico</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Sesion_Diagnostico__c</referenceTo>
+    <relationshipLabel>Ordenes generadas</relationshipLabel>
+    <relationshipName>Ordenes_Generadas</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,8 @@
+{
+  "generatedAtUtc": "2026-08-06T00:24:18.5985720Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "Unidad_Varada__c",
+  "count": 0,
+  "records": []
+}

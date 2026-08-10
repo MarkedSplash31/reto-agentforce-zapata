@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es-MX" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Postventa · Zapata</title>
+<meta name="description" content="Atención de postventa de Corporación Zapata. Habla con el asistente para revisar tu garantía, agendar servicio de taller o pedir asistencia en carretera.">
+<link rel="stylesheet" href="/css/tailwind.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<main class="pt-20">
+
+  <section class="max-w-7xl mx-auto px-6 pt-16 pb-10">
+    <span class="text-xs uppercase tracking-[0.5em] text-[rgba(251,191,36,0.8)] block mb-5 font-medium">Postventa</span>
+    <h1 class="font-serif-luxury text-4xl md:text-5xl text-white font-light tracking-wide leading-none mb-6">
+      ¿QUÉ NECESITA TU UNIDAD?
+    </h1>
+    <p class="text-gray-300 text-base font-light tracking-[0.1em] leading-relaxed max-w-3xl">
+      Cuéntale al asistente qué pasa. Él revisa tu garantía, busca horario en el taller,
+      levanta un reporte si quedaste detenido en carretera, y te pasa con una persona
+      cuando hace falta.
+    </p>
+  </section>
+
+  <!-- La conversación es la aplicación. El panel de la derecha muestra lo que el
+       asistente va haciendo; no es un formulario aparte. -->
+  <section class="max-w-7xl mx-auto px-6 pb-24">
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+      <div class="lg:col-span-3" id="conversacion"></div>
+      <aside class="lg:col-span-2" aria-label="Apoyo visual de la conversación">
+        <div id="panel" aria-live="polite"></div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="bg-[#0d0e12] border-t border-white/5 py-24">
+    <div class="max-w-7xl mx-auto px-6">
+      <div id="enc-red"></div>
+      <div id="sucursales" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+</main>
+
+<div id="footer"></div>
+
+<script type="module" src="/js/paginas/inicio.js"></script>
+
+</body>
+</html>

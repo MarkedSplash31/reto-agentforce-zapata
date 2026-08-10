@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Sesion_Diagnostico__c.Tiene_Herramientas__c</field>
+    </columns>
+    <columns>
+        <field>Sesion_Diagnostico__c.Knowledge_Article_Id__c</field>
+    </columns>
+    <columns>
+        <field>Sesion_Diagnostico__c.Fecha__c</field>
+    </columns>
+    <description>Cuantos casos se cerraron sin cita frente a los que requirieron taller.</description>
+    <format>Summary</format>
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>Sesion_Diagnostico__c.Resultado__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+    <name>Diagnosticos por resultado</name>
+    <reportType>CustomEntity$Sesion_Diagnostico__c</reportType>
+</Report>

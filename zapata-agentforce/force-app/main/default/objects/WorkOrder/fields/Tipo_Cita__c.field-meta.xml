@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Cita__c</fullName>
+    <description>Que se va a hacer en la cita. Debe coincidir con el tipo del slot.</description>
+    <label>Tipo de cita</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Diagnostico</fullName>
+                    <default>true</default>
+                    <label>Diagnostico</label>
+                </value>
+                <value>
+                    <fullName>Mantenimiento</fullName>
+                    <default>false</default>
+                    <label>Mantenimiento</label>
+                </value>
+                <value>
+                    <fullName>Garantia</fullName>
+                    <default>false</default>
+                    <label>Garantia</label>
+                </value>
+                <value>
+                    <fullName>Reparacion mayor</fullName>
+                    <default>false</default>
+                    <label>Reparacion mayor</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

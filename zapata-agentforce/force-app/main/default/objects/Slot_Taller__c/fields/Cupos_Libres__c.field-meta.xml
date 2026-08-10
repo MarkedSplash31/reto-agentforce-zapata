@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cupos_Libres__c</fullName>
+    <description>Cupos restantes de la franja.</description>
+    <label>Cupos libres</label>
+    <formula>Capacidad_Total__c - Capacidad_Usada__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <precision>18</precision>
+    <scale>0</scale>
+    <type>Number</type>
+</CustomField>

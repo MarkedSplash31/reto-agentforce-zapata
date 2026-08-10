@@ -1,0 +1,14 @@
+{
+  "required" : [ "pregunta" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "pregunta" : {
+      "title" : "Pregunta o tema de consulta",
+      "description" : "Texto de la consulta del cliente resumido sin agregar kilometrajes, plazos ni condiciones que no haya mencionado.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

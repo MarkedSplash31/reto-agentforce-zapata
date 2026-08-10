@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vigencia_Odometro_Dias__c</fullName>
+    <description>Umbral documentado de vigencia de la lectura. Si se excede, la accion devuelve REQUIERE_DATO.</description>
+    <externalId>false</externalId>
+    <label>Vigencia de odometro (dias)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

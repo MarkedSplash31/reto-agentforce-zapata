@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<!--
+      CLON DE ANÁLISIS — Corporación Zapata (zapata.com.mx), generación 2026.
+      Generado por skills/zapata-design/scripts/clonar-pagina.py
+      Uso interno. No se despliega públicamente.
+
+      Diferencias deliberadas respecto al original, todas y las únicas:
+        - Sin GTM / GA4 / Google Ads / Meta / TikTok / Clarity / reCAPTCHA.
+        - csrf-token con valor placeholder (no hay backend Laravel; el nodo
+          se conserva porque el JS del sitio lo lee y borrarlo daría TypeError).
+        - Assets locales bajo ../assets/ en vez de /public/ del origen.
+        - Formularios sin action funcional.
+      Todo lo demás — CDN de Tailwind, Google Fonts, Font Awesome, CSS y JS
+      inline, marcado y texto — es idéntico al original.
+-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="CLON-LOCAL-SIN-BACKEND">
+    <title>Agendar Cita de Servicio | Zapata</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        .font-sans-clean { font-family: 'Inter', sans-serif; }
+
+        /* Mobile menu */
+        #mobile-menu {
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.4s;
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0s;
+        }
+
+        /* Hamburger lines */
+        .hamburger-line {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: currentColor;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s ease;
+            transform-origin: center;
+        }
+        #hamburger-btn.open .line-top    { transform: translateY(7px) rotate(45deg); }
+        #hamburger-btn.open .line-mid    { opacity: 0; transform: scaleX(0); }
+        #hamburger-btn.open .line-bottom { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Staggered link fade-in */
+        #mobile-menu a {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #mobile-menu.open a:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+        #mobile-menu.open a:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+        #mobile-menu.open a:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        #mobile-menu.open a:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+        #mobile-menu.open a:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+    </style>
+        <style>
+        select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg fill='white' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+            background-repeat: no-repeat;
+            background-position-x: calc(100% - 12px);
+            background-position-y: 50%;
+        }   
+    </style>
+    
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+    
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0c10]/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex flex-col tracking-[0.3em] text-white">
+                <a href="https://zapata.com.mx"><img src="../assets/public/images/home/logo-zapata-white.png" alt="logo_zapata" class="h-7 w-auto"></a>
+            </div>
+
+            <!-- Desktop links -->
+            <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-gray-400 uppercase">
+                <a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Marcas</a>
+                <a href="https://zapata.com.mx/estrena" class="hover:text-white transition-colors">Estrena</a>
+                <a href="https://zapata.com.mx/accesorios" class="hover:text-white transition-colors">Accesorios</a>
+                <a href="https://zapata.com.mx/citas-de-servicio" class="hover:text-white transition-colors">Servicio</a>
+            </div>
+
+            <!-- Desktop CTA -->
+            <div class="hidden md:block">
+                <a href="https://zapata.com.mx/citas-de-servicio" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+                    Cita de Servicio
+                </a>
+            </div>
+
+            <!-- Mobile: hamburger button -->
+            <button id="hamburger-btn"
+                aria-label="Abrir menú"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                class="md:hidden flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none">
+                <span class="hamburger-line line-top"></span>
+                <span class="hamburger-line line-mid"></span>
+                <span class="hamburger-line line-bottom"></span>
+            </button>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu"
+             role="dialog"
+             aria-label="Menú de navegación"
+             class="md:hidden absolute top-full left-0 w-full bg-[#0b0c10]/95 backdrop-blur-lg border-b border-white/5 px-6 pb-8 pt-6">
+            <a href="https://zapata.com.mx/marcas"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Marcas
+            </a>
+            <a href="https://zapata.com.mx/estrena"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Estrena
+            </a>
+            <a href="https://zapata.com.mx/accesorios"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Accesorios
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Servicio
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                Cita de Servicio
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            var btn  = document.getElementById('hamburger-btn');
+            var menu = document.getElementById('mobile-menu');
+
+            btn.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('open');
+                btn.classList.toggle('open', isOpen);
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+        })();
+    </script>
+    
+    
+    <main class="pt-36 pb-24 max-w-4xl mx-auto px-6">
+        
+        <header class="mb-12 text-center md:text-left">
+            <h1 class="font-serif-luxury text-2xl md:text-4xl text-white tracking-wide font-light uppercase">Agenda tu Cita de Servicio</h1>
+            <h3 class="text-xs uppercase tracking-[0.3em] text-amber-400 font-semibold mt-2">Mazda Zapata</h3>
+            <div class="mt-4 h-px w-20 bg-amber-400/40 mx-auto md:mx-0"></div>
+            <p class="text-xs text-gray-400 font-light mt-4 tracking-wide">Completa los <strong>3 pasos</strong> para confirmar tu cita de servicio.
+        </header>
+
+        <ol class="grid grid-cols-3 gap-3 text-xs mb-10" aria-label="Progreso">
+            <li id="step-badge-1" class="border border-white/10 bg-[#0d0e12] p-3 flex items-center gap-3 transition-all duration-300">
+                <span class="w-6 h-6 text-[10px] grid place-content-center rounded-none bg-white text-black font-bold">1</span>
+                <span class="hidden sm:inline font-medium uppercase tracking-widest text-white">Vehículo</span>
+            </li>
+            <li id="step-badge-2" class="border border-white/5 bg-[#0d0e12] p-3 flex items-center gap-3 opacity-40 transition-all duration-300">
+                <span class="w-6 h-6 text-[10px] grid place-content-center rounded-none bg-neutral-800 text-gray-400 font-bold">2</span>
+                <span class="hidden sm:inline font-medium uppercase tracking-widest text-gray-400">Horario</span>
+            </li>
+            <li id="step-badge-3" class="border border-white/5 bg-[#0d0e12] p-3 flex items-center gap-3 opacity-40 transition-all duration-300">
+                <span class="w-6 h-6 text-[10px] grid place-content-center rounded-none bg-neutral-800 text-gray-400 font-bold">3</span>
+                <span class="hidden sm:inline font-medium uppercase tracking-widest text-gray-400">Contacto</span>
+            </li>
+        </ol>
+
+        <form id="wizardForm" class="space-y-8" method="post" action="" data-clon="sin-destino">
+            <input type="hidden" name="_token" value="796CB4JaWwe7So4EGKRUoXwHYEMRHHvOxoLFoBAz" autocomplete="off">            <input type="hidden" id="coupon" name="coupon" value="">
+            <input type="hidden" id="utm_source" name="utm_source" value="">
+            <input type="hidden" id="utm_medium" name="utm_medium" value="">
+            <input type="hidden" id="utm_campaign" name="utm_campaign" value="">
+
+            <section id="step1" class="step-panel bg-[#0d0e12] border border-white/5 p-6 md:p-8 space-y-6">
+                <div>
+                    <h2 class="font-serif-luxury text-lg text-white tracking-wide uppercase">Paso 1 &bull; Información del vehículo</h2>
+                    <p class="text-[11px] text-gray-400 font-light mt-1">Ingresa las especificaciones operativas del vehículo.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="brand">Marca <span class="text-amber-400">*</span></label>
+                        <input type="hidden" name="input_marca" id="input_marca" value="mazda">
+                        <select id="brand" name="brand" required class="w-full bg-[#0b0c10]/60 border border-white/10 text-gray-500 px-3 py-3 text-xs focus:outline-none rounded-none cursor-not-allowed" disabled>
+                            <option value="">Selecciona…</option>
+                                                                                            <option  value="ford">Ford</option> 
+                                                                                                                            <option  value="lincoln">Lincoln</option> 
+                                                                                                                            <option selected  value="mazda">Mazda</option> 
+                                                                                                                            <option  value="jac">Jac</option> 
+                                                                                                                            <option  value="nissan">Nissan</option> 
+                                                                                                                            <option  value="freightliner">Freightliner</option> 
+                                                                                                                            <option  value="greatdane">Great Dane</option> 
+                                                                                                                            <option  value="buses">Buses</option> 
+                                                                                                                            <option  value="sprinter">Sprinter</option> 
+                                                                                                                            <option  value="subastasv4b">Subastas V4B</option> 
+                                                                                                                            <option  value="zhongtong">Zhongtong</option> 
+                                                                                    </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="model">Modelo <span class="text-amber-400">*</span></label>
+                                                    <select id="model" name="model" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light" required>
+                                <option value="" selected disabled>Selecciona un modelo*</option>
+                                                                    <option>Mazda2 sedán</option>
+                                                                    <option>Mazda2 hatchback</option>
+                                                                    <option>Mazda3 sedán</option>
+                                                                    <option>Mazda3 hatchback</option>
+                                                                    <option>Mazda5</option>
+                                                                    <option>Mazda6</option>
+                                                                    <option>Mazda cx-3</option>
+                                                                    <option>Mazda cx-30</option>
+                                                                    <option>Mazda cx-5</option>
+                                                                    <option>Mazda cx-7</option>
+                                                                    <option>Mazda cx-9</option>
+                                                                    <option>Mazda mx-5</option>
+                                                                    <option>Mazda mx-5 rf</option>
+                                                            </select> 
+                                            </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="year">Año <span class="text-amber-400">*</span></label>
+                        <select name="year" id="year" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">
+                            <option value="" selected disabled>Indica el año*</option>
+                            <option>2026</option>
+                            <option>2025</option>
+                            <option>2024</option>
+                            <option>2023</option>
+                            <option>2022</option>
+                            <option>2021</option>
+                            <option>2020</option>
+                            <option>2019</option>
+                            <option>2018</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="dealer">Agencia <span class="text-amber-400">*</span></label>
+                        <input type="hidden" name="url_agencia" id="url_agencia" value="">
+                                                    <select id="dealer" name="dealer" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light" required>
+                                <option value="" selected disabled>Selecciona una agencia*</option>
+                                                                     
+                                        <option value="mazda-tlalnepantla"> Mazda Tlalnepantla</option>
+                                                                                                         
+                                        <option value="mazda-torre-norte"> Mazda Torre Norte</option>
+                                                                                                         
+                                        <option value="mazda-cuautitlan"> Mazda Cuautitlán</option>
+                                                                                                         
+                                        <option value="mazda-zona-esmeralda"> Mazda Zona Esmeralda</option>
+                                                                                                         
+                                        <option value="mazda-lindavista"> Mazda Lindavista</option>
+                                                                                                         
+                                        <option value="mazda-queretaro"> Mazda Querétaro</option>
+                                                                                                         
+                                        <option value="mazda-san-juan-del-rio"> Mazda San Juan del Río</option>
+                                                                                                         
+                                        <option value="mazda-celaya"> Mazda Celaya</option>
+                                                                                                </select>
+                            <input type="hidden" name="input_agencia" id="input_agencia">
+                                            </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="plate">Placa <span class="text-amber-400">*</span></label>
+                        <input id="plate" name="plate" type="text" required placeholder="Ej. DF219RT" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="km">Servicio Mantenimiento <span class="text-amber-400">*</span></label>
+                        <select name="km" id="km" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">
+                            <option value="" selected disabled>Indica el kilometraje*</option>
+                            <option>10,000 KM</option>
+                            <option>20,000 KM</option>
+                            <option>30,000 KM</option>
+                            <option>40,000 KM</option>
+                            <option>50,000 KM</option>
+                            <option>60,000 KM</option>
+                            <option>70,000 KM</option>
+                            <option>80,000 KM</option>
+                            <option>90,000 KM</option>
+                            <option>100,000 KM</option>
+                        </select>
+                    </div>
+                </div>
+                                <div class="flex justify-end pt-4 border-t border-white/5">
+                    <button type="button" id="toStep2" class="bg-white text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">
+                        Agendar fecha
+                    </button>
+                </div>
+            </section>
+
+            <section id="step2" class="step-panel hidden bg-[#0d0e12] border border-white/5 p-6 md:p-8 space-y-6">
+                <div>
+                    <h2 class="font-serif-luxury text-lg text-white tracking-wide uppercase">Paso 2 &bull; Selecciona fecha y horario</h2>
+                    <p class="text-[11px] text-gray-400 font-light mt-1">Disponibilidad síncrona con el taller central.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <!-- Calendario -->
+                    <div>
+                        <p class="text-base capitalize tracking-wide text-zinc-600">Fecha seleccionada: <span id="selectedDateText" class="text-amber-400 font-medium tracking-normal text-xs">—</span></p>
+                        <div class="border border-white/10 p-4 bg-[#0b0c10]/50 text-xs">
+                        <div class="flex items-center justify-between mb-3">
+                            <button type="button" id="prevMonth" class="text-gray-400 hover:text-white px-1" aria-label="Mes anterior">◀</button>
+                            <div id="monthLabel" class="uppercase tracking-widest text-white font-medium">oct 2025</div>
+                            <button type="button" id="nextMonth" class="text-gray-400 hover:text-white px-1" aria-label="Mes siguiente">▶</button>
+                        </div>
+                        <div id="dow" class="grid grid-cols-7 gap-1 text-center text-gray-500 font-medium uppercase mb-2"></div>
+                        <div id="days" class="grid grid-cols-7 gap-1 mt-1 text-center font-light"></div>
+                        </div>
+                    </div>
+
+                    <!-- Horarios -->
+                    <div>
+                        <p class="text-base capitalize tracking-wide text-zinc-600">Horario preferente</p>
+                        <div id="times" class="mt-3 grid grid-cols-2 gap-2"></div>
+                        <div class="mt-4 text-sm text-zinc-700" id="summary"></div>
+                        <div class="mt-6 bg-[#0b0c10]/40 p-4 border border-white/5 text-[11px] font-light text-gray-400 leading-relaxed">
+                            <span class="text-white font-medium block mb-1">Nota operativa de recepción:</span>
+                            Favor de presentarse 10 minutos antes del bloque seleccionado con los duplicados de llaves del vehículo.
+                        </div>
+                    </div>
+                    
+
+                    
+                </div>
+
+                <div class="flex justify-between pt-4 border-t border-white/5">
+                    <button type="button" data-back class="border border-white/20 px-5 py-2.5 text-xs uppercase tracking-widest text-gray-400 hover:text-white hover:border-white/40 transition">
+                        Volver
+                    </button>
+                    <button type="button" id="toStep3" class="bg-white text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">
+                        Continuar
+                    </button>
+
+                    <!-- Overlay -->
+                    
+                </div>
+            </section>
+
+            <section id="step3" class="step-panel hidden bg-[#0d0e12] border border-white/5 p-6 md:p-8 space-y-6">
+                <div>
+                    <h2 class="font-serif-luxury text-lg text-white tracking-wide uppercase">Paso 3 &bull; Información de contacto</h2>
+                    <p class="text-[11px] text-gray-400 font-light mt-1">Datos finales del propietario para la confirmación de la orden.</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="name">Nombre Completo <span class="text-amber-400">*</span></label>
+                        <input id="name" name="name" type="text" required placeholder="Ingresa tu nombre completo" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 font-light">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="phone">Teléfono Móvil <span class="text-amber-400">*</span></label>
+                        <input id="phone" name="phone" type="tel" required inputmode="tel" placeholder="10 dígitos numéricos" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 font-light">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="email">Correo Electrónico <span class="text-amber-400">*</span></label>
+                        <input id="email" name="email" type="email" placeholder="tucorreo@ejemplo.com" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 font-light">
+                    </div>
+
+                    <div class="md:col-span-2">
+                        <label class="block text-[10px] uppercase tracking-widest text-gray-400 mb-2 font-medium" for="notes">Comentarios Operativos u Observaciones</label>
+                        <textarea id="notes" name="notes" rows="3" class="w-full bg-[#0b0c10] border border-white/10 text-white p-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 resize-none font-light" placeholder="Describe ruidos extraños, testigos encendidos en el tablero, colisiones previas o requerimientos adicionales..."></textarea>
+                    </div>
+                </div>
+
+                <div class="flex justify-between pt-4 border-t border-white/5">
+                    <button type="button" data-back class="border border-white/20 px-5 py-2.5 text-xs uppercase tracking-widest text-gray-400 hover:text-white hover:border-white/40 transition">
+                        Volver
+                    </button>
+                    <button type="submit" id="btnSubmit" class="bg-white text-black px-8 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">
+                        Confirmar cita
+                    </button>
+                </div>
+            </section>
+        </form>
+
+        <div id="toast" class="fixed right-6 bottom-6 px-4 py-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs tracking-wide opacity-0 translate-y-2 transition-all duration-300 z-50"></div>
+    </main>
+
+
+    <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 text-left">
+            <div class="space-y-4">
+                <p class="font-serif-luxury tracking-widest text-white text-sm">CORPORACIÓN ZAPATA</p>
+                <p class="text-[11px] leading-relaxed font-light text-gray-400">
+                    Boulevard Manuel Ávila Camacho 685<br>
+                    Piso 10, Centro Industrial Alce Blanco,<br>
+                    CP 53370 Naucalpan de Juárez.
+                </p>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Nuestras marcas</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://lincolnzapatazonaesmeralda.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Lincoln</a></li>
+                    <li><a href="https://zapata.com.mx/distribuidora-nissan" class="hover:text-white transition-colors">Nissan</a></li>
+                    <li><a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">V4B</a></li>
+                    <li><a href="https://zapata.com.mx/autobuses" class="hover:text-white transition-colors">Mercedes-Benz Autobuses</a></li>
+                    <li><a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" class="hover:text-white transition-colors" target="_blank" rel="noopener">Vanes</a></li>
+                    <li><a href="https://zapata.com.mx/freightliner/distribuidoras" class="hover:text-white transition-colors">Freightliner</a></li>
+                    <li><a href="https://zapata.com.mx/greatdane/distribuidoras" class="hover:text-white transition-colors">Great Dane</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Links de interés</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://zapata.com.mx/quienes-somos" class="hover:text-white transition-colors">Quiénes somos</a></li>
+                    <li><a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Soluciones integrales</a></li>
+                    <li><a href="https://zapata.com.mx/nuestra-comunidad" class="hover:text-white transition-colors">Nuestra comunidad</a></li>
+                    <li><a href="https://zapata.com.mx/aviso-de-privacidad" class="hover:text-white transition-colors">Políticas de privacidad</a></li>
+                    <li><a href="https://zapata.com.mx/formulario-derechos-arco" class="hover:text-white transition-colors">Ejercicio de los Derechos ARCO</a></li>
+                    <li><a href="https://zapata.com.mx/directorio" class="hover:text-white transition-colors">Directorio</a></li>
+                    <li><a href="https://www.talentozapata.com.mx/bolsa-de-trabajo" target="_blank" rel="noopener"  class="hover:text-white transition-colors">Bolsa de trabajo</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Contacto rápido</p>
+                <p class="font-light text-gray-400">Teléfono: <span class="text-white font-medium"><a href="tel:+525521220370">(55) 2122-0370</a></span></p>
+                <div class="pt-2 flex flex-col space-y-1 text-gray-400 text-[11px]">
+                    <a href="https://twitter.com/GrupoZapataMX" target="_blank" rel="noopener" class="hover:text-white transition-colors">X / Twitter</a>
+                    <a href="https://www.instagram.com/grupo_zapata_mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Instagram</a>
+                    <a href="https://mx.linkedin.com/company/zapata-camiones-s-a-de-c-v-" target="_blank" rel="noopener"  class="hover:text-white transition-colors">LinkedIn</a>
+                    <a href="https://www.facebook.com/GrupoZapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">Facebook</a>
+                    <a href="https://www.youtube.com/user/grupozapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">YouTube</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-gray-600 font-light">
+            &copy; 2026  Zapata. Todos los derechos reservados.
+        </div>
+    </footer>
+
+        <script src="../assets/public/js/citas_servicio/citas_servicio.js"></script>
+    
+    
+
+</body>
+</html>

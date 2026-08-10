@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Evento que cancela la garantia de una unidad. El articulo es explicito: la invalidacion aplica SOLO al sistema afectado. Una reprogramacion de potencia cancela motor y transmision, no la corrosion de cabina.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Invalidacion de garantia</label>
+    <pluralLabel>Invalidaciones de garantia</pluralLabel>
+    <nameField>
+        <displayFormat>INV-{00000}</displayFormat>
+        <label>Folio</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Carga__c</fullName>
+    <description>Una unidad cargada cambia el tipo de grua y la urgencia.</description>
+    <label>Estado de carga</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Cargada</fullName>
+                    <default>false</default>
+                    <label>Cargada</label>
+                </value>
+                <value>
+                    <fullName>Vacia</fullName>
+                    <default>false</default>
+                    <label>Vacia</label>
+                </value>
+                <value>
+                    <fullName>No especifica</fullName>
+                    <default>true</default>
+                    <label>No especifica</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

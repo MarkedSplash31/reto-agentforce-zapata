@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Critico_No_Permite_Autoservicio</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(ISPICKVAL(Nivel_Riesgo__c, "Critico"), Autoservicio_Permitido__c)</errorConditionFormula>
+    <errorDisplayField>Autoservicio_Permitido__c</errorDisplayField>
+    <errorMessage>Un sintoma de riesgo critico no puede permitir autoservicio. El agente debe negarse a guiar y escalar.</errorMessage>
+</ValidationRule>

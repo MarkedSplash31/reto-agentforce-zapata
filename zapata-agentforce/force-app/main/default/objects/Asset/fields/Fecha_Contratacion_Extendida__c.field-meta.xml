@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Contratacion_Extendida__c</fullName>
+    <description>Debe caer dentro de los primeros 6 meses de vida de la unidad.</description>
+    <label>Fecha de contratacion de la extendida</label>
+    <required>false</required>
+    <type>Date</type>
+</CustomField>

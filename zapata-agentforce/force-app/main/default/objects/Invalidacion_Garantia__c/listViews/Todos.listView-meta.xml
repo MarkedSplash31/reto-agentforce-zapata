@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Todos</fullName>
+    <columns>NAME</columns>
+    <columns>Asset__c</columns>
+    <columns>Sistema_Afectado__c</columns>
+    <columns>Causa__c</columns>
+    <columns>Fecha_Deteccion__c</columns>
+    <columns>Vigente__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>Todos</label>
+</ListView>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Unidad__c</fullName>
+    <description>Configuracion de la unidad.</description>
+    <label>Tipo de unidad</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Tractocamion</fullName>
+                <default>true</default>
+                <label>Tractocamion</label>
+            </value>
+            <value>
+                <fullName>Camion rigido</fullName>
+                <default>false</default>
+                <label>Camion rigido</label>
+            </value>
+            <value>
+                <fullName>Volteo</fullName>
+                <default>false</default>
+                <label>Volteo</label>
+            </value>
+            <value>
+                <fullName>Pipa</fullName>
+                <default>false</default>
+                <label>Pipa</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>Zapata_Resumen</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Resultado del diagnostico guiado. Es la evidencia de que un caso se resolvio SIN cita, que es el escenario mas memorable del video segun el briefing.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Sesion de diagnostico</label>
+    <pluralLabel>Sesiones de diagnostico</pluralLabel>
+    <nameField>
+        <displayFormat>DIAG-{000000}</displayFormat>
+        <label>Numero de sesion</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

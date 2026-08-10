@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Torre de Postventa | Zapata</title>
+<meta name="description" content="Centro de mando de postventa Zapata: unidades varadas, agenda de taller, cobertura de garantía y trazabilidad de la red.">
+<meta property="og:title" content="Torre de Postventa | Zapata">
+<meta property="og:description" content="Centro de mando de postventa: unidades varadas, agenda de taller y cobertura de garantía.">
+<meta property="og:type" content="website">
+<link rel="icon" href="assets/marca-zapata.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<!-- ══ HERO ══ -->
+<header class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+  <div class="absolute inset-0 z-0 overflow-hidden">
+    <img src="assets/hero-red.svg" alt="Red de carreteras y nodos de servicio"
+         class="w-full h-full object-cover object-center opacity-40 filter brightness-75 scale-105">
+    <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c10] via-transparent to-[#0b0c10]/50"></div>
+  </div>
+
+  <div class="relative z-10 max-w-5xl mx-auto px-6 text-center mt-12">
+    <span class="text-xs uppercase tracking-[0.5em] text-amber-400/80 font-medium block mb-4">Centro de mando</span>
+    <h1 class="font-serif-luxury text-4xl md:text-7xl text-white tracking-wide font-light mb-4">
+      NINGUNA UNIDAD SOLA
+    </h1>
+    <p class="font-sans-clean text-sm md:text-base text-gray-300 tracking-[0.1em] max-w-2xl mx-auto mb-12 font-light">
+      Torre de postventa para la red Zapata. De la varada al taller, con traza.
+    </p>
+    <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+      <a href="agenda.html" class="w-full sm:w-auto bg-white text-black px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300">
+        Reportar Varada
+      </a>
+      <a href="unidades.html" class="w-full sm:w-auto border border-white/20 bg-black/40 backdrop-blur px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-white/10 transition-all duration-300">
+        Ver Unidades
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ══ ESTADO DE LA RED ══ -->
+<section id="estado" class="py-24 bg-[#0d0e12] border-y border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="flex justify-between items-end mb-16">
+      <div>
+        <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Estado Operativo</span>
+        <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">La red en este momento</h2>
+        <p class="text-gray-400 text-xs font-light mt-2">Corte de las últimas 24 horas en las nueve sucursales de camiones.</p>
+      </div>
+      <a href="unidades.html" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors border-b border-white/20 pb-1">Ver detalle</a>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-[#0b0c10] border border-white/5 p-6">
+        <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-1">En carretera</span>
+        <p class="font-serif-luxury text-4xl text-white font-light leading-none mb-2">7</p>
+        <p class="text-gray-400 text-xs leading-relaxed font-light">Unidades varadas con asistencia despachada.</p>
+        <div class="mt-4 h-px w-20 bg-amber-400/40"></div>
+      </div>
+      <div class="bg-[#0b0c10] border border-white/5 p-6">
+        <span class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">En taller</span>
+        <p class="font-serif-luxury text-4xl text-white font-light leading-none mb-2">34</p>
+        <p class="text-gray-400 text-xs leading-relaxed font-light">Órdenes de servicio abiertas en la red.</p>
+        <div class="mt-4 h-px w-20 bg-white/10"></div>
+      </div>
+      <div class="bg-[#0b0c10] border border-white/5 p-6">
+        <span class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">Resueltas sin cita</span>
+        <p class="font-serif-luxury text-4xl text-white font-light leading-none mb-2">12</p>
+        <p class="text-gray-400 text-xs leading-relaxed font-light">Diagnóstico remoto que evitó entrada a taller.</p>
+        <div class="mt-4 h-px w-20 bg-white/10"></div>
+      </div>
+      <div class="bg-[#0b0c10] border border-white/5 p-6">
+        <span class="text-[10px] uppercase tracking-widest text-gray-500 font-medium block mb-1">Tiempo medio</span>
+        <p class="font-serif-luxury text-4xl text-white font-light leading-none mb-2">2.4<span class="text-xl text-gray-400 ml-1">h</span></p>
+        <p class="text-gray-400 text-xs leading-relaxed font-light">Del reporte de varada al arribo de la grúa.</p>
+        <div class="mt-4 h-px w-20 bg-white/10"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ CADENA OPERATIVA ══ -->
+<section id="cadena" class="py-24 bg-[#0b0c10]">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="mb-16">
+      <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Compromiso Irrenunciable</span>
+      <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Una sola cadena, cuatro eslabones</h2>
+      <p class="text-gray-400 text-xs font-light mt-2 max-w-2xl">
+        El agente conversa; la regla vive en el dato y en el Flow. Cada paso deja registro correlacionado.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-3">01</span>
+          <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Knowledge autorizado</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+            El agente sólo cita fuentes publicadas. Nada de texto libre sobre cobertura.
+          </p>
+        </div>
+        <a href="cobertura.html" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Ver fuentes &rarr;</a>
+      </div>
+      <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-3">02</span>
+          <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Decisión determinista</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+            Kilometraje, antigüedad y cobertura resuelven en una regla, no en una opinión.
+          </p>
+        </div>
+        <a href="cobertura.html" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Ver reglas &rarr;</a>
+      </div>
+      <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-3">03</span>
+          <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Flow que actúa</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+            Reserva de slot, despacho de grúa y notificación a la sucursal en una transacción.
+          </p>
+        </div>
+        <a href="agenda.html" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Ver agenda &rarr;</a>
+      </div>
+      <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-3">04</span>
+          <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Registro correlacionado</h3>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+            Un folio une la conversación, la decisión, la acción y su evidencia.
+          </p>
+        </div>
+        <a href="unidades.html" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Ver traza &rarr;</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ ASISTENCIA ══ -->
+<section id="asistencia" class="py-24 bg-[#0d0e12] border-t border-white/5">
+  <div class="max-w-7xl mx-auto px-6">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      <div>
+        <span class="text-xs uppercase tracking-[0.3em] text-gray-400 block mb-3">Soporte</span>
+        <h2 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-wide font-light mb-8 leading-tight">
+          Reporta una varada <br>en dos minutos
+        </h2>
+        <p class="text-gray-400 text-sm leading-relaxed mb-8 font-light">
+          VIN, ubicación y síntoma. El resto lo resuelve la torre: cobertura, grúa,
+          sucursal receptora y slot de taller, sin que tengas que llamar a nadie más.
+        </p>
+        <a href="agenda.html" class="inline-block bg-white text-black px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300">
+          Reportar unidad varada
+        </a>
+      </div>
+      <div class="relative group aspect-video bg-neutral-900 overflow-hidden border border-white/10">
+        <img src="assets/hero-red.svg" alt="Corredores de la red Zapata"
+             class="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105">
+        <div class="absolute top-4 left-4 flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-300">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+          9 sucursales de camiones
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="footer"></div>
+<script src="js/sistema.js"></script>
+</body>
+</html>

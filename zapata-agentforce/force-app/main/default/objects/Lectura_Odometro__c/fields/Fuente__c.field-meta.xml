@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fuente__c</fullName>
+    <description>Origen del dato. Solo Verificado sostiene una decision de cobertura.</description>
+    <label>Fuente</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Declarado</fullName>
+                    <default>true</default>
+                    <label>Declarado</label>
+                </value>
+                <value>
+                    <fullName>Verificado</fullName>
+                    <default>false</default>
+                    <label>Verificado</label>
+                </value>
+                <value>
+                    <fullName>Seed</fullName>
+                    <default>false</default>
+                    <label>Seed</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

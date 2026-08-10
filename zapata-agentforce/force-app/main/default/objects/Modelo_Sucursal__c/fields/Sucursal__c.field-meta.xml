@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sucursal__c</fullName>
+    <description>Taller que atiende el modelo.</description>
+    <label>Sucursal</label>
+    <deleteConstraint>Cascade</deleteConstraint>
+    <referenceTo>Sucursal__c</referenceTo>
+    <relationshipLabel>Modelos atendidos</relationshipLabel>
+    <relationshipName>Modelos_Atendidos</relationshipName>
+    <required>true</required>
+    <type>Lookup</type>
+</CustomField>

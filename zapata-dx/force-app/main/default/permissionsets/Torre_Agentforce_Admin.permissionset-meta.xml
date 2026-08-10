@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Marcador de identidad para administradores de Torre Agentforce. No concede permisos de datos; el backend conserva RBAC y ownership.</description>
+    <label>Torre Agentforce Administrador</label>
+</PermissionSet>

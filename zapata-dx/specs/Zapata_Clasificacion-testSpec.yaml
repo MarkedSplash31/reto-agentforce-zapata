@@ -1,0 +1,23 @@
+# Suite corta para medir exclusivamente el enrutamiento entre los cuatro dominios.
+# No ejecutar en paralelo con las suites funcionales: los casos que tienen datos
+# minimos pueden invocar acciones reales del agente publicado.
+name: Zapata_Clasificacion
+description: Clasificacion no mutante entre conocimiento, agenda y unidad varada
+subjectType: AGENT
+subjectName: Agente_Postventa_Zapata
+testCases:
+  - utterance: "Que cubre la garantia del turbo?"
+    expectedTopic: conocimiento_y_respuestas
+    expectedActions:
+      - Buscar_Conocimiento_Postventa
+    expectedOutcome: "Enruta a conocimiento, invoca Buscar_Conocimiento_Postventa, responde con los limites devueltos por esa accion y menciona el articulo consultado. No responde de memoria."
+
+  - utterance: "Quiero llevar el camion al taller la proxima semana."
+    expectedTopic: agendar_servicio_taller
+    expectedActions: []
+    expectedOutcome: "Enruta a agenda y pide el VIN antes de intentar crear una orden."
+
+  - utterance: "Mi unidad se apago en carretera y ya no avanza."
+    expectedTopic: atencion_unidades_varadas
+    expectedActions: []
+    expectedOutcome: "Enruta a unidad varada, prioriza la seguridad y pide carretera y descripcion antes de levantar el reporte."

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Utm_Campaign__c</fullName>
+    <description>Campana que origino el contacto.</description>
+    <label>UTM campaign</label>
+    <externalId>false</externalId>
+    <length>150</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

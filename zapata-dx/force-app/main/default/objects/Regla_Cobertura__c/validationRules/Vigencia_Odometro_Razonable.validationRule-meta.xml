@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vigencia_Odometro_Razonable</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(Vigencia_Odometro_Dias__c &lt; 1, Vigencia_Odometro_Dias__c &gt; 365)</errorConditionFormula>
+    <errorDisplayField>Vigencia_Odometro_Dias__c</errorDisplayField>
+    <errorMessage>La vigencia del odometro debe estar entre 1 y 365 dias.</errorMessage>
+</ValidationRule>

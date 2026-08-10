@@ -1,0 +1,98 @@
+{
+  "required" : [ "varCarretera", "varDescripcionFalla", "varFueraDeCarril", "varIntermitentes", "varCorrelationId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varFueraDeCarril" : {
+      "title" : "Unidad fuera del carril",
+      "description" : "Verdadero SOLO si el operador confirmo que la unidad esta fuera del carril de circulacion. Es la primera pregunta de la conversacion. Si no lo confirmo o no contesto, manda falso: no lo supongas.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varIntermitentes" : {
+      "title" : "Intermitentes encendidas",
+      "description" : "Verdadero SOLO si el operador confirmo que trae las intermitentes encendidas. Mismo criterio: si no lo confirmo, manda falso.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varCarretera" : {
+      "title" : "Carretera",
+      "description" : "Nombre o numero de la carretera donde quedo la unidad, por ejemplo Mexico-Queretaro 57D. Sin este dato no se puede levantar el reporte.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varKilometro" : {
+      "title" : "Kilometro",
+      "description" : "Kilometro aproximado. Si el operador no lo sabe, dejalo vacio y usa la referencia: NO retrases el reporte por este dato.",
+      "lightning:type" : "lightning__numberType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varSentido" : {
+      "title" : "Sentido",
+      "description" : "Uno de: Norte, Sur, Oriente, Poniente, No especifica. Si el operador no lo dice, manda No especifica.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varReferencia" : {
+      "title" : "Referencia de ubicacion",
+      "description" : "Referencia visual: caseta, puente, poblado o senalamiento mas cercano. Sirve para encontrarlo cuando no hay kilometro.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varVIN" : {
+      "title" : "VIN de la unidad",
+      "description" : "VIN de 17 caracteres. En carretera el operador puede no tenerlo a la mano: es OPCIONAL y no bloquea el reporte. Si lo da, se liga la unidad automaticamente.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : true
+    },
+    "varDescripcionFalla" : {
+      "title" : "Descripcion de la falla",
+      "description" : "Lo que describe el operador, con sus palabras. No escribas un diagnostico que el no dijo.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varCodigosTablero" : {
+      "title" : "Codigos de falla en tablero",
+      "description" : "Codigos SPN/FMI o luces encendidas que reporta el operador, separados por coma. Transcribelos tal cual: no los interpretes.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varCarga" : {
+      "title" : "Estado de carga",
+      "description" : "Uno de: Cargada, Vacia, No especifica. Importa para decidir el tipo de grua.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varSucursalClave" : {
+      "title" : "Taller de apoyo",
+      "description" : "Codigo o nombre del taller mas cercano, si se sabe. Si no, dejalo vacio: el coordinador lo asigna. No inventes cual es el mas cercano.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varCorrelationId" : {
+      "title" : "Correlation Id",
+      "description" : "Identificador del hilo de la conversacion. Usa el mismo valor en todas las acciones de esta conversacion.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varSessionKey" : {
+      "title" : "Session Key",
+      "description" : "Referencia de la sesion. No incluyas datos personales.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

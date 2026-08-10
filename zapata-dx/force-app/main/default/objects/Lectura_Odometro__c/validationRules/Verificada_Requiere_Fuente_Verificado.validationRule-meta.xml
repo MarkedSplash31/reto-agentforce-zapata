@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Verificada_Requiere_Fuente_Verificado</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(Verificada__c, NOT(ISPICKVAL(Fuente__c, &quot;Verificado&quot;)))</errorConditionFormula>
+    <errorDisplayField>Verificada__c</errorDisplayField>
+    <errorMessage>Solo una lectura con fuente Verificado puede marcarse como verificada. Una lectura declarada por el usuario no sostiene una decision de cobertura.</errorMessage>
+</ValidationRule>

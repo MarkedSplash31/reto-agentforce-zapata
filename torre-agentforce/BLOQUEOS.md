@@ -1,0 +1,378 @@
+# Bloqueos — decisiones y pasos humanos pendientes
+
+Última actualización: **7 de agosto de 2026**.
+
+Nada de lo bloqueado se sustituye con un mock. «La petición llegó a una org real» no
+convierte la semilla sintética en dato real de negocio; la proveniencia completa está
+en `docs/DATOS-Y-PROVENIENCIA.md`.
+
+## Lo que dejó de estar bloqueado el 7 de agosto de 2026
+
+La conversación con el agente **funciona de punta a punta desde la web app**, con el
+agente `Agente Postventa Zapata` **v18 activo** en la org y el proveedor de token
+`client_credentials`. Dos corridas limpias consecutivas de `npm run verificar:e2e`
+dieron **0 fallas, 0 avisos y 0 bloqueados**, releyendo cada folio de Salesforce.
+
+Cinco causas raíz se encontraron y se corrigieron. Ninguna era la que se creía:
+
+1. **La Agent API sí acepta el token de client_credentials directamente.** El 404
+   histórico era de una clave de consumidor que no pertenecía a esta app, no del
+   método. El rodeo por `/agentforce/bootstrap/nameduser` es el camino del CLI —
+   local— y era justo lo que rompía la credencial buena: ese endpoint devuelve una
+   página HTML de login cuando el token no trae scope `web`. Ver `auth.ts`.
+2. **Ningún cliente podía agendar en Querétaro.** El catálogo guarda «Queretaro» sin
+   acento y `SOQL LIKE` distingue el acento, así que el único taller con franjas
+   verificadas resultaba inexistente para quien escribiera bien. Resuelto plegando
+   acentos en `ZapataAgendaController`, que además devuelve el código canónico.
+3. **El agente adivinaba el modelo de la unidad.** Con eso, la compuerta de cobertura
+   del taller bloqueaba o dejaba pasar según lo inventado. Ahora se deriva del VIN
+   contra el `Asset` registrado y el planner tiene prohibido llenar `modeloCodigo`.
+4. **La correlación se perdía si el planner la escribía.** Sin mapeo declarativo llegó
+   a guardar la palabra literal `RoutableId` y hasta UUIDs inventados. Las entradas de
+   correlación vuelven a estar mapeadas a `@variables.RoutableId`; el detalle de las
+   dos alternativas cerradas está en `agente.ts`.
+5. **Una sesión de Agent API podía nacer inservible** y la visita se quedaba con una
+   conversación muerta. Ahora se descarta y se abre otra una vez.
+
+Además, cuatro defectos que nadie había mirado:
+
+- la ruta pública de conversación devolvía **los comentarios internos** del expediente
+  —los que Apex marca `IsPublished=false`, con Ids de Salesforce y huellas—;
+- `keepAliveTimeout` en los 5 s de fábrica provocaba **ECONNRESET intermitentes**;
+- la app **nunca cerraba las sesiones de Agentforce**. Se acumulaban y, pasadas unas
+  cuantas, la org empezaba a rechazar las nuevas con 400. Los reintentos lo tapaban.
+  Ahora hay `POST /publico/agente/cerrar` y el reintento del primer turno insiste
+  sobre la misma sesión con esperas crecientes en vez de quemar una por intento;
+- el saludo de apertura y las respuestas del agente viajaban **con el mismo nombre de
+  evento** (`Inform`), así que desde fuera no había forma de distinguir lo que el
+  agente contestó de lo que dijo al saludar. Ahora el saludo es `Bienvenida`.
+
+Los dos primeros con prueba de regresión en
+`tests/security/superficie-cliente.test.ts`.
+
+### Un fallo de guardrail que sólo aparece preguntándole al agente por su fuente
+
+Preguntado «¿de dónde sacaste eso y está verificado?» sin haber ejecutado antes la
+búsqueda, el agente improvisaba: *«proviene de los sistemas oficiales de postventa de
+Zapata … verificados por el equipo especializado»*. Es exactamente lo que su
+instrucción le prohíbe afirmar, y no aparecía en ninguna prueba que sólo mirara
+registros creados. Corregido en la v19 y fijado con la comprobación
+`conocimiento · no presume una verificación que no le consta`.
+
+## 0. Rotar la contraseña expuesta en el chat
+
+**Severidad: crítica e inmediata. Bloquea publicación y aceptación de producción.**
+
+El usuario informó que una contraseña apareció en el chat. No se copiará, repetirá,
+probará, guardará ni transformará en ningún archivo. Tampoco se usará para completar
+`.env` o un secret store.
+
+El dueño de la credencial debe:
+
+1. cambiarla inmediatamente en el proveedor de identidad autoritativo;
+2. revocar sesiones y tokens vigentes asociados, no sólo cambiar el texto de la contraseña;
+3. si se reutilizó en otro sistema, rotarla allí también con valores distintos;
+4. reautenticar Salesforce CLI y Chrome **después** de la rotación;
+5. revisar el chat, historial de terminal, logs y gestores de secretos para confirmar
+   que nadie la copió a otra superficie; si existe una copia, retirarla según la
+   política de la plataforma sin volver a pegar el valor;
+6. confirmar sólo «rotación y reautenticación completadas», nunca la contraseña nueva.
+
+Durante esta auditoría se usaron las sesiones OAuth de CLI y Chrome que ya estaban
+abiertas; la contraseña expuesta no se probó ni se usó. Por ello los Ids y resultados
+obtenidos demuestran efectos técnicos en la org, pero siguen siendo evidencia
+**provisional** hasta rotar la contraseña, revocar las sesiones y repetir los gates
+críticos con una sesión limpia. No se hizo publicación cloud.
+
+## 1. Credenciales locales y lifecycle de Agent API — RESUELTO
+
+**Estado al 7 de agosto de 2026: el criterio de salida se cumplió.**
+
+`npm run verificar:agent-api` termina en **VERDE** contra la org: obtiene token, abre
+sesión, manda un mensaje en streaming, manda uno síncrono y cierra confirmando
+`SessionEnded`. Evidencia sanitizada en `evidencia/01-agent-api/`.
+
+El par consumidor está custodiado sólo en `.env` local, que está en `.gitignore`. Lo
+que queda por hacer sigue siendo humano y de despliegue: inyectarlo en el almacén de
+secretos del hosting (§6), nunca versionarlo.
+
+Lo que sigue describe el estado histórico y las vías que se descartaron; se conserva
+porque explica por qué el diagnóstico costó tanto.
+
+### Hechos confirmados
+
+- La External Client App **`Torre Agentforce Zapata` ya existe y está activa**.
+- Tiene los cuatro scopes oficiales: `api`, `refresh_token/offline_access`,
+  `chatbot_api` y `sfap_api`.
+- Tiene habilitados client credentials y emisión JWT para usuarios nombrados.
+- Su usuario **Run As** es `EinsteinServiceAgent`, con API habilitada.
+- El token del Salesforce CLI sí ejecuta SOQL/REST contra la org.
+- Antes de crear la ECA, Agent API respondió HTTP 404 con cuerpo vacío con agent id
+  real, id distinto, token CLI, token inválido y sin header; TLS/DNS funcionaron. Es
+  evidencia histórica, no el resultado del flujo client credentials actual.
+
+La creación/configuración de la ECA **ya no es un bloqueo**. Falta custodiar sus
+credenciales fuera del chat y ejecutar el lifecycle completo. El 404 histórico no
+demostró una causa raíz única; si reaparece con un token de esta ECA, se debe revisar
+tipo/activación/licenciamiento del agente y escalar a Salesforce.
+
+El agente `Agente Postventa Zapata` **v10 está activo** y pasó la validación de
+activación. Esto elimina la versión del agente como bloqueo, pero no demuestra el
+lifecycle de Agent API sin un token emitido para la ECA.
+
+### Pasos humanos indispensables
+
+Basados en la guía oficial vigente:
+[Get Started with the Agent API](https://developer.salesforce.com/docs/ai/agentforce/guide/agent-api-get-started.html).
+
+1. Completar primero la rotación y reautenticación de §0.
+2. En **Configuración → External Client Apps → Torre Agentforce Zapata → Clave y
+   secreto de consumidor**, revelar el par sólo en la sesión reautenticada.
+3. Pegarlo localmente en `.env` o en el secret store aprobado como `SF_CLIENT_ID` y
+   `SF_CLIENT_SECRET`. No pegarlo en chat, ticket, evidencia, historial de terminal ni
+   repo.
+4. Ejecutar el lifecycle de Agent API y conservar únicamente evidencia sanitizada.
+
+La configuración no secreta de la ECA quedó recuperada al proyecto DX y pasó
+check-only (`0AfgK00000PdvHoSAJ`). La metadata global que contiene el consumer key se
+excluyó deliberadamente del repo; la reproducibilidad no justifica versionar una
+credencial.
+
+### Criterio de salida
+
+```bash
+npm run verificar:agent-api
+```
+
+Debe obtener token, abrir sesión, mandar un mensaje y cerrar la sesión. Sólo se puede
+marcar verde con respuesta exitosa y evidencia sanitizada; el contrato local o un
+servidor loopback no sustituyen esta prueba.
+
+## 2. OIDC corporativo implementado; faltan callback y scope externos
+
+**Severidad: bloqueante para publicar con identidad corporativa.**
+
+El BFF OIDC ya implementa Authorization Code + PKCE, validación RS256/JWKS,
+issuer/audience/nonce, sesión opaca, cookie `HttpOnly`/`Secure`/`SameSite=Lax`,
+Origin+CSRF, rotación y logout. El rol y los bindings se leen desde la org; el
+navegador no los elige. `APP_AUTH_PROVIDER=static` sólo funciona como QA explícito y
+no se consulta cuando el proveedor es `oidc`.
+
+Pasos humanos exactos antes del deploy:
+
+1. crear el servicio de hosting y copiar su origin HTTPS real en
+   `APP_EXTERNAL_ORIGIN`;
+2. registrar exactamente `<APP_EXTERNAL_ORIGIN>/auth/salesforce/callback` en la
+   External Client App y copiar esa URL en `APP_OIDC_CALLBACK_URL`;
+3. agregar el scope `openid` junto con `api`, `refresh_token`, `chatbot_api` y
+   `sfap_api`; no declarar el gate verde hasta confirmar la configuración externa;
+4. mantener `Torre_Agentforce_Admin` asignado sólo a Gabriel y asignar
+   `Torre_Agentforce_Asesor` únicamente a cada asesor autorizado;
+5. inyectar `SF_CLIENT_ID` y `SF_CLIENT_SECRET` en el secret store y ejecutar login,
+   `/auth/session`, refresh, logout y una operación RBAC contra el dominio publicado.
+
+El issuer real confirmado por discovery es
+`https://orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com`. El servidor falla al
+arrancar si faltan callback, origin, `openid`, mapeos o secretos; no cae a Bearer.
+
+## 3. Messaging for In-App and Web no existe
+
+**Severidad: media. No bloquea la alternativa `Case` + `CaseComment`.**
+
+La org tiene 0 `MessagingChannel` y 0 `EmbeddedServiceConfig`; además la acción
+La versión activa del agente usa la acción Apex `Crear_Escalamiento_Asesor`; la Torre
+usa la misma cola `Escalamiento_Postventa`, relee `Case`/`CaseComment` y correlaciona
+el log. Es una escritura **SF-O** en la Developer Edition, no Messaging y no evidencia
+de que un asesor real atendió.
+
+Habilitar Messaging sólo es indispensable si el alcance exige ese canal específico.
+En ese caso hacen falta canal, despliegue web, routing, presencia, permisos y licencia;
+no se deben crear como efecto colateral de esta app.
+
+## 4. El Permission Set de asesor aún no está asignado
+
+**Severidad: alta para auditoría de producción.**
+
+`Torre_Agentforce_Asesor` existe pero no tiene asignaciones. OIDC autentica individuos,
+pero nadie obtiene rol `asesor` hasta que un administrador asigne ese Permission Set.
+
+Después de asignarlo, el BFF podrá probar qué usuario abrió la sesión y qué rol tiene.
+Las escrituras CRM actuales siguen ejecutándose con la credencial de servicio, por lo
+que `CaseComment.CreatedById` será el usuario integrador. Si la auditoría exige que el
+autor Salesforce sea el asesor humano, esa escritura debe migrarse al access token
+named-user y validarse con permisos mínimos antes de retirar este bloqueo.
+
+## 5. Datos ausentes o sintéticos
+
+**Severidad: alta para cualquier afirmación de negocio.**
+
+| Dataset/campo | Clasificación | Consecuencia |
+|---|---|---|
+| `Asset`, cuentas, VIN, odómetros | **GEN** semilla | No representan flota ni clientes reales |
+| `Regla_Cobertura__c`, `Parametros_Garantia__c` | **GEN** | No son póliza real de Zapata |
+| `Sucursal__c` dirección/horario/teléfono | **WEB** | Observación pública con fecha; no confirmación interna |
+| `Modelo_Sucursal__c` y capacidad | **GEN/asumido** | No se conoce qué atiende ni cuántos cupos tiene cada taller |
+| `Slot_Taller__c` horario | **WEB+GEN**; al 7-ago-2026, 673 `SITIO_WEB_CAPACIDAD_ASUMIDA` y 56 `OPERACIONAL_VERIFICADO`, todas las verificadas en FL-QRO | Sólo Querétaro puede ofrecer cupo; los demás talleres devuelven `SLOTS_NO_VERIFICADOS`, que es la respuesta correcta |
+| `Capacidad_Total__c` | **GEN/asumido** | 3 entre semana y 2 sábado, sin fuente interna |
+| `Lectura_Odometro__c` | 1 registro **GEN** | No existe una serie histórica utilizable |
+| `Account.RFC__c`, `Ultimos_4_Telefono__c` | vacíos | No hay segundo factor para verificar unidad |
+| `Sesion_Diagnostico__c` | 0 filas | No hay historial de diagnóstico guiado |
+| `Asset` | 15/15 `SEED_SINTETICO_NO_VERIFICADO`; 14/15 con `Unidad_Verificada__c=true` desde una carga posterior | Ninguno puede presentarse como unidad real de un cliente, aunque la bandera de verificación esté puesta |
+| `Asset.Product2Id` | 6/15 reapuntados el 7-ago-2026 al modelo que indica su propio VIN | Corrige una contradicción interna de la semilla, no la vuelve real. Ver §7 |
+
+Los registros creados por Flows, incluidos `WorkOrder`, `Unidad_Varada__c`, `Case`,
+`CaseComment` y `Log_Agente__c`, sí son efectos **SF-O** reales en la org, pero sus
+escenarios y sujetos son sintéticos. Ver detalle campo por campo en
+`docs/DATOS-Y-PROVENIENCIA.md`.
+
+## 6. Despliegue production-grade incompleto
+
+**Severidad: alta. El contenedor es reproducible; la operación de producción no está lista.**
+
+Ya existen `Dockerfile`, `.dockerignore`, `render.yaml` y el runbook
+`docs/DESPLIEGUE.md`. Faltan estas salidas:
+
+- §1: credenciales ECA custodiadas y lifecycle verificado;
+- §2: aceptación o sustitución del proveedor de tokens estáticos;
+- `/api/admin/salud` con `ok=true`, consultado con rol admin;
+- decisión de una sola réplica o afinidad/estado compartido para sesiones en memoria;
+- métricas/alertas suficientes y prueba de rollback;
+- aprobación humana del plan de hosting y cualquier costo.
+
+La app debe tener egress HTTPS al My Domain y `api.salesforce.com`. `SF_LOGIN_URL`
+usa el My Domain, no `login.salesforce.com`. El proveedor `cli` es sólo local: la
+imagen de producción no lleva el Salesforce CLI.
+
+## 7. Cobertura por unidad: la contradicción del catálogo, resuelta a medias
+
+**Severidad: alta para la pantalla Cobertura. El defecto (2) se corrigió; el (1) sigue
+siendo una decisión de negocio y no se toca.**
+
+Hay dos defectos distintos:
+
+1. Las 36 reglas activas vienen del artículo sintético del equipo, versión
+   `v1.0-sintetica`; no son la póliza real de Zapata. **Sigue abierto**: cargar la
+   póliza confirmada es una decisión de negocio y legal, no de ingeniería.
+2. Los 15 Asset sintéticos apuntaban a `Tractocamion Clase 8 - Serie T680`, mientras
+   los talleres declaran cobertura de cuatro familias Freightliner. La intersección
+   era vacía, así que **ninguna unidad podía agendar en ningún taller**.
+   **Corregido el 7-ago-2026** con `scripts/corregir-semilla-modelos.mjs`: seis de
+   esas unidades tienen WMI Freightliner en su propio VIN (`1FUJ…`, `3AKJ…`), o sea
+   que la semilla se contradecía a sí misma, y se reapuntaron al modelo que su número
+   de serie indica. Las otras nueve —WMI Hino, Kenworth y Volvo— se dejaron intactas
+   a propósito: que un taller Freightliner responda `MODELO_NO_ATENDIDO` ante ellas es
+   una respuesta correcta y conviene poder demostrarla. Nada cambió de procedencia:
+   las quince siguen siendo `SEED_SINTETICO_NO_VERIFICADO`. Esto vuelve la semilla
+   coherente, no la vuelve real.
+
+La pantalla puede demostrar que el software detecta una contradicción de **modelo de
+demo** y un catálogo sin regla aplicable. No puede demostrar cobertura real de una
+unidad ni una contradicción de política real de Zapata.
+
+La salida correcta requiere dos decisiones humanas independientes:
+
+- reemplazar la semilla por una flota sintética coherente o por datos autorizados;
+- cargar pólizas confirmadas por negocio/legal, con versión y fuente citable.
+
+No se debe «arreglar» reapuntando unidades o inventando reglas sólo para poner la
+pantalla en verde. Hasta recibir ambos insumos, el estado debe permanecer
+`SIN_REGLA_PARA_EL_MODELO`/`REQUIERE_DATO` y mostrar la etiqueta **sintético**.
+
+---
+
+## 8. El par consumidor de la ECA — RESUELTO
+
+**Estado al 7 de agosto de 2026: la conversación y los cuatro subagentes funcionan.**
+
+El par consumidor está cargado y sirve. Y el diagnóstico de esta sección resultó
+equivocado en su conclusión principal: el problema no era sólo *tener* el secreto,
+sino que el servidor mandaba ese token por el camino del CLI. La Agent API lo acepta
+**directamente** en `Authorization: Bearer` — comprobado con HTTP 200 y `sessionId`
+real contra `api.salesforce.com`.
+
+Las cinco vías «descartadas» que se listan abajo siguen siendo ciertas como hechos,
+pero la conclusión que se sacó de ellas —«el secreto sólo se obtiene revelándolo en
+Setup, y sin él no hay conversación»— escondía que, una vez revelado, faltaba además
+dejar de canjearlo por un JWT que no le correspondía.
+
+Lo que sigue se conserva como registro de lo que se probó.
+
+### Estado
+
+La External Client App `Torre Agentforce Zapata` **está bien configurada**, verificado
+recuperando su metadata el 6 de agosto de 2026:
+
+| Ajuste | Valor en la org |
+|---|---|
+| `isClientCredentialsFlowEnabled` | `true` |
+| `clientCredentialsFlowUser` | `agente_postventa_zapata@…` |
+| `commaSeparatedOauthScopes` | `Api, RefreshToken, Chatbot, SFApiPlatform` |
+| `isConsumerSecretOptional` | `true` |
+| `ipRelaxationPolicyType` | `Enforce` |
+
+No falta configuración. Falta **el valor** de la clave y el secreto.
+
+### El par que se probó no es de esta app
+
+Comparando carácter por carácter contra el `consumerKey` recuperado de la org:
+**57 de 85 caracteres difieren**; sólo coinciden los primeros 27, que son el prefijo
+`3MVG9…` que comparten todas las claves de Salesforce. No es un error de tecleo: es la
+clave de otra aplicación o de otra org. El endpoint de token responde en consecuencia:
+
+```
+HTTP 400  {"error":"invalid_client_id","error_description":"client identifier invalid"}
+```
+
+### Cinco vías descartadas con evidencia
+
+Para que nadie repita el camino:
+
+1. **Token del CLI (`PlatformCLI`)** → `HTTP 404` con cuerpo vacío en la Agent API.
+   Reprobado el 6 de agosto, ya con la ECA creada: el gateway sigue sin enrutarlo.
+2. **Metadata de la ECA** → `ExtlClntAppGlobalOauthSettings` trae `consumerKey` pero
+   **no** `consumerSecret`. Salesforce no lo exporta.
+3. **Tooling API** → `ConnectedApplication` devuelve 0 filas y su describe no expone
+   ningún campo de credencial.
+4. **Flujo de código de autorización** → `isCodeCredFlowEnabled: false` en esta app.
+5. **JWT de usuario nombrado** → habilitado, pero exigiría subir un certificado a la
+   app; más pasos humanos que revelar el secreto.
+
+**Conclusión: el secreto sólo se obtiene revelándolo en Setup.** No hay ruta técnica
+que lo evite, y por política tampoco se transcribe en el chat, en un log ni en el repo.
+
+### El paso humano, exacto
+
+Confirmar arriba a la derecha que la org es `zapatacompany` —una clave de otra org da
+exactamente este error— y entrar a:
+
+**Configuración → Aplicaciones → Aplicaciones de cliente externas →
+`Torre Agentforce Zapata` → Configuración → API → Clave y secreto de consumidor →
+Revelar**
+
+```powershell
+$env:SF_CLIENT_ID     = "<clave revelada>"
+$env:SF_CLIENT_SECRET = "<secreto revelado>"
+npm run verificar:credencial     # compara contra la org sin imprimir los valores
+npm run sitio
+$env:CONFIRM_E2E_MUTACIONES = "1"
+npm run verificar:e2e            # ejercita los 4 subagentes y relee Salesforce
+```
+
+Si aparece un error distinto de `invalid_client_id`, el siguiente sospechoso es
+`ipRelaxationPolicyType: Enforce`: hay que relajar la restricción de IP en las
+políticas de la app.
+
+### Qué queda probado mientras tanto
+
+`npm run verificar:e2e` con el proveedor `cli` da **0 fallas** y 5 pasos bloqueados.
+Lo verde está releído de Salesforce, no supuesto:
+
+- sesión de cliente sin cuenta, con su folio de visita
+- 9 talleres reales del catálogo
+- escalamiento: Case `00001065`, origen `Agentforce`, cola *Escalamiento Postventa*
+- el folio de la visita **coincide** con el `Correlation_Id__c` del caso
+- 5 mensajes de contexto en el expediente del asesor
+- traza `LOG-00000172`, subagente Escalamiento, resultado SUCCESS
+
+Es decir: **la cadena de la web app a Zapata Postventa está probada.** Lo único sin
+ejercitar es la puerta conversacional.

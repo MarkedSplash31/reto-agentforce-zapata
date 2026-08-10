@@ -1,0 +1,89 @@
+{
+  "generatedAtUtc": "2026-08-06T00:18:40.2431472Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "Knowledge__kav",
+  "count": 20,
+  "records": [
+    {
+      "Id": "ka0gK000000wOLJQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLKQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLLQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLMQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLNQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLOQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLPQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLQQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLRQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLSQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLTQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLUQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLVQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLWQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLXQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLYQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLZQA2",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLaQAM",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLbQAM",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    },
+    {
+      "Id": "ka0gK000000wOLcQAM",
+      "Version_Politica__c": "v1.0-sintetica-no-verificada"
+    }
+  ]
+}

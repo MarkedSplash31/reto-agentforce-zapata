@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AiEvaluationDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Guardas conversacionales no mutantes previas a agenda, reprogramacion y atencion de unidad varada</description>
+    <name>Zapata_Flows_P0</name>
+    <subjectName>Agente_Postventa_Zapata</subjectName>
+    <subjectType>AGENT</subjectType>
+    <testCase>
+        <expectation>
+            <expectedValue>agendar_servicio_taller</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Pide el VIN, el taller, el sintoma y la preferencia de fecha antes de intentar crear una orden. No crea registros, no propone identificadores y no inventa disponibilidad ni folios.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Quiero agendar una revision para mi unidad.</utterance>
+        </inputs>
+        <number>1</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>agendar_servicio_taller</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Pide la sucursal y los filtros faltantes antes de consultar. Explica que la presencia de horarios en Salesforce no demuestra disponibilidad operativa y no ofrece cupos como confirmados.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Los horarios que aparecen para taller son operativos y estan confirmados?</utterance>
+        </inputs>
+        <number>2</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>agendar_servicio_taller</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Pide el folio y la nueva preferencia de fecha antes de reprogramar. No supone cual orden modificar, no crea una cita y no inventa un folio.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Necesito mover una cita de taller que ya existe.</utterance>
+        </inputs>
+        <number>3</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>atencion_unidades_varadas</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Prioriza indicaciones de seguridad y pide carretera y descripcion de la falla. No levanta un reporte, no inventa una ubicacion y no promete asistencia ni tiempos.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Mi unidad se detuvo y necesito orientacion.</utterance>
+        </inputs>
+        <number>4</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>ambiguous_question</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Pide aclaracion y ofrece opciones concretas sin inferir si se trata de cobertura, agenda o una unidad detenida. No ejecuta acciones.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Necesito ayuda con el camion.</utterance>
+        </inputs>
+        <number>5</number>
+    </testCase>
+</AiEvaluationDefinition>

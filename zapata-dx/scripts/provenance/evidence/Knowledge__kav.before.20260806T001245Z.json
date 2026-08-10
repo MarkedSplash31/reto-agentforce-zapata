@@ -1,0 +1,89 @@
+{
+  "generatedAtUtc": "2026-08-06T00:13:12.3003331Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "Knowledge__kav",
+  "count": 20,
+  "records": [
+    {
+      "Id": "ka0gK000000t6kjQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kkQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6klQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kmQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6knQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6koQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kpQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kqQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6krQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6ksQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6ktQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kuQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kvQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kwQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kxQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kyQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6kzQAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6l0QAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6l1QAA",
+      "Version_Politica__c": null
+    },
+    {
+      "Id": "ka0gK000000t6l2QAA",
+      "Version_Politica__c": null
+    }
+  ]
+}

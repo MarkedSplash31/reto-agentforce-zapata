@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Senales_De_Alerta__c</fullName>
+    <description>Condiciones ante las cuales el agente debe detener la guia y escalar de inmediato, aunque el autoservicio este permitido.</description>
+    <label>Senales de alerta</label>
+    <length>4000</length>
+    <visibleLines>5</visibleLines>
+    <type>LongTextArea</type>
+</CustomField>

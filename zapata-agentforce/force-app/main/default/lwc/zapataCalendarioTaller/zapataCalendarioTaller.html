@@ -1,0 +1,84 @@
+<template>
+    <lightning-card icon-name="standard:event">
+        <h1 slot="title" class="slds-card__header-title">Calendario de taller</h1>
+
+        <div slot="actions" class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
+            <div class="slds-col filtro">
+                <lightning-combobox
+                    label="Sucursal"
+                    variant="label-hidden"
+                    value={sucursalId}
+                    options={opcionesSucursal}
+                    onchange={cambiarSucursal}></lightning-combobox>
+            </div>
+            <div class="slds-col">
+                <lightning-button-group>
+                    <lightning-button label="Anterior" icon-name="utility:chevronleft"
+                        onclick={semanaAnterior}></lightning-button>
+                    <lightning-button label="Hoy" onclick={volverAHoy}
+                        disabled={esSemanaActual}></lightning-button>
+                    <lightning-button label="Siguiente" icon-name="utility:chevronright"
+                        icon-position="right" onclick={semanaSiguiente}></lightning-button>
+                </lightning-button-group>
+            </div>
+        </div>
+
+        <div class="slds-var-p-horizontal_medium">
+            <div class="slds-grid slds-grid_align-spread slds-var-m-bottom_small barra">
+                <span class="rango">{etiquetaRango}</span>
+                <span class="totales">
+                    {resumen.total} franjas · {resumen.disponibles} con cupo ·
+                    {resumen.cupos} cupos libres · {resumen.citas} citas
+                </span>
+            </div>
+
+            <template if:true={error}>
+                <div class="slds-text-color_error slds-var-p-vertical_small">{error}</div>
+            </template>
+
+            <template if:true={cargando}>
+                <lightning-spinner alternative-text="Cargando"></lightning-spinner>
+            </template>
+
+            <div class="rejilla">
+                <template for:each={dias} for:item="dia">
+                    <div key={dia.clave} class={dia.clase}>
+                        <div class={dia.claseCabecera}>
+                            <span class="dia-nombre">{dia.nombre}</span>
+                            <span class="dia-numero">{dia.numero}</span>
+                        </div>
+
+                        <template for:each={dia.slots} for:item="s">
+                            <div key={s.clave} class={s.clase} data-id={s.slotId}
+                                title={s.titulo} onclick={abrirSlot}>
+                                <div class="franja-hora">{s.hora}</div>
+                                <div class="franja-tipo">{s.tipoServicio}</div>
+                                <div class="franja-pie">
+                                    <span class="franja-sucursal">{s.sucursal}</span>
+                                    <span class="franja-cupos">{s.cupos}</span>
+                                </div>
+                            </div>
+                        </template>
+
+                        <template if:true={dia.vacio}>
+                            <div class="vacio">—</div>
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <template if:true={sinFranjas}>
+                <div class="aviso">
+                    No hay franjas de taller en esta semana.
+                    Se llenan cargando registros en <b>Slot de taller</b>.
+                </div>
+            </template>
+
+            <div class="leyenda">
+                <span class="punto punto-libre"></span> Con cupo
+                <span class="punto punto-casi"></span> Casi lleno
+                <span class="punto punto-lleno"></span> Sin cupo o taller inactivo
+            </div>
+        </div>
+    </lightning-card>
+</template>

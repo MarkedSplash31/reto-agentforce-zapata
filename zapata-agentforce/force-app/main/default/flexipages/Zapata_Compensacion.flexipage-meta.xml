@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FlexiPage xmlns="http://soap.sforce.com/2006/04/metadata">
+    <masterLabel>Compensacion y escalamiento</masterLabel>
+    <flexiPageRegions>
+        <name>main</name>
+        <type>Region</type>
+            <itemInstances>
+                <componentInstance>
+                    <componentInstanceProperties>
+                        <name>richTextValue</name>
+                        <value>&lt;h2&gt;Subagent de compensacion&lt;/h2&gt;&lt;p&gt;&lt;b&gt;Decide de forma autonoma que disposicion esta autorizada por politica.&lt;/b&gt;&lt;/p&gt;&lt;ul&gt;&lt;li&gt;Si lo que pide el usuario no esta autorizado, el agente lo dice y escala.&lt;/li&gt;&lt;li&gt;El escalamiento crea un caso con cola, prioridad y motivo.&lt;/li&gt;&lt;li&gt;Se registra la version de politica aplicada para poder auditarla despues.&lt;/li&gt;&lt;li&gt;Nunca promete compensaciones fuera de lo que la politica permite.&lt;/li&gt;&lt;/ul&gt;</value>
+                    </componentInstanceProperties>
+                    <componentName>flexipage:richText</componentName>
+                    <identifier>texto0</identifier>
+                </componentInstance>
+            </itemInstances>
+            <itemInstances>
+                <componentInstance>
+                    <componentInstanceProperties>
+                        <name>entityName</name>
+                        <value>Case</value>
+                    </componentInstanceProperties>
+                    <componentInstanceProperties>
+                        <name>filterName</name>
+                        <value>AllOpenCases</value>
+                    </componentInstanceProperties>
+                    <componentName>flexipage:filterListCard</componentName>
+                    <identifier>lista1</identifier>
+                </componentInstance>
+            </itemInstances>
+            <itemInstances>
+                <componentInstance>
+                    <componentInstanceProperties>
+                        <name>entityName</name>
+                        <value>Log_Agente__c</value>
+                    </componentInstanceProperties>
+                    <componentInstanceProperties>
+                        <name>filterName</name>
+                        <value>Todos</value>
+                    </componentInstanceProperties>
+                    <componentName>flexipage:filterListCard</componentName>
+                    <identifier>lista2</identifier>
+                </componentInstance>
+            </itemInstances>
+    </flexiPageRegions>
+    <template>
+        <name>flexipage:defaultAppHomeTemplate</name>
+    </template>
+    <type>AppPage</type>
+</FlexiPage>

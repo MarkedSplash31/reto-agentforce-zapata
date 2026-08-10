@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Odometer_Source__c</fullName>
+    <description>Origen del dato usado en la decision.</description>
+    <label>Fuente de odometro</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Declarado</fullName>
+                <default>false</default>
+                <label>Declarado</label>
+            </value>
+            <value>
+                <fullName>Verificado</fullName>
+                <default>false</default>
+                <label>Verificado</label>
+            </value>
+            <value>
+                <fullName>Seed</fullName>
+                <default>false</default>
+                <label>Seed</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Limites_Positivos</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(Meses_Limite__c &lt;= 0, Km_Limite__c &lt;= 0)</errorConditionFormula>
+    <errorDisplayField>Meses_Limite__c</errorDisplayField>
+    <errorMessage>Los limites de meses y kilometraje deben ser mayores que cero.</errorMessage>
+</ValidationRule>

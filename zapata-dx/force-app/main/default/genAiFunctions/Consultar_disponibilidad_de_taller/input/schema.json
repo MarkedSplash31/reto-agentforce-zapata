@@ -1,0 +1,49 @@
+{
+  "required" : [ "sucursal" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "diasAdelante" : {
+      "title" : "Dias hacia adelante",
+      "description" : "Cuantos dias buscar. Por omision 14",
+      "lightning:type" : "lightning__integerType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "modeloCodigo" : {
+      "title" : "Codigo del modelo",
+      "description" : "NO lo llenes. No puedes saber el modelo de una unidad y adivinarlo vuelve mentirosa la validacion de cobertura del taller. Manda el VIN y deja este campo vacio",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "vin" : {
+      "title" : "VIN de la unidad",
+      "description" : "VIN de 17 caracteres tal como lo dicto el cliente. Mandalo SIEMPRE que lo tengas: la accion deriva de ahi el modelo real de la unidad para validar si el taller lo atiende",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "sistema" : {
+      "title" : "Sistema reportado",
+      "description" : "Tren motriz, Cabina, Frenos, Refrigeracion o General",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "sucursal" : {
+      "title" : "Sucursal",
+      "description" : "Nombre o codigo del taller, por ejemplo FL-QRO o Queretaro",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "tipoServicio" : {
+      "title" : "Tipo de servicio",
+      "description" : "Diagnostico, Mantenimiento, Garantia o Reparacion mayor",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

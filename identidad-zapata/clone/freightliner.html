@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+<!--
+      CLON DE ANÁLISIS — Corporación Zapata (zapata.com.mx), generación 2026.
+      Generado por skills/zapata-design/scripts/clonar-pagina.py
+      Uso interno. No se despliega públicamente.
+
+      Diferencias deliberadas respecto al original, todas y las únicas:
+        - Sin GTM / GA4 / Google Ads / Meta / TikTok / Clarity / reCAPTCHA.
+        - csrf-token con valor placeholder (no hay backend Laravel; el nodo
+          se conserva porque el JS del sitio lo lee y borrarlo daría TypeError).
+        - Assets locales bajo ../assets/ en vez de /public/ del origen.
+        - Formularios sin action funcional.
+      Todo lo demás — CDN de Tailwind, Google Fonts, Font Awesome, CSS y JS
+      inline, marcado y texto — es idéntico al original.
+-->
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>Zapata Camiones</title>
+
+    <meta name="description"
+        content="Consulta el catálogo de camiones Freightliner disponibles en Zapata Camiones y solicita una cotización personalizada.">
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body { font-family: 'Inter', sans-serif; }
+        h1, h2, h3, .font-heading { font-family: 'Montserrat', sans-serif; }
+
+    </style>
+
+    
+    
+</head>
+
+<body class="bg-white text-slate-950">
+    
+    <!-- HEADER -->
+    <header class="sticky top-0 z-50 bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="h-16 sm:h-20 flex items-center justify-between gap-4">
+
+                
+                <a href="https://zapata.com.mx/freightliner" class="inline-flex items-center shrink-0" aria-label="Ir al inicio">
+                    <img src="../assets/public/images/logo-zapata.png" alt="Zapata Camiones"
+                        class="h-8 sm:h-10 w-auto invert">
+                </a>
+
+                
+                <nav class="hidden md:flex flex-1 items-center justify-center gap-8">
+                    <a href="https://zapata.com.mx/freightliner"
+                        class="text-xs font-bold uppercase tracking-widest transition-colors text-red-600">
+                        Inicio
+                    </a>
+                    <a href="https://zapata.com.mx/freightliner/catalogo"
+                        class="text-xs font-bold uppercase tracking-widest transition-colors text-slate-600 hover:text-red-600">
+                        Unidades
+                    </a>
+                    <a href="https://zapata.com.mx/camiones/cita-de-servicio/freightliner"
+                        class="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-red-600 transition-colors">
+                        Servicio
+                    </a>
+                    <a href="https://zapata.com.mx/freightliner/distribuidoras"
+                        class="text-xs font-bold uppercase tracking-widest text-slate-600 hover:text-red-600 transition-colors">
+                        Agencias
+                    </a>
+                </nav>
+
+                
+                <div class="flex items-center gap-3 shrink-0">
+                                            <a href="https://zapata.com.mx/freightliner/catalogo"
+                            class="hidden sm:inline-flex items-center justify-center px-5 py-2.5 text-xs font-bold tracking-wider uppercase bg-zinc-900 text-white hover:bg-red-600 transition-colors duration-300">
+                            Explorar Unidades
+                            <i class="fa-solid fa-arrow-right ml-2 text-[10px]"></i>
+                        </a>
+                    
+                    
+                    <button id="fl-menu-toggle" type="button"
+                        class="md:hidden flex flex-col items-center justify-center w-10 h-10 gap-1.5 rounded-lg hover:bg-slate-100 transition-colors"
+                        aria-label="Abrir menú" aria-expanded="false">
+                        <span class="block w-5 h-0.5 bg-slate-800 transition-all duration-300"></span>
+                        <span class="block w-5 h-0.5 bg-slate-800 transition-all duration-300"></span>
+                        <span class="block w-5 h-0.5 bg-slate-800 transition-all duration-300"></span>
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    
+    <div id="fl-overlay"
+        class="fixed inset-0 z-40 bg-black/50 backdrop-blur-sm opacity-0 pointer-events-none transition-opacity duration-300 md:hidden">
+    </div>
+
+    
+    <aside id="fl-drawer"
+        class="fixed top-0 right-0 z-50 h-full w-72 bg-zinc-950 text-white flex flex-col translate-x-full transition-transform duration-300 ease-in-out md:hidden">
+
+        
+        <div class="flex items-center justify-between px-6 py-5 border-b border-white/10">
+            <img src="../assets/public/images/logo-zapata.png" alt="Zapata Camiones" class="h-7 w-auto">
+            <button id="fl-menu-close" type="button"
+                class="flex items-center justify-center w-8 h-8 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors"
+                aria-label="Cerrar menú">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+        </div>
+
+        
+        <nav class="flex-1 px-4 py-6 space-y-1 overflow-y-auto">
+            <a href="https://zapata.com.mx/freightliner"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-widest transition-colors
+                    bg-red-600 text-white">
+                <i class="fa-solid fa-house w-4 text-center text-white"></i>
+                Inicio
+            </a>
+
+            <a href="https://zapata.com.mx/freightliner/catalogo"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-widest transition-colors
+                    text-slate-300 hover:bg-white/10 hover:text-white">
+                <i class="fa-solid fa-truck w-4 text-center text-slate-500"></i>
+                Unidades
+            </a>
+
+            <a href="https://zapata.com.mx/camiones/cita-de-servicio/freightliner"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-widest text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                <i class="fa-solid fa-wrench w-4 text-center text-slate-500"></i>
+                Servicio
+            </a>
+
+            <a href="https://zapata.com.mx/freightliner/distribuidoras"
+                class="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-bold uppercase tracking-widest text-slate-300 hover:bg-white/10 hover:text-white transition-colors">
+                <i class="fa-solid fa-location-dot w-4 text-center text-slate-500"></i>
+                Agencias
+            </a>
+        </nav>
+
+        
+                <div class="px-4 pb-8 pt-4 border-t border-white/10">
+            <a href="https://zapata.com.mx/freightliner/catalogo"
+                class="flex items-center justify-center gap-2 w-full px-5 py-3.5 bg-zinc-900 text-white text-xs font-black uppercase tracking-widest hover:bg-red-700 transition-colors">
+                Explorar Unidades
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+            </a>
+        </div>
+            </aside>
+
+    <script>
+        (function () {
+            const toggle   = document.getElementById('fl-menu-toggle');
+            const close    = document.getElementById('fl-menu-close');
+            const drawer   = document.getElementById('fl-drawer');
+            const overlay  = document.getElementById('fl-overlay');
+
+            function open() {
+                drawer.classList.remove('translate-x-full');
+                overlay.classList.remove('opacity-0', 'pointer-events-none');
+                overlay.classList.add('opacity-100');
+                toggle.setAttribute('aria-expanded', 'true');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeMenu() {
+                drawer.classList.add('translate-x-full');
+                overlay.classList.add('opacity-0', 'pointer-events-none');
+                overlay.classList.remove('opacity-100');
+                toggle.setAttribute('aria-expanded', 'false');
+                document.body.style.overflow = '';
+            }
+
+            toggle.addEventListener('click', open);
+            close.addEventListener('click', closeMenu);
+            overlay.addEventListener('click', closeMenu);
+        })();
+    </script>
+
+        <section class="relative bg-zinc-950 text-white overflow-hidden min-h-[85vh] flex items-center">
+        <div class="absolute inset-0 z-0">
+            <img src="https://admin.freightliner.com.mx/images/3b6ddd95-3592-4ab7-b265-d78b883d1551.png?auto=format&fit=crop&q=80&w=1920"
+                alt="Freightliner Highway" class="w-full h-full object-cover object-center opacity-40">
+            <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-900/80 to-transparent"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 w-full">
+            <div class="max-w-2xl lg:max-w-3xl">
+                <span
+                    class="inline-flex items-center gap-2 px-3 py-1 bg-red-600/10 border border-red-600/30 text-red-500 text-xs font-bold tracking-widest uppercase mb-6 rounded-none">
+                    <span class="w-1.5 h-1.5 bg-red-600 rounded-full animate-pulse"></span> Líderes en Transporte de Carga
+                </span>
+                <h1 class="text-4xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight leading-none mb-6">
+                    POTENCIA PARA <br><span
+                        class="text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">MOVER TU
+                        NEGOCIO</span>
+                </h1>
+                <p class="text-base sm:text-lg text-gray-300 mb-10 max-w-xl font-light leading-relaxed">
+                    Descubre la alineación de tractocamiones y camiones Freightliner. Tecnología de punta, máxima eficiencia
+                    de combustible y el respaldo de infraestructura más robusto de México con Corporación Zapata.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="https://zapata.com.mx/freightliner/catalogo"
+                        class="inline-flex items-center justify-center px-8 py-4 text-xs font-bold tracking-widest uppercase bg-white text-zinc-950 hover:bg-red-600 hover:text-white transition-all duration-300 rounded-none">
+                        Explorar Modelos
+                    </a>
+                    <a href="https://zapata.com.mx/freightliner/cita-de-servicio/freightliner"
+                        class="inline-flex items-center justify-center px-8 py-4 text-xs font-bold tracking-widest uppercase border border-gray-600 text-white hover:bg-white/10 transition-all duration-300 rounded-none">
+                        Agendar Cita de Servicio
+                    </a>
+                </div>
+            </div>
+        </div>
+
+
+    </section>
+
+    <section id="modelos" class="py-24 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+
+            <!-- Encabezado -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
+                <div>
+                    <p class="text-xs font-bold tracking-widest text-red-600 uppercase mb-2">
+                        Unidades destacadas
+                    </p>
+
+                    <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight text-slate-950">
+                        Encuentra el camión para tu operación
+                    </h2>
+                </div>
+
+                <p class="mt-5 md:mt-0 text-sm text-slate-500 max-w-md">
+                    Conoce algunas de nuestras configuraciones Freightliner y
+                    encuentra la solución adecuada para las necesidades de tu negocio.
+                </p>
+            </div>
+
+            <!-- Grid de unidades -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <!-- FL 360 -->
+                <article
+                    class="group bg-white border border-slate-200 hover:border-zinc-900 transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col">
+                    <div class="relative h-[19rem] overflow-hidden bg-slate-100">
+                        <img src="../assets/public/images/Propuesta_Camiones_Seminuevos/card_camiones/nuevas/FL_-360.jpg"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            alt="Freightliner FL 360" loading="lazy">
+
+
+                    </div>
+
+                    <div class="p-6 flex flex-col flex-1">
+                        <p class="text-xs font-bold uppercase tracking-widest text-red-600 mb-2">
+                            Freightliner
+                        </p>
+
+                        <h3 class="text-xl font-black uppercase tracking-tight text-slate-950 mb-3">
+                            FL 360
+                        </h3>
+
+                        <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                            Camión eficiente y versátil para reparto urbano y operaciones de carga ligera.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3 mt-auto">
+                            <a href="#contacto"
+                                class="inline-flex items-center justify-center px-4 py-3 bg-zinc-950 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">
+                                Cotizar
+                            </a>
+
+                            <a href="https://zapata.com.mx/freightliner/unidad/fl-360"
+                                class="inline-flex items-center justify-center px-4 py-3 border border-slate-300 text-slate-950 text-[11px] font-bold uppercase tracking-widest hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all">
+                                Detalles
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- M2 35K -->
+                <article
+                    class="group bg-white border border-slate-200 hover:border-zinc-900 transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col">
+                    <div class="relative h-[19rem] overflow-hidden bg-slate-100">
+                        <img src="../assets/public/images/freightliner/m2-35k.jpg"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            alt="Freightliner M2 35K" loading="lazy">
+
+
+                    </div>
+
+                    <div class="p-6 flex flex-col flex-1">
+                        <p class="text-xs font-bold uppercase tracking-widest text-red-600 mb-2">
+                            Freightliner
+                        </p>
+
+                        <h3 class="text-xl font-black uppercase tracking-tight text-slate-950 mb-3">
+                            M2 35K
+                        </h3>
+
+                        <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                            Capacidad y desempeño para rutas regionales y operaciones comerciales exigentes.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3 mt-auto">
+                            <a href="#contacto"
+                                class="inline-flex items-center justify-center px-4 py-3 bg-zinc-950 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">
+                                Cotizar
+                            </a>
+
+                            <a href="https://zapata.com.mx/freightliner/unidad/m2-35k"
+                                class="inline-flex items-center justify-center px-4 py-3 border border-slate-300 text-slate-950 text-[11px] font-bold uppercase tracking-widest hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all">
+                                Detalles
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- 114SD -->
+                <article
+                    class="group bg-white border border-slate-200 hover:border-zinc-900 transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col">
+                    <div class="relative h-[19rem] overflow-hidden bg-slate-100">
+                        <img src="../assets/public/images/freightliner/114sd.jpg"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            alt="Freightliner 114SD" loading="lazy">
+
+                    </div>
+
+                    <div class="p-6 flex flex-col flex-1">
+                        <p class="text-xs font-bold uppercase tracking-widest text-red-600 mb-2">
+                            Freightliner
+                        </p>
+
+                        <h3 class="text-xl font-black uppercase tracking-tight text-slate-950 mb-3">
+                            114SD
+                        </h3>
+
+                        <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                            Unidad vocacional de alto desempeño para aplicaciones de trabajo severo.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3 mt-auto">
+                            <a href="#contacto"
+                                class="inline-flex items-center justify-center px-4 py-3 bg-zinc-950 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">
+                                Cotizar
+                            </a>
+
+                            <a href="https://zapata.com.mx/freightliner/unidad/114sd"
+                                class="inline-flex items-center justify-center px-4 py-3 border border-slate-300 text-slate-950 text-[11px] font-bold uppercase tracking-widest hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all">
+                                Detalles
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Cascadia -->
+                <article
+                    class="group bg-white border border-slate-200 hover:border-zinc-900 transition-all duration-300 shadow-sm hover:shadow-xl flex flex-col">
+                    <div class="relative h-[19rem] overflow-hidden bg-slate-100">
+                        <img src="../assets/public/images/freightliner/cascadia.jpg"
+                            class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            alt="Freightliner Cascadia" loading="lazy">
+
+
+                    </div>
+
+                    <div class="p-6 flex flex-col flex-1">
+                        <p class="text-xs font-bold uppercase tracking-widest text-red-600 mb-2">
+                            Freightliner
+                        </p>
+
+                        <h3 class="text-xl font-black uppercase tracking-tight text-slate-950 mb-3">
+                            Cascadia
+                        </h3>
+
+                        <p class="text-sm text-slate-500 leading-relaxed mb-6">
+                            Tractocamión diseñado para maximizar eficiencia, seguridad y productividad.
+                        </p>
+
+                        <div class="grid grid-cols-2 gap-3 mt-auto">
+                            <a href="#contacto"
+                                class="inline-flex items-center justify-center px-4 py-3 bg-zinc-950 text-white text-[11px] font-bold uppercase tracking-widest hover:bg-red-600 transition-all">
+                                Cotizar
+                            </a>
+
+                            <a href="https://zapata.com.mx/freightliner/unidad/cascadia"
+                                class="inline-flex items-center justify-center px-4 py-3 border border-slate-300 text-slate-950 text-[11px] font-bold uppercase tracking-widest hover:border-zinc-950 hover:bg-zinc-950 hover:text-white transition-all">
+                                Detalles
+                            </a>
+                        </div>
+                    </div>
+                </article>
+
+            </div>
+
+
+            <div class="mt-12 flex justify-center">
+                <a href="https://zapata.com.mx/freightliner/catalogo"
+                    class="inline-flex items-center justify-center
+                  px-8 py-4
+                  bg-zinc-800 text-white
+                  text-xs font-bold uppercase tracking-widest
+                  hover:bg-black
+                  transition-all duration-300
+                  hover:-translate-y-0.5">
+                    Ver todas las unidades
+                    <i class="fa-solid fa-arrow-right ml-3"></i>
+                </a>
+            </div>
+
+        </div>
+    </section>
+
+    <section id="servicios" class="py-24 bg-zinc-900 text-white relative overflow-hidden">
+        <div class="absolute right-0 top-0 bottom-0 w-1/3 bg-zinc-800/40 skew-x-12 translate-x-20 hidden lg:block"></div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mb-16">
+                <p class="text-xs font-bold tracking-widest text-red-500 uppercase mb-2">Ecosistema Postventa</p>
+                <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight">Tu negocio no puede detenerse. Nosotros
+                    tampoco.</h2>
+                <p class="text-gray-400 mt-4 text-sm font-light max-w-xl">
+                    Nuestro servicio postventa mantiene tu flota en movimiento con mantenimiento certificado, refacciones
+                    originales y atención especializada cuando más lo necesitas.
+                </p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div class="border-l-2 border-red-600 pl-6 py-2">
+                    <div class="text-zinc-500 font-mono text-xs mb-3">01 / TALLER CERTIFICADO</div>
+                    <h3 class="text-lg font-bold uppercase tracking-tight mb-2">Citas de Servicio</h3>
+                    <p class="text-xs text-gray-400 font-light leading-relaxed">Mantenimientos preventivos y correctivos
+                        ejecutados por ingenieros y mecánicos certificados.</p>
+                </div>
+                <div id="refacciones" class="border-l-2 border-red-600 pl-6 py-2">
+                    <div class="text-zinc-500 font-mono text-xs mb-3">02 / REFACCIONES ORIGINALES</div>
+                    <h3 class="text-lg font-bold uppercase tracking-tight mb-2">Refacciones</h3>
+                    <p class="text-xs text-gray-400 font-light leading-relaxed">Disponemos de componentes genuinos que
+                        garantizan el correcto funcionamiento de tu unidad y ayudan a reducir tiempos de inactividad.</p>
+                </div>
+                <div class="border-l-2 border-red-600 pl-6 py-2">
+                    <div class="text-zinc-500 font-mono text-xs mb-3">03 / RESCATE EN CARRETERA</div>
+                    <h3 class="text-lg font-bold uppercase tracking-tight mb-2">Soporte 24/7</h3>
+                    <p class="text-xs text-gray-400 font-light leading-relaxed">Unidades de taller móvil listas para
+                        atender eventualidades mecánicas críticas donde tu flota más lo necesite.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="sucursales" class="py-24 bg-gray-100">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white border border-gray-200 shadow-sm p-10 lg:p-16 text-center">
+
+                <p class="text-xs font-bold tracking-widest text-red-600 uppercase mb-3">
+                    Cobertura Nacional
+                </p>
+
+                <h2 class="text-3xl sm:text-4xl font-black uppercase tracking-tight text-zinc-950">
+                    Encuentra tu Agencia Zapata Camiones
+                </h2>
+
+                <p class="mt-6 max-w-3xl mx-auto text-gray-600 leading-relaxed">
+                    Contamos con una amplia red de agencias estratégicamente ubicadas para brindarte
+                    atención comercial, servicio especializado y el respaldo que tu operación necesita.
+                    Encuentra la sucursal más cercana y conoce todos nuestros servicios.
+                </p>
+
+                <div class="mt-10 flex justify-center">
+                    <a href="https://zapata.com.mx/freightliner/distribuidoras"
+                        class="inline-flex items-center px-8 py-4
+              bg-zinc-800 hover:bg-black
+              text-white
+              text-sm font-bold uppercase tracking-wider
+              transition-all duration-300
+              hover:-translate-y-0.5">
+                        Conocer Agencias
+                        <i class="fa-solid fa-arrow-right ml-3"></i>
+                    </a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-black border-t border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+
+                <div>
+                    <p class="text-white font-black uppercase tracking-tight">
+                        <img src="../assets/public/images/freightliner/logo.png" alt="logo_footer" class="h-10">
+                    </p>
+
+                    <p class="mt-2 text-xs text-slate-500">
+                        Soluciones Freightliner para tu operación.
+                    </p>
+                </div>
+
+                <div class="flex flex-wrap gap-6">
+                    <a href="https://zapata.com.mx/aviso-de-privacidad" class="text-xs text-slate-400 hover:text-white transition-colors">
+                        Aviso de privacidad
+                    </a>
+
+                    <a href="https://zapata.com.mx/freightliner/distribuidoras" class="text-xs text-slate-400 hover:text-white transition-colors">
+                        Agencias
+                    </a>
+
+                    <a href="#contacto" class="text-xs text-slate-400 hover:text-white transition-colors">
+                        Contacto
+                    </a>
+                </div>
+
+            </div>
+
+        </div>
+    </footer>
+
+    
+</body>
+
+</html>

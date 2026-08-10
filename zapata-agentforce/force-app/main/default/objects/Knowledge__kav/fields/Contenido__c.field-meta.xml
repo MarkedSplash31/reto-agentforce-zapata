@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Contenido__c</fullName>
+    <description>Cuerpo completo del articulo de conocimiento. Usado por la accion Answer Questions with Knowledge para fundamentar respuestas del agente.</description>
+    <label>Contenido</label>
+    <length>32768</length>
+    <type>Html</type>
+    <visibleLines>25</visibleLines>
+</CustomField>

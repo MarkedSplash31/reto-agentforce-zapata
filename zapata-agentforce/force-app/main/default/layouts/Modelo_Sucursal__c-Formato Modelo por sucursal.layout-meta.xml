@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Layout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <layoutSections>
+            <customLabel>true</customLabel>
+            <detailHeading>true</detailHeading>
+            <editHeading>true</editHeading>
+            <label>Que atiende este taller</label>
+            <layoutColumns>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Sucursal__c</field>
+                </layoutItems>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Modelo__c</field>
+                </layoutItems>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Sistemas_Soportados__c</field>
+                </layoutItems>
+            </layoutColumns>
+            <layoutColumns>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Nivel_Servicio__c</field>
+                </layoutItems>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Capacidad_Diaria__c</field>
+                </layoutItems>
+                <layoutItems>
+                    <behavior>Edit</behavior>
+                    <field>Activo__c</field>
+                </layoutItems>
+            </layoutColumns>
+            <style>TwoColumnsTopToBottom</style>
+        </layoutSections>
+    <showEmailCheckbox>false</showEmailCheckbox>
+    <showHighlightsPanel>false</showHighlightsPanel>
+    <showInteractionLogPanel>false</showInteractionLogPanel>
+    <showRunAssignmentRulesCheckbox>false</showRunAssignmentRulesCheckbox>
+    <showSubmitAndAttachButton>false</showSubmitAndAttachButton>
+</Layout>

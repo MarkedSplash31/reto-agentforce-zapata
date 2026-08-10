@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AiEvaluationDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>PRUEBA_TECNICA_AUTORIZADA mutante y sin PII: verifica Case, CaseComment y Log_Agente__c correlacionados</description>
+    <name>Zapata_Diag_Escala</name>
+    <subjectName>Agente_Postventa_Zapata</subjectName>
+    <subjectType>AGENT</subjectType>
+    <testCase>
+        <expectation>
+            <expectedValue>escalamiento_asesor_humano</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[&apos;Crear_Escalamiento_Asesor&apos;]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Conserva la etiqueta PRUEBA_TECNICA_AUTORIZADA en el motivo, registra el Case y comunica exclusivamente el numero devuelto por la accion. Indica que quedo en la cola de postventa y no afirma una transferencia en vivo ni agrega hechos de cliente.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>PRUEBA_TECNICA_AUTORIZADA sin PII: solicito escalar con un asesor humano y autorizo registrar el Case para verificar Case, CaseComment y Log_Agente__c correlacionados. No corresponde a una inconformidad de cliente.</utterance>
+        </inputs>
+        <number>1</number>
+    </testCase>
+</AiEvaluationDefinition>

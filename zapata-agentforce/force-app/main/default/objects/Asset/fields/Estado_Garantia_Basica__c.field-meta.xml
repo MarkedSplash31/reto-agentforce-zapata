@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado_Garantia_Basica__c</fullName>
+    <description>TAMIZAJE consultable, no veredicto. Ocho estados que combinan si la unidad esta dentro del periodo general Y con cuanta confianza se puede afirmar. Sirve para reportes y campanas proactivas sin que nadie hable con el agente. El veredicto por sistema sale de Cobertura_Citable__c. Los umbrales se editan en Parametros de garantia.</description>
+    <label>Estado de garantia basica</label>
+    <formula>IF( AND(ISBLANK(InstallDate), ISBLANK(Ultimo_Odometro_Verificado__c)), "SIN_DATOS", IF( ISBLANK(InstallDate), "FALTA_FECHA_ENTREGA", IF( Meses_Desde_Instalacion__c &gt; $Setup.Parametros_Garantia__c.Meses_Base__c, "VENCIDA_POR_TIEMPO", IF( ($Setup.Parametros_Garantia__c.Meses_Base__c - Meses_Desde_Instalacion__c) &lt;= 1, "CERCA_DEL_LIMITE", IF( ISBLANK(Ultimo_Odometro_Verificado__c), "FALTA_ODOMETRO", IF( Ultimo_Odometro_Verificado__c &gt; $Setup.Parametros_Garantia__c.Km_Base__c, "VENCIDA_POR_KM", IF( ($Setup.Parametros_Garantia__c.Km_Base__c - Ultimo_Odometro_Verificado__c) &lt;= ($Setup.Parametros_Garantia__c.Km_Base__c * $Setup.Parametros_Garantia__c.Margen_Cerca_Limite_Pct__c / 100), "CERCA_DEL_LIMITE", IF( NOT(Dato_Odometro_Vigente__c), "VIGENTE_DATO_VIEJO", "VIGENTE" ))))))))</formula>
+    <formulaTreatBlanksAs>BlankAsBlank</formulaTreatBlanksAs>
+    <type>Text</type>
+</CustomField>

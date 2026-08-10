@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>Slot_Taller__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <description>Ocupacion real de las franjas de taller.</description>
+    <label>Zapata - Agenda de taller</label>
+    <sections>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Name</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Inicio__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Fin__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Tipo_Servicio__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Capacidad_Total__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Capacidad_Usada__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Cupos_Libres__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Disponible__c</field>
+                <table>Slot_Taller__c</table>
+            </columns>
+        <masterLabel>Zapata - Agenda de taller</masterLabel>
+    </sections>
+</ReportType>

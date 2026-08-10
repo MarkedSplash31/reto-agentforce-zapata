@@ -1,0 +1,45 @@
+.about-features .content h5:after {
+    background-color: #000;
+}
+.about-features .content h1 span {
+    color: #091426b3;
+}
+.welcome-feature-section.style-2 {
+    margin-bottom: 1px;
+    background-color: #fafafa;
+}
+.welcome-feature-section.style-2 .section-title h2:after {
+    background-color: #000;
+    height: 220%;
+}
+.welcome-feature-section.style-2 .section-title p {
+    margin-top: 0px;
+}
+.section-title h2 span {
+    color: #091426b3;
+}
+.about-features .content h1 {
+    padding-top: 23px;
+}
+strong{
+    color: #000!important;
+}
+.shop-product-row{
+    padding-top: 40px;
+    margin-bottom: 93px;
+}
+.nav-link:focus, .nav-link:hover {
+    color: #000;
+}
+.datos{
+    background-color: #fafafa;
+}
+.accordion-box{
+    padding-top: 50px;
+}
+.zapata-link{
+    color: #000;
+}
+.zapata-link:hover{
+    color: blue;
+}

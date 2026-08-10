@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExternalClientApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>gabrielvaladezgomez47@gmail.com</contactEmail>
+    <description>Integración servidor a servidor de Torre Agentforce Zapata con Agent API para el Agente Postventa Zapata.</description>
+    <distributionState>Local</distributionState>
+    <isProtected>false</isProtected>
+    <label>Torre Agentforce Zapata</label>
+    <orgScopedExternalApp>00DgK00000VXSyC:Torre_Agentforce_Zapata</orgScopedExternalApp>
+</ExternalClientApplication>

@@ -1,0 +1,102 @@
+# Blueprint para un repositorio dedicado cuya raiz es `torre-agentforce/`.
+# No crea recursos hasta que un humano lo conecte en Render. El autodespliegue
+# queda apagado para que cada release y su costo se aprueben expresamente.
+services:
+  - type: web
+    name: torre-agentforce
+    runtime: docker
+    plan: starter
+    region: oregon
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    # Sesiones Agent API, sequenceId, ownership y rate limits siguen en memoria.
+    # Una segunda replica no compartiria ese estado; escalar exige un store durable.
+    numInstances: 1
+    autoDeployTrigger: "off"
+    # Liveness sin secretos. La readiness autenticada sigue en /api/admin/salud
+    # y se valida como gate separado tras el deploy.
+    healthCheckPath: /salud
+    maxShutdownDelaySeconds: 30
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: APP_ENV
+        value: production
+      - key: APP_AUTH_PROVIDER
+        value: oidc
+      - key: APP_AUTH_MODE
+        value: required
+      - key: APP_BUILD_ID
+        sync: false
+      # Se completa con el origin HTTPS que Render entregue. Debe coincidir con
+      # el callback registrado en la External Client App; nunca se versiona una
+      # URL especulativa.
+      - key: APP_EXTERNAL_ORIGIN
+        sync: false
+      - key: APP_OIDC_CALLBACK_URL
+        sync: false
+      - key: APP_OIDC_ADMIN_PERMISSION_SETS
+        value: Torre_Agentforce_Admin
+      - key: APP_OIDC_ADVISOR_PERMISSION_SETS
+        value: Torre_Agentforce_Asesor
+      - key: APP_OIDC_SESSION_TTL_MS
+        value: "28800000"
+      - key: APP_OIDC_AUTH_TTL_MS
+        value: "300000"
+      - key: APP_OIDC_MAX_SESSIONS
+        value: "10000"
+      - key: APP_OIDC_MAX_AUTH_ATTEMPTS
+        value: "2000"
+      # Render inyecta RENDER=true y RENDER_EXTERNAL_URL. El backend valida ese
+      # origin HTTPS exacto para same-origin aun cuando el balanceador termine TLS.
+      # Un dominio personalizado se captura como origin exacto en el Dashboard;
+      # `sync: false` evita que un resync lo sustituya por un valor versionado.
+      - key: APP_CORS_ORIGINS
+        sync: false
+      # Vacío por diseño: no confiar en X-Forwarded-For hasta adoptar el contrato
+      # de proxy del host. Antes de escalar, mover el rate limit a un store durable.
+      - key: APP_TRUST_PROXY
+        value: ""
+      - key: APP_RATE_LIMIT_WINDOW_MS
+        value: "60000"
+      - key: APP_RATE_LIMIT_MAX
+        value: "120"
+      - key: APP_AUTH_RATE_LIMIT_MAX
+        value: "20"
+      - key: APP_BODY_LIMIT_BYTES
+        value: "65536"
+      - key: APP_REQUEST_TIMEOUT_MS
+        value: "30000"
+      - key: APP_SHUTDOWN_TIMEOUT_MS
+        value: "10000"
+      - key: SF_REQUEST_TIMEOUT_MS
+        value: "20000"
+      - key: AGENT_API_TIMEOUT_MS
+        value: "30000"
+      - key: SF_TOKEN_PROVIDER
+        value: client_credentials
+      - key: SF_LOGIN_URL
+        value: https://orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com
+      - key: SF_API_VERSION
+        value: v67.0
+      - key: SF_OIDC_ALLOWED_HOSTS
+        value: orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com
+      # Issuer exacto confirmado por discovery real del My Domain.
+      - key: SF_OIDC_EXPECTED_ISSUERS
+        value: https://orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com
+      # Sólo activar el deploy después de agregar `openid` y el callback exacto
+      # en la ECA. El servidor valida que `openid` esté presente.
+      - key: SF_OIDC_SCOPES
+        value: openid,api,refresh_token,chatbot_api,sfap_api
+      - key: SF_CLIENT_ID
+        sync: false
+      - key: SF_CLIENT_SECRET
+        sync: false
+      - key: SF_AGENT_ID
+        value: 0XxgK0000022RhJSAU
+      - key: SF_AGENT_API_HOST
+        value: https://api.salesforce.com
+      - key: SF_COLA_ESCALAMIENTO_ID
+        value: 00GgK00000BMTaVUAX
+      - key: SF_CASE_QUEUE_ID
+        value: 00GgK00000BMTaVUAX

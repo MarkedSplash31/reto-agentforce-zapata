@@ -1,0 +1,202 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Corredor carretero al amanecer con nodos de la red de servicio">
+<title>Corredor carretero con nodos de la red de servicio</title>
+<!--
+  Fondo de hero GENERADO. Segunda versión, calibrada por medición.
+
+  La primera fue un error instructivo: dibujé una escena oscura y bonita, pero
+  el hero de Zapata aplica `opacity:.4` + `brightness(.75)` sobre la imagen —
+  un factor de ~0.30. Una fuente ya oscura se convierte en negro.
+
+    Zapata, banda del hero:  luminancia media 42.5 · 8.9% casi-negro
+    versión 1 (esta imagen): luminancia media 17.6 · 97.1% casi-negro
+
+  La lección va a la skill: un asset para el hero de Zapata no se diseña para
+  verse bien solo, se diseña para verse bien DESPUÉS del tratamiento. Su foto
+  es de día justamente por eso. Objetivo de fábrica: ~116 de luminancia media,
+  que tras el 0.30 y el compuesto sobre #0b0c10 aterriza cerca de 42.
+
+  De ahí que esto sea un amanecer, no una noche.
+-->
+<defs>
+  <linearGradient id="cielo" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#8b95a5"/>
+    <stop offset="34%"  stop-color="#6f7c90"/>
+    <stop offset="56%"  stop-color="#586477"/>
+    <stop offset="72%"  stop-color="#3f4757"/>
+    <stop offset="100%" stop-color="#20252e"/>
+  </linearGradient>
+  <radialGradient id="sol" cx="62%" cy="40%" r="42%">
+    <stop offset="0%"   stop-color="#ffe9c2" stop-opacity=".85"/>
+    <stop offset="45%"  stop-color="#e8d3b4" stop-opacity=".35"/>
+    <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+  </radialGradient>
+  <linearGradient id="asfalto" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#4a5364"/>
+    <stop offset="55%"  stop-color="#2e3542"/>
+    <stop offset="100%" stop-color="#141821"/>
+  </linearGradient>
+  <linearGradient id="bruma" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%"   stop-color="#c8d2e0" stop-opacity=".55"/>
+    <stop offset="100%" stop-color="#c8d2e0" stop-opacity="0"/>
+  </linearGradient>
+  <filter id="grano" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" seed="7" result="n"/>
+    <feColorMatrix in="n" type="saturate" values="0"/>
+    <feComponentTransfer><feFuncA type="linear" slope="0.055"/></feComponentTransfer>
+  </filter>
+  <filter id="suave"><feGaussianBlur stdDeviation="14"/></filter>
+  <filter id="muySuave"><feGaussianBlur stdDeviation="30"/></filter>
+</defs>
+
+<!-- cielo -->
+<rect width="1600" height="900" fill="url(#cielo)"/>
+<rect width="1600" height="900" fill="url(#sol)"/>
+
+
+<!-- nubes · bandas horizontales desenfocadas. Bajo contraste a propósito:
+     cualquier forma dura sobrevive al opacity-40 como una mancha. -->
+<g filter="url(#suave)" opacity=".5">
+  <ellipse cx="330"  cy="150" rx="290" ry="34" fill="#e6ecf5" opacity=".55"/>
+  <ellipse cx="520"  cy="196" rx="360" ry="26" fill="#dbe3ee" opacity=".40"/>
+  <ellipse cx="1180" cy="128" rx="330" ry="30" fill="#e6ecf5" opacity=".45"/>
+  <ellipse cx="1380" cy="188" rx="260" ry="22" fill="#dbe3ee" opacity=".35"/>
+  <ellipse cx="820"  cy="252" rx="420" ry="24" fill="#cfd9e6" opacity=".30"/>
+</g>
+<g filter="url(#muySuave)" opacity=".35">
+  <ellipse cx="700" cy="112" rx="520" ry="46" fill="#f2f6fb" opacity=".4"/>
+</g>
+
+<!-- sierra de fondo lejano · la capa más clara, para dar profundidad -->
+<path d="M0 432 L120 396 L230 424 L360 372 L500 412 L640 358 L780 404 L920 366 L1080 412 L1220 378 L1380 418 L1520 386 L1600 414 L1600 470 L0 470 Z"
+      fill="#9dabc0" opacity=".38"/>
+
+<!-- sierra lejana -->
+<path d="M0 470 L150 415 L250 445 L370 388 L470 430 L600 372 L720 420 L840 380 L980 428 L1120 392 L1260 436 L1400 400 L1600 442 L1600 520 L0 520 Z"
+      fill="#8b97ab" opacity=".55"/>
+<path d="M0 500 L180 458 L320 486 L470 442 L620 480 L790 446 L950 488 L1120 452 L1300 492 L1450 460 L1600 494 L1600 560 L0 560 Z"
+      fill="#79859a" opacity=".7"/>
+
+<!-- bruma de horizonte -->
+<rect y="440" width="1600" height="130" fill="url(#bruma)"/>
+
+<!-- llanura -->
+<path d="M0 540 L1600 528 L1600 640 L0 660 Z" fill="#4d5665"/>
+<path d="M0 640 L1600 628 L1600 900 L0 900 Z" fill="url(#asfalto)"/>
+
+<!-- carretera en perspectiva -->
+<path d="M690 540 L910 540 L1360 900 L120 900 Z" fill="#39414f"/>
+<path d="M690 540 L910 540 L1360 900 L120 900 Z" fill="#000" opacity=".08"/>
+
+
+<!-- ══ TRACTOCAMIÓN · silueta a contraluz ══
+     Segunda versión. La primera eran rectángulos y se veía como tal al lado de
+     una fotografía. Sin generador de imagen disponible, la salida honesta no es
+     imitar mal una foto sino hacer bien lo que el SVG hace bien: una silueta
+     con proporciones correctas.
+
+     Proporciones de tractocamión real, vista lateral:
+       largo total ~16 m · caja ~13.6 m · alto de caja ~4.1 m
+       ejes: direccional adelante, tándem motriz tras la cabina, tándem de caja
+     Escala aquí: 1 m ≈ 36 px. Suelo en y=624.
+     Colocado en el tercio DERECHO, como el encuadre de Zapata.               -->
+<g transform="translate(0,0)">
+  <!-- caja -->
+  <path d="M1196 352 H1552 a6 6 0 0 1 6 6 V596 a6 6 0 0 1-6 6 H1196 Z" fill="#12161d" fill-opacity=".94"/>
+  <!-- faldón lateral -->
+  <path d="M1210 602 H1546 V614 H1210 Z" fill="#0d1116" fill-opacity=".94"/>
+  <!-- quinta rueda y chasis -->
+  <path d="M1150 566 H1210 V596 H1150 Z" fill="#0d1116" fill-opacity=".94"/>
+
+  <!-- cabina: capó inclinado, parabrisas, techo con deflector -->
+  <path d="M1006 596
+           L1006 512
+           Q1008 494 1024 490
+           L1052 484
+           L1074 424
+           Q1080 404 1102 402
+           L1160 402
+           Q1178 402 1180 420
+           L1180 596 Z" fill="#12161d" fill-opacity=".94"/>
+  <!-- deflector de techo -->
+  <path d="M1102 402 L1114 356 Q1118 344 1134 344 L1178 344 Q1190 344 1190 358 L1190 402 Z"
+        fill="#12161d" fill-opacity=".94"/>
+  <!-- parabrisas, en contraluz frío -->
+  <path d="M1082 424 L1096 412 L1158 412 L1158 466 L1074 466 Z" fill="#5c6a80" fill-opacity=".55"/>
+  <!-- parrilla -->
+  <path d="M1006 512 L1050 500 L1050 556 L1006 556 Z" fill="#0d1116" fill-opacity=".94"/>
+  <!-- faro encendido -->
+  <ellipse cx="1018" cy="566" rx="13" ry="7" fill="#ffe9c2" fill-opacity=".9"/>
+  <ellipse cx="1018" cy="566" rx="30" ry="15" fill="#ffe9c2" fill-opacity=".16"/>
+  <!-- espejo y escape -->
+  <path d="M1070 408 H1076 V444 H1070 Z" fill="#12161d" fill-opacity=".94"/>
+  <path d="M1184 358 H1192 V500 H1184 Z" fill="#12161d" fill-opacity=".94"/>
+  <!-- filo superior iluminado -->
+  <path d="M1196 352 H1552 V358 H1196 Z" fill="#8b95a5" fill-opacity=".38"/>
+  <path d="M1134 344 H1178 V350 H1134 Z" fill="#8b95a5" fill-opacity=".32"/>
+
+  <!-- ruedas: direccional · tándem motriz · tándem de caja -->
+  <g fill="#080b10">
+    <circle cx="1036" cy="602" r="30"/>
+    <circle cx="1146" cy="602" r="30"/><circle cx="1206" cy="602" r="30"/>
+    <circle cx="1452" cy="602" r="30"/><circle cx="1512" cy="602" r="30"/>
+  </g>
+  <g fill="#3a4353" fill-opacity=".55">
+    <circle cx="1036" cy="602" r="12"/>
+    <circle cx="1146" cy="602" r="12"/><circle cx="1206" cy="602" r="12"/>
+    <circle cx="1452" cy="602" r="12"/><circle cx="1512" cy="602" r="12"/>
+  </g>
+  <!-- sombra proyectada sobre la calzada -->
+  <ellipse cx="1280" cy="632" rx="300" ry="16" fill="#080b10" fill-opacity=".5"/>
+</g>
+
+<!-- rayas de carril -->
+<g fill="#e8edf4" opacity=".78">
+  <path d="M796 552 L804 552 L806 578 L794 578 Z"/>
+  <path d="M792 600 L808 600 L812 640 L788 640 Z"/>
+  <path d="M786 668 L814 668 L820 724 L780 724 Z"/>
+  <path d="M776 756 L824 756 L834 838 L766 838 Z"/>
+</g>
+<!-- líneas de orilla -->
+<g stroke="#dfe6ef" stroke-opacity=".5" stroke-width="3" fill="none">
+  <path d="M694 546 L128 896"/>
+  <path d="M906 546 L1354 896"/>
+</g>
+
+<!-- postes de la red -->
+<g stroke="#aab5c6" stroke-opacity=".65" stroke-width="2.5">
+  <path d="M340 560 V468"/><path d="M300 470 H382"/>
+  <path d="M1250 566 V462"/><path d="M1206 464 H1296"/>
+  <path d="M520 552 V492"/><path d="M492 494 H550"/>
+</g>
+
+<!-- corredores de la red, sobre el cielo -->
+<g fill="none" stroke-linecap="round" opacity=".5">
+  <path d="M-40 300 C 300 250, 560 210, 900 236 S 1320 260, 1660 196" stroke="#ffffff" stroke-opacity=".45" stroke-width="1.6"/>
+  <path d="M-40 220 C 340 186, 620 150, 980 176 S 1360 196, 1660 140" stroke="#ffffff" stroke-opacity=".28" stroke-width="1.2"/>
+  <path d="M-40 360 C 320 330, 600 300, 940 316 S 1340 330, 1660 280" stroke="#fbbf24" stroke-opacity=".55" stroke-width="1.8"/>
+</g>
+
+<!-- nodos de servicio -->
+<g>
+  <g fill="#fbbf24">
+    <circle cx="900" cy="236" r="4.5"/><circle cx="940" cy="316" r="3.5"/><circle cx="560" cy="212" r="3"/>
+  </g>
+  <g fill="none" stroke="#fbbf24" stroke-opacity=".45" stroke-width="1.2">
+    <circle cx="900" cy="236" r="15"/><circle cx="900" cy="236" r="30"/><circle cx="940" cy="316" r="12"/>
+  </g>
+  <g fill="#ffffff" fill-opacity=".7">
+    <circle cx="300" cy="252" r="2.4"/><circle cx="1200" cy="212" r="2.4"/>
+    <circle cx="1360" cy="188" r="2"/><circle cx="660" cy="228" r="2"/>
+  </g>
+</g>
+
+<!-- viñeta inferior: funde con el canvas del sistema -->
+<linearGradient id="fundido" x1="0" y1="0" x2="0" y2="1">
+  <stop offset="0%" stop-color="#0b0c10" stop-opacity="0"/>
+  <stop offset="100%" stop-color="#0b0c10" stop-opacity=".92"/>
+</linearGradient>
+<rect y="640" width="1600" height="260" fill="url(#fundido)"/>
+
+<!-- grano · rompe el banding de los gradientes, que al 40% se nota -->
+<rect width="1600" height="900" filter="url(#grano)" opacity=".9"/>
+</svg>

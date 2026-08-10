@@ -1,0 +1,10 @@
+# Artefactos de despliegue
+.sf/
+.sfdx/
+
+# Salida de "sf agent publish", no fuente. El artefacto fuente del agente es el
+# Agent Script (aiAuthoringBundles/**/*.agent), como establece la seccion 5.1 del
+# Plan Final. Estos se regeneran al publicar y cada publicacion deja una version
+# nueva, asi que versionarlos solo acumula copias casi identicas.
+force-app/main/default/genAiPlannerBundles/
+force-app/main/default/bots/

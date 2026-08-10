@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <description>Estado del backlog editorial.</description>
+    <label>Estado</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Abierta</fullName>
+                    <default>true</default>
+                    <label>Abierta</label>
+                </value>
+                <value>
+                    <fullName>En redaccion</fullName>
+                    <default>false</default>
+                    <label>En redaccion</label>
+                </value>
+                <value>
+                    <fullName>Publicada</fullName>
+                    <default>false</default>
+                    <label>Publicada</label>
+                </value>
+                <value>
+                    <fullName>Descartada</fullName>
+                    <default>false</default>
+                    <label>Descartada</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

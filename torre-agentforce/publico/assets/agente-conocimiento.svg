@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">Esquema de conocimiento conectado</title>
+  <desc id="desc">Diagrama técnico abstracto de una consulta que conecta fuentes y una respuesta verificable.</desc>
+  <rect width="960" height="600" fill="#0d0e12"/>
+  <g fill="none" stroke="#374151" stroke-width="2">
+    <path d="M120 128H420V472H120Z"/>
+    <path d="M540 128H840V472H540Z"/>
+    <path d="M420 212H540M420 300H540M420 388H540"/>
+    <path d="M178 198H362M178 254H328M178 310H362M178 366H310M178 422H362"/>
+    <path d="M598 206H782M598 262H742M598 318H782M598 374H726M598 430H782"/>
+  </g>
+  <g fill="#d1d5db">
+    <rect x="102" y="110" width="36" height="36"/>
+    <rect x="402" y="194" width="36" height="36"/>
+    <rect x="402" y="282" width="36" height="36"/>
+    <rect x="402" y="370" width="36" height="36"/>
+    <rect x="522" y="194" width="36" height="36"/>
+    <rect x="522" y="282" width="36" height="36"/>
+    <rect x="522" y="370" width="36" height="36"/>
+  </g>
+  <path d="M735 94L856 94L856 215" fill="none" stroke="#fbbf24" stroke-width="4"/>
+  <rect x="828" y="187" width="56" height="56" fill="#fbbf24"/>
+</svg>

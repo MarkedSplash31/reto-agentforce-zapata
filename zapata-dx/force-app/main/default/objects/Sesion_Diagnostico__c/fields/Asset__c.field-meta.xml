@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Asset__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Unidad diagnosticada. Puede quedar vacia si el usuario aun no se identifica.</description>
+    <label>Unidad</label>
+    <referenceTo>Asset</referenceTo>
+    <relationshipLabel>Sesiones de diagnostico</relationshipLabel>
+    <relationshipName>Sesiones_Diagnostico</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Metodo_Verificacion__c</fullName>
+    <description>Briefing: el VIN esta en el parabrisas, la factura y el anuncio de venta, asi que no autentica. Registra que segundo factor se uso.</description>
+    <label>Metodo de verificacion</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Ultimos 4 del telefono</fullName>
+                    <default>false</default>
+                    <label>Ultimos 4 del telefono</label>
+                </value>
+                <value>
+                    <fullName>Folio de OS previa</fullName>
+                    <default>false</default>
+                    <label>Folio de OS previa</label>
+                </value>
+                <value>
+                    <fullName>RFC</fullName>
+                    <default>false</default>
+                    <label>RFC</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

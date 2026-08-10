@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AiEvaluationDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Diagnostico no mutante de conocimiento y procedencia sin asumir que el material es oficial</description>
+    <name>Zapata_Diag_Knowledge</name>
+    <subjectName>Agente_Postventa_Zapata</subjectName>
+    <subjectType>AGENT</subjectType>
+    <testCase>
+        <expectation>
+            <expectedValue>conocimiento_y_respuestas</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[&apos;Buscar_Conocimiento_Postventa&apos;]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Cita literalmente el titulo consultado, el estado v1.0-sintetica-no-verificada y la advertencia de procedencia. Describe el material solo como referencia no verificada, no decide si existe cobertura operativa y ofrece validacion con un asesor.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs>
+            <utterance>Que material de referencia hay sobre garantia del turbo y cual es el estado de esa fuente?</utterance>
+        </inputs>
+        <number>1</number>
+    </testCase>
+</AiEvaluationDefinition>

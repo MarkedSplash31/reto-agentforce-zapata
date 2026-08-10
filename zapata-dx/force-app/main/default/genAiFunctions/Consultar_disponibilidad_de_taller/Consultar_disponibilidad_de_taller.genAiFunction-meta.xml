@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Franjas agendables de un taller, validando que atienda el modelo y respetando la anticipacion minima</description>
+    <developerName>Consultar_disponibilidad_de_taller</developerName>
+    <invocationTarget>ZapataAgendaController</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Consultar_disponibilidad_de_taller</localDeveloperName>
+    <masterLabel>Consultar disponibilidad de taller</masterLabel>
+    <progressIndicatorMessage>Consultando disponibilidad del taller...</progressIndicatorMessage>
+</GenAiFunction>

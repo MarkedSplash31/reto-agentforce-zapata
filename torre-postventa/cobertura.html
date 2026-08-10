@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cobertura y garantía | Torre de Postventa Zapata</title>
+<meta name="description" content="Reglas deterministas de cobertura por kilometraje y antigüedad, y las fuentes autorizadas que las sostienen.">
+<link rel="icon" href="assets/marca-zapata.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<header class="pt-32 pb-4 max-w-7xl mx-auto px-6">
+  <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">Regla determinista</span>
+  <h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-[0.15em] font-light leading-none">COBERTURA Y GARANTÍA</h1>
+  <p class="text-gray-400 text-xs leading-relaxed font-light mt-4 max-w-2xl">
+    El agente no opina sobre cobertura. Evalúa una regla publicada contra un dato duro y cita la fuente.
+  </p>
+</header>
+
+<main class="pb-24 max-w-7xl mx-auto px-6">
+
+  <!-- simulador -->
+  <section class="mt-10 grid grid-cols-1 lg:grid-cols-12 gap-10">
+    <div class="lg:col-span-5">
+      <div class="border border-white/5 bg-[#0d0e12] p-6">
+        <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-2">Evaluar</span>
+        <h2 class="font-serif-luxury text-xl text-white tracking-wide mb-6">Simulador de cobertura</h2>
+
+        <div class="space-y-5">
+          <div>
+            <label for="km" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Odómetro (km)</label>
+            <input id="km" inputmode="numeric" value="240000"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none">
+          </div>
+          <div>
+            <label for="meses" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Antigüedad (meses)</label>
+            <input id="meses" inputmode="numeric" value="30"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none">
+          </div>
+          <div>
+            <label for="comp" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Componente</label>
+            <select id="comp" class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">
+              <option value="motor">Tren motriz</option>
+              <option value="electrico">Sistema eléctrico</option>
+              <option value="desgaste">Piezas de desgaste</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="veredicto" class="mt-6"></div>
+      </div>
+    </div>
+
+    <div class="lg:col-span-7">
+      <div class="mb-8">
+        <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Fuentes autorizadas</span>
+        <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">La regla vive en el dato</h2>
+        <p class="text-gray-400 text-xs font-light mt-2 max-w-2xl">
+          Cada veredicto cita el artículo publicado del que salió. Si el artículo cambia, cambia el veredicto —
+          nunca al revés.
+        </p>
+      </div>
+
+      <div class="space-y-4">
+        <article class="bg-[#0d0e12] border border-white/5 p-6 group hover:border-white/20 transition-all duration-300">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <h3 class="font-serif-luxury text-xl text-white tracking-wide">Tren motriz</h3>
+            <span class="shrink-0 inline-flex items-center px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold uppercase tracking-[0.18em]">Vigente</span>
+          </div>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-4">
+            Cubierto hasta <span class="text-white font-mono">500,000 km</span> o
+            <span class="text-white font-mono">60</span> meses, lo que ocurra primero.
+          </p>
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-600">
+            <i class="fa-solid fa-book text-amber-400"></i> KB-COB-0114 &middot; v4
+          </div>
+        </article>
+
+        <article class="bg-[#0d0e12] border border-white/5 p-6 group hover:border-white/20 transition-all duration-300">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <h3 class="font-serif-luxury text-xl text-white tracking-wide">Sistema eléctrico</h3>
+            <span class="shrink-0 inline-flex items-center px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold uppercase tracking-[0.18em]">Vigente</span>
+          </div>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-4">
+            Cubierto hasta <span class="text-white font-mono">250,000 km</span> o
+            <span class="text-white font-mono">36</span> meses, lo que ocurra primero.
+          </p>
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-600">
+            <i class="fa-solid fa-book text-amber-400"></i> KB-COB-0207 &middot; v2
+          </div>
+        </article>
+
+        <article class="bg-[#0d0e12] border border-white/5 p-6 group hover:border-white/20 transition-all duration-300">
+          <div class="flex items-start justify-between gap-4 mb-3">
+            <h3 class="font-serif-luxury text-xl text-white tracking-wide">Piezas de desgaste</h3>
+            <span class="shrink-0 inline-flex items-center border border-white/10 text-gray-400 px-3 py-1.5 text-[10px] font-medium uppercase tracking-[0.18em]">Sin cobertura</span>
+          </div>
+          <p class="text-gray-400 text-xs leading-relaxed font-light mb-4">
+            Balatas, llantas, filtros y bandas quedan fuera por naturaleza del componente,
+            con independencia del kilometraje.
+          </p>
+          <div class="flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-600">
+            <i class="fa-solid fa-book text-amber-400"></i> KB-COB-0301 &middot; v7
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="footer"></div>
+<script src="js/sistema.js"></script>
+<script>
+/* La decisión es determinista: umbrales publicados, comparación, veredicto.
+   Ninguna parte de esto depende de lenguaje libre. */
+const REGLAS = {
+  motor:     { km: 500000, meses: 60, fuente: 'KB-COB-0114 · v4', nombre: 'Tren motriz' },
+  electrico: { km: 250000, meses: 36, fuente: 'KB-COB-0207 · v2', nombre: 'Sistema eléctrico' },
+  desgaste:  { km: 0,      meses: 0,  fuente: 'KB-COB-0301 · v7', nombre: 'Piezas de desgaste' },
+};
+const $ = s => document.querySelector(s);
+
+function evaluar() {
+  const km = parseInt(($('#km').value || '0').replace(/\D/g,''), 10) || 0;
+  const ms = parseInt(($('#meses').value || '0').replace(/\D/g,''), 10) || 0;
+  const r  = REGLAS[$('#comp').value];
+
+  let cubre, motivo;
+  if (r.km === 0) { cubre = false; motivo = 'El componente está excluido por naturaleza.'; }
+  else if (km > r.km) { cubre = false; motivo = `Excede el umbral de kilometraje por ${(km-r.km).toLocaleString('es-MX')} km.`; }
+  else if (ms > r.meses) { cubre = false; motivo = `Excede el umbral de antigüedad por ${ms-r.meses} meses.`; }
+  else { cubre = true; motivo = `Dentro de ${r.km.toLocaleString('es-MX')} km y ${r.meses} meses.`; }
+
+  $('#veredicto').innerHTML = `
+    <div class="border ${cubre ? 'border-emerald-400/25 bg-emerald-500/10' : 'border-white/10 bg-[#0b0c10]'} p-5">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-1.5 h-1.5 rounded-full ${cubre ? 'bg-emerald-400' : 'bg-gray-500'}"></span>
+        <span class="text-[10px] font-bold uppercase tracking-[0.18em] ${cubre ? 'text-emerald-300' : 'text-gray-400'}">
+          ${cubre ? 'Cubierto por garantía' : 'Fuera de cobertura'}
+        </span>
+      </div>
+      <p class="text-gray-400 text-xs leading-relaxed font-light mb-4">${motivo}</p>
+      <div class="pt-3 border-t border-white/5 flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-600">
+        <i class="fa-solid fa-book text-amber-400"></i> ${r.fuente}
+      </div>
+    </div>`;
+}
+['#km','#meses','#comp'].forEach(s => $(s).addEventListener('input', evaluar));
+evaluar();
+</script>
+</body>
+</html>

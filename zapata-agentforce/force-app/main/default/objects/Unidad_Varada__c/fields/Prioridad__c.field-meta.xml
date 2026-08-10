@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Prioridad__c</fullName>
+    <description>Toda unidad varada nace como critica. El agente no la degrada.</description>
+    <label>Prioridad</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Critica</fullName>
+                    <default>true</default>
+                    <label>Critica</label>
+                </value>
+                <value>
+                    <fullName>Alta</fullName>
+                    <default>false</default>
+                    <label>Alta</label>
+                </value>
+                <value>
+                    <fullName>Media</fullName>
+                    <default>false</default>
+                    <label>Media</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

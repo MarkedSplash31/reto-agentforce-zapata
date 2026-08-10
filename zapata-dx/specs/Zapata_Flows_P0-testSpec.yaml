@@ -1,0 +1,74 @@
+# Suite de Testing Center para las tres acciones que llenan los subagentes vacios.
+# Corre contra el agente publicado y ejecuta los Flows de verdad: por eso valida
+# expectedActions y no solo el texto de la respuesta.
+#
+# Cubre los casos de la seccion 12 del Plan Final que tocan estas acciones
+# (T11, T12, T13, T15) mas los gates de seguridad de unidad varada.
+#
+# Cada caso consume generaciones LLM contra el limite de 150/hora de la
+# Developer Edition. Son 8 casos: correr en una sola ventana, no en paralelo con
+# otra persona probando el agente.
+name: Zapata_Flows_P0
+description: Verificacion conversacional de Crear_Orden_Servicio, Reprogramar_Orden_Servicio y Crear_Reporte_Unidad_Varada
+subjectType: AGENT
+subjectName: Agente_Postventa_Zapata
+
+testCases:
+  # ---- T11: agendar con VIN verificado y taller activo
+  - utterance: "Necesito agendar servicio en el taller de Queretaro para el VIN 3HAMMAAR8LL123456. Trae perdida de potencia en subida. Que sea el 12 de agosto."
+    expectedTopic: agendar_servicio_taller
+    expectedActions:
+      - Crear_Orden_Servicio
+    expectedOutcome: "Confirma la cita y le dicta al cliente el folio de la orden junto con el dia y la hora. No pide una confirmacion adicional del tipo confirmas antes de agendar."
+
+  # ---- Gate: sin VIN no debe escribir nada
+  - utterance: "Quiero agendar una cita de mantenimiento en Queretaro para la semana que entra."
+    expectedTopic: agendar_servicio_taller
+    expectedActions: []
+    expectedOutcome: "Pide el VIN de la unidad antes de agendar. No crea ninguna orden ni inventa un folio."
+
+  # ---- Gate: unidad existente pero sin verificar
+  - utterance: "Agenda servicio de garantia en Queretaro para el VIN 3HAMMAAR8LL123457, el 12 de agosto. Le suena el diferencial."
+    expectedTopic: agendar_servicio_taller
+    expectedActions:
+      - Crear_Orden_Servicio
+    expectedOutcome: "Explica que no puede agendar porque falta verificar la titularidad de la unidad. No entrega folio ni promete una cita."
+
+  # ---- T12: reprogramar la misma orden
+  - utterance: "Necesito mover la cita 00000025, me cambiaron la ruta. Pasala al 14 de agosto."
+    expectedTopic: agendar_servicio_taller
+    expectedActions:
+      - Reprogramar_Orden_Servicio
+    expectedOutcome: "Confirma que movio la cita y menciona que el folio sigue siendo 00000025. Dice la fecha anterior y la nueva."
+
+  # ---- Reintento en una conversacion NUEVA.
+  # Ojo: la idempotencia (T15) se apoya en el identificador de sesion. Testing Center
+  # ejecuta cada caso en una sesion aislada, asi que aqui lo correcto es que SI agende:
+  # es una peticion nueva, no un reintento. La deduplicacion dentro de una misma
+  # conversacion se prueba a nivel de Flow en scripts/dry-run/02-crear-orden-idempotente.apex.
+  - utterance: "No estoy seguro si quedo. Agendame de nuevo: VIN 3HAMMAAR8LL123456, Queretaro, 12 de agosto, perdida de potencia."
+    expectedTopic: agendar_servicio_taller
+    expectedActions:
+      - Crear_Orden_Servicio
+    expectedOutcome: "Le entrega al cliente un folio de orden y el dia y hora de la cita. No inventa datos ni deja la peticion sin resolver."
+
+  # ---- Unidad varada con todos los datos
+  - utterance: "Se me quedo parada una unidad en la Mexico-Queretaro 57D, como en el kilometro 120 rumbo al norte. Marca falla de frenos de aire y trae el codigo SPN 520192. Va cargada. El VIN es 3HAMMAAR8LL123456. Ya estamos fuera del carril y con las intermitentes puestas."
+    expectedTopic: atencion_unidades_varadas
+    expectedActions:
+      - Crear_Reporte_Unidad_Varada
+    expectedOutcome: "Levanta el reporte y le dicta el folio al operador. Trata el caso como prioridad critica."
+
+  # ---- Unidad varada sin VIN: no debe atorarse pidiendolo
+  - utterance: "Traigo una unidad detenida en la Autopista del Sol 95D, se apago y no arranca. No traigo el VIN a la mano. Ya estoy fuera del carril con las intermitentes encendidas."
+    expectedTopic: atencion_unidades_varadas
+    expectedActions:
+      - Crear_Reporte_Unidad_Varada
+    expectedOutcome: "Levanta el reporte de todos modos y entrega el folio, sin condicionarlo a que el operador consiga el VIN."
+
+  # ---- Seguridad primero: el operador no confirma que esta fuera del carril
+  - utterance: "Se me poncho una llanta en la Mexico-Puebla 150D en el kilometro 45 y sigo sobre el carril, no alcance a orillarme."
+    expectedTopic: atencion_unidades_varadas
+    expectedActions:
+      - Crear_Reporte_Unidad_Varada
+    expectedOutcome: "Antes que cualquier otra cosa le indica al operador que se ponga a salvo: intermitentes, triangulos y fuera del carril. Solo despues menciona el folio del reporte."

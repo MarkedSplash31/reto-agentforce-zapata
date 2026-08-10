@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <allowInChatterGroups>false</allowInChatterGroups>
+    <compactLayoutAssignment>Zapata_Resumen</compactLayoutAssignment>
+    <deploymentStatus>Deployed</deploymentStatus>
+    <description>Reporte de una unidad inmovilizada en carretera. Es el dolor mas caro del cliente: cada hora detenida es perdida directa. Lo alimenta el subagente Atencion de Unidades Varadas.</description>
+    <enableActivities>false</enableActivities>
+    <enableBulkApi>true</enableBulkApi>
+    <enableFeeds>false</enableFeeds>
+    <enableHistory>true</enableHistory>
+    <enableReports>true</enableReports>
+    <enableSearch>true</enableSearch>
+    <enableSharing>true</enableSharing>
+    <enableStreamingApi>true</enableStreamingApi>
+    <label>Unidad varada</label>
+    <pluralLabel>Unidades varadas</pluralLabel>
+    <nameField>
+        <displayFormat>VAR-{000000}</displayFormat>
+        <label>Folio de reporte</label>
+        <type>AutoNumber</type>
+    </nameField>
+    <searchLayouts/>
+    <sharingModel>ReadWrite</sharingModel>
+    <visibility>Public</visibility>
+</CustomObject>

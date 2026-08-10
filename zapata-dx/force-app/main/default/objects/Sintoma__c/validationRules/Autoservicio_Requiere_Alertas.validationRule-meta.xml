@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Autoservicio_Requiere_Alertas</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(Autoservicio_Permitido__c, ISBLANK(Senales_De_Alerta__c))</errorConditionFormula>
+    <errorDisplayField>Senales_De_Alerta__c</errorDisplayField>
+    <errorMessage>Si se permite autoservicio hay que documentar cuando el operador debe detenerse y escalar.</errorMessage>
+</ValidationRule>

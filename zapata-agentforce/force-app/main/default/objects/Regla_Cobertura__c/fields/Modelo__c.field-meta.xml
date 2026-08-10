@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modelo__c</fullName>
+    <description>Product2 al que aplica la regla.</description>
+    <label>Modelo</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Reglas de cobertura</relationshipLabel>
+    <relationshipName>Reglas_Cobertura</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

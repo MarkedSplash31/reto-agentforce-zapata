@@ -1,0 +1,56 @@
+{
+  "required" : [ "varFolio", "varMotivo", "varCorrelationId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varFolio" : {
+      "title" : "Folio de la orden",
+      "description" : "Numero de orden que dicto el cliente, por ejemplo 00000008. Es el dato que el cliente si tiene a la mano. Si no lo recuerda, pideselo: no busques por VIN ni adivines cual es su cita.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varNuevaFecha" : {
+      "title" : "Nuevo dia",
+      "description" : "Dia al que quiere mover la cita. Se toma la primera franja libre de ese dia o posterior. Obligatorio salvo que ya traigas una franja concreta.",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varNuevoSlotId" : {
+      "title" : "Franja nueva",
+      "description" : "Identificador interno de franja. Solo si una accion previa te lo devolvio. NUNCA se lo pidas ni se lo menciones al cliente.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varSucursalClave" : {
+      "title" : "Taller nuevo",
+      "description" : "Solo si el cliente ademas quiere cambiar de taller. Si no lo menciona, dejalo vacio y se mantiene el taller actual de la orden.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varMotivo" : {
+      "title" : "Motivo del cambio",
+      "description" : "Por que se mueve la cita, en palabras del cliente. Queda registrado en la orden y en la traza.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varCorrelationId" : {
+      "title" : "Correlation Id",
+      "description" : "Identificador del hilo de la conversacion. Usa el mismo valor en todas las acciones de esta conversacion.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varSessionKey" : {
+      "title" : "Session Key",
+      "description" : "Referencia de la sesion. No incluyas datos personales.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

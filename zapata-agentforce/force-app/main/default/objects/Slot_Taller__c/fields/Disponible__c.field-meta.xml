@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Disponible__c</fullName>
+    <description>Verdadero si la sucursal esta activa y queda cupo. La vigencia temporal se filtra en el Flow, no en la formula.</description>
+    <label>Disponible</label>
+    <formula>AND( Sucursal__r.Activa__c, Capacidad_Usada__c &lt; Capacidad_Total__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <type>Checkbox</type>
+</CustomField>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Extendida_Aplicable__c</fullName>
+    <description>La extension solo sirve si ademas hay historial completo de servicios. Los limites de meses y km viven en Regla_Cobertura__c, no aqui, para no volver a quemar numeros en una formula.</description>
+    <label>Extendida aplicable</label>
+    <formula>AND( Garantia_Extendida__c, Servicios_Completos__c )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <type>Checkbox</type>
+</CustomField>

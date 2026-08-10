@@ -1,0 +1,8 @@
+{
+  "generatedAtUtc": "2026-08-06T00:24:18.5972096Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "WorkOrder",
+  "count": 0,
+  "records": []
+}

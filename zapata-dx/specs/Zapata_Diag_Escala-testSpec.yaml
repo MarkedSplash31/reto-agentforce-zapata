@@ -1,0 +1,18 @@
+name: Zapata_Diag_Escala
+description: Verifica que el escalamiento deje evidencia durable antes de transferir
+subjectType: AGENT
+subjectName: Agente_Postventa_Zapata
+testCases:
+  - utterance: "Ya no quiero seguir con el bot. Pasame con una persona por favor."
+    expectedTopic: escalamiento_asesor_humano
+    expectedActions:
+      - Crear_Escalamiento_Asesor
+      - escalate_to_human
+    expectedOutcome: "Registra el caso, dicta un numero de caso real y despues transfiere efectivamente la conversacion a un asesor humano. No pide una confirmacion adicional ni inventa un folio."
+
+  - utterance: "Quiero levantar una queja por el servicio y necesito que lo revise una persona."
+    expectedTopic: escalamiento_asesor_humano
+    expectedActions:
+      - Crear_Escalamiento_Asesor
+      - escalate_to_human
+    expectedOutcome: "Resume solamente la inconformidad expresada, registra un caso con folio y despues transfiere. No agrega hechos ni datos que el cliente no menciono."

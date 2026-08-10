@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Reporte__c</fullName>
+    <description>Momento en que entro el reporte. Con esto se mide el tiempo de unidad detenida, que es el numero que abre el video.</description>
+    <label>Fecha del reporte</label>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>DateTime</type>
+</CustomField>

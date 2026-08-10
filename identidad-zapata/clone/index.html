@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--
+      CLON DE ANÁLISIS — Corporación Zapata (zapata.com.mx), generación 2026.
+      Construido con la skill `zapata-design`. Uso interno, no se despliega públicamente.
+      Diferencias deliberadas respecto al original, todas documentadas:
+        - Sin GTM / GA4 / Google Ads / reCAPTCHA (enviarían datos falsos a las propiedades reales).
+        - Sin <meta name="csrf-token"> (no hay backend Laravel).
+        - Assets servidos localmente desde ../assets/ en vez de /public/ del origen.
+        - Enlaces internos apuntan al original; los formularios no existen en esta página.
+      Todo lo demás — CDN de Tailwind, URL de Google Fonts, Font Awesome, CSS y JS inline,
+      marcado y texto — es idéntico al original.
+    -->
+    <title>Zapata</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        .font-sans-clean { font-family: 'Inter', sans-serif; }
+
+        /* Mobile menu */
+        #mobile-menu {
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.4s;
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0s;
+        }
+
+        /* Hamburger lines */
+        .hamburger-line {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: currentColor;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s ease;
+            transform-origin: center;
+        }
+        #hamburger-btn.open .line-top    { transform: translateY(7px) rotate(45deg); }
+        #hamburger-btn.open .line-mid    { opacity: 0; transform: scaleX(0); }
+        #hamburger-btn.open .line-bottom { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Staggered link fade-in */
+        #mobile-menu a {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #mobile-menu.open a:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+        #mobile-menu.open a:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+        #mobile-menu.open a:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        #mobile-menu.open a:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+        #mobile-menu.open a:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+    </style>
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0c10]/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex flex-col tracking-[0.3em] text-white">
+                <a href="https://zapata.com.mx"><img src="../assets/public/images/home/logo-zapata-white.png" alt="logo_zapata" class="h-7 w-auto"></a>
+            </div>
+
+            <!-- Desktop links -->
+            <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-gray-400 uppercase">
+                <a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Marcas</a>
+                <a href="https://zapata.com.mx/estrena" class="hover:text-white transition-colors">Estrena</a>
+                <a href="https://zapata.com.mx/accesorios" class="hover:text-white transition-colors">Accesorios</a>
+                <a href="https://zapata.com.mx/citas-de-servicio" class="hover:text-white transition-colors">Servicio</a>
+            </div>
+
+            <!-- Desktop CTA -->
+            <div class="hidden md:block">
+                <a href="https://zapata.com.mx/citas-de-servicio" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+                    Cita de Servicio
+                </a>
+            </div>
+
+            <!-- Mobile: hamburger button -->
+            <button id="hamburger-btn"
+                aria-label="Abrir menú"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                class="md:hidden flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none">
+                <span class="hamburger-line line-top"></span>
+                <span class="hamburger-line line-mid"></span>
+                <span class="hamburger-line line-bottom"></span>
+            </button>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu"
+             role="dialog"
+             aria-label="Menú de navegación"
+             class="md:hidden absolute top-full left-0 w-full bg-[#0b0c10]/95 backdrop-blur-lg border-b border-white/5 px-6 pb-8 pt-6">
+            <a href="https://zapata.com.mx/marcas"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Marcas
+            </a>
+            <a href="https://zapata.com.mx/estrena"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Estrena
+            </a>
+            <a href="https://zapata.com.mx/accesorios"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Accesorios
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Servicio
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                Cita de Servicio
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            var btn  = document.getElementById('hamburger-btn');
+            var menu = document.getElementById('mobile-menu');
+
+            btn.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('open');
+                btn.classList.toggle('open', isOpen);
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+        })();
+    </script>
+
+        <header class="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="../assets/public/images/home/2026/header.jpeg" class="w-full h-full object-cover object-center opacity-40 filter brightness-75 scale-105" alt="Gama Zapata">
+            <div class="absolute inset-0 bg-gradient-to-t from-[#0b0c10] via-transparent to-[#0b0c10]/50"></div>
+        </div>
+
+        <div class="relative z-10 max-w-5xl mx-auto px-6 text-center mt-12">
+            <span class="text-xs uppercase tracking-[0.5em] text-amber-400/80 font-medium block mb-4">Con nuestros clientes</span>
+            <h1 class="font-serif-luxury text-4xl md:text-7xl text-white tracking-wide font-light mb-4">
+                MÁS DE 70 AÑOS
+            </h1>
+            <p class="font-sans-clean text-sm md:text-base text-gray-300 tracking-[0.1em] max-w-2xl mx-auto mb-12 font-light">
+                Soluciones Integrales a tus retos de movilidad.
+            </p>
+
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-4">
+                <a href="https://zapata.com.mx/estrena" class="w-full sm:w-auto bg-white text-black px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300">
+                    Ver Promos
+                </a>
+                <a href="https://zapata.com.mx/marcas" class="w-full sm:w-auto border border-white/20 bg-black/40 backdrop-blur px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-white/10 transition-all duration-300">
+                    Ver Soluciones
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <section id="comunidad" class="py-24 bg-[#0d0e12] border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="mb-16">
+                <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Cultura</span>
+                <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Consolidando un gran equipo</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/nuestra-comunidad" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home_content/home_nuestra_comunidad.jpg" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" alt="Nuestra Comunidad">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Nuestra comunidad</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+                            Personas, historias y proyectos que dan vida a la cultura Zapata dentro y fuera del camino.
+                        </p>
+                    </div>
+                    <a href="https://zapata.com.mx/nuestra-comunidad" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">
+                        Conocer más &rarr;
+                    </a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/quienes-somos" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/IMAGENES_WEB/CUADROS/quienes-somos-zapata-2026.jpg" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" alt="Quiénes Somos">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Quiénes somos</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+                            Más de seis décadas construyendo soluciones de movilidad con visión de largo plazo.
+                        </p>
+                    </div>
+                    <a href="https://zapata.com.mx/quienes-somos" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">
+                        Ver historia &rarr;
+                    </a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/marcas" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/IMAGENES_WEB/CUADROS/soluciones_zapata.jpeg" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500" alt="Soluciones Integrales">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Soluciones integrales</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">
+                            Portafolio de marcas, financiamiento, servicio y proyectos de flota diseñados para tu operación.
+                        </p>
+                    </div>
+                    <a href="https://zapata.com.mx/marcas" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">
+                        Ver soluciones &rarr;
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="estrena" class="py-24 bg-[#0b0c10]">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-end mb-16">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Oportunidades Vigentes</span>
+                    <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Estrena en Zapata</h2>
+                    <p class="text-gray-400 text-xs font-light mt-2">Ofertas vigentes en autos y camiones.</p>
+                </div>
+                <a href="#" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors border-b border-white/20 pb-1">Ver todas</a>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/estrena" class="aspect-[16/10] bg-neutral-900 border border-white/5 flex items-center justify-center relative overflow-hidden mb-6 block">
+                            <img src="../assets/public/images/zapata_estrena.jpeg" class="w-full h-full object-cover opacity-60 filter brightness-90 group-hover:scale-105 transition-transform duration-500" alt="Accesorios">
+                        </a>
+                        <h3 class="font-serif-luxury text-lg text-white tracking-wide mb-2">Estrena ahora</h3>
+                        <p class="text-gray-400 text-xs font-light leading-relaxed">Promociones irresistibles cada mes.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/estrena" class="text-xs uppercase tracking-widest text-white pt-6 hover:text-gray-400 transition-colors">Ver catálogo &rarr;</a>
+                </div>
+
+                <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/accesorios" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/accesorios.jpeg" class="w-full h-full object-cover opacity-60 filter brightness-90 group-hover:scale-105 transition-transform duration-500" alt="Accesorios">
+                        </a>
+                        <h3 class="font-serif-luxury text-lg text-white tracking-wide mb-2">Accesorios</h3>
+                        <p class="text-gray-400 text-xs font-light leading-relaxed">Equipamiento para tu vehículo con calidad y diseño. Equipa tu JAC a tu estilo.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/accesorios" class="text-xs uppercase tracking-widest text-white pt-6 hover:text-gray-400 transition-colors">Ver catálogo &rarr;</a>
+                </div>
+
+                <div class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/promociones-zapatacamiones" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/zapata_camiones_freightliner.jpeg" class="w-full h-full object-cover opacity-60 filter brightness-90 group-hover:scale-105 transition-transform duration-500" alt="Camiones del mes">
+                        </a>
+                        <h3 class="font-serif-luxury text-lg text-white tracking-wide mb-2">Camiones del mes</h3>
+                        <p class="text-gray-400 text-xs font-light leading-relaxed">Ofertas en configuraciones para tu operación.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/promociones-zapatacamiones" class="text-xs uppercase tracking-widest text-white pt-6 hover:text-gray-400 transition-colors">Conocer ofertas &rarr;</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="soluciones" class="py-24 bg-[#0d0e12] border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="flex justify-between items-end mb-16">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Portafolio Operativo</span>
+                    <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Soluciones para cada necesidad</h2>
+                    <p class="text-gray-400 text-xs font-light mt-2">Desde un auto familiar hasta una flota de carga con administración completa.</p>
+                </div>
+                <a href="#" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors border-b border-white/20 pb-1">Ver todas</a>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://www.zapataseminuevos.mx/" target="_blank" rel="noopener" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/go-on.jpeg" class="w-full h-full object-cover opacity-80" alt="Autos Seminuevos">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Autos Seminuevos</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">La mejor selección con evaluación profesional.</p>
+                    </div>
+                    <a href="https://www.zapataseminuevos.mx/" target="_blank" rel="noopener" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ver seminuevos</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/freightliner" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/freightliner.jpeg" class="w-full h-full object-cover opacity-80" alt="Camiones Freightliner">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Camiones Freightliner</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Tractocamiones y camiones con la infraestructura de respaldo más robusta del país y soluciones a la medida para tu flota.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/freightliner" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ver inventario</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/autobuses" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/bus.jpeg" class="w-full h-full object-cover opacity-80" alt="Autobuses">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Autobuses</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Soluciones a la medida para pasaje y turismo.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/autobuses" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Conocer modelos</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" target="_blank" rel="noopener" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/van.jpeg" class="w-full h-full object-cover opacity-80" alt="Vanes Mercedes-Benz">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Vanes Mercedes-Benz</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Vanes Sprinter que destacan por su calidad y fiabilidad, con soluciones versátiles para usos profesionales y particulares.</p>
+                    </div>
+                    <a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" target="_blank" rel="noopener"  class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ver Vanes</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://zapata.com.mx/greatdane" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/cajas.jpeg" class="w-full h-full object-cover opacity-80" alt="Remolques">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Remolques</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Great Dane, referente en transporte refrigerado y de carga, con remolques diseñados para cuidar tu operación y tus productos.</p>
+                    </div>
+                    <a href="https://zapata.com.mx/greatdane" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Conocer más</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/v2/home/subastas-v4b-v2.jpeg" class="w-full h-full object-cover opacity-80" alt="Subastas V4B">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Subastas V4B</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Subastas en línea de autos y vehículos de trabajo, con catálogo amplio y oportunidades de compra competitivas.</p>
+                    </div>
+                    <a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ir a V4B</a>
+                </div>
+
+                <div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+                    <div>
+                        <a href="https://go-on.mx/" target="_blank" rel="noopener" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+                            <img src="../assets/public/images/home/2026/suv.jpeg" class="w-full h-full object-cover opacity-80" alt="Autos y SUVs">
+                        </a>
+                        <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Autos y SUVs</h3>
+                        <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Estrena con planes flexibles y la mejor atención.</p>
+                    </div>
+                    <a href="https://go-on.mx/" target="_blank" rel="noopener"  class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Explorar</a>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <section id="servicio" class="py-24 bg-[#0b0c10] border-t border-white/5">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+                <div>
+                    <span class="text-xs uppercase tracking-[0.3em] text-gray-400 block mb-3">Soporte</span>
+                    <h2 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-wide font-light mb-8 leading-tight">
+                        Agenda tu servicio <br>en línea
+                    </h2>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-8 font-light">
+                        Mantenimientos por kilometraje, refacciones originales. Deja el cuidado de tu inversión en manos de nuestros expertos.
+                    </p>
+                    <a href="https://zapata.com.mx/citas-de-servicio" class="inline-block bg-white text-black px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300">
+                        Agenda tu cita de servicio
+                    </a>
+                </div>
+                <div class="relative group aspect-video bg-neutral-900 overflow-hidden border border-white/10">
+                    <img src="../assets/public/images/zapata_servicio.jpeg" class="w-full h-full object-cover opacity-60 transition-transform duration-700 group-hover:scale-105" alt="Agenda tu servicio en línea">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 text-left">
+            <div class="space-y-4">
+                <p class="font-serif-luxury tracking-widest text-white text-sm">CORPORACIÓN ZAPATA</p>
+                <p class="text-[11px] leading-relaxed font-light text-gray-400">
+                    Boulevard Manuel Ávila Camacho 685<br>
+                    Piso 10, Centro Industrial Alce Blanco,<br>
+                    CP 53370 Naucalpan de Juárez.
+                </p>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Nuestras marcas</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://lincolnzapatazonaesmeralda.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Lincoln</a></li>
+                    <li><a href="https://zapata.com.mx/distribuidora-nissan" class="hover:text-white transition-colors">Nissan</a></li>
+                    <li><a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">V4B</a></li>
+                    <li><a href="https://zapata.com.mx/autobuses" class="hover:text-white transition-colors">Mercedes-Benz Autobuses</a></li>
+                    <li><a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" class="hover:text-white transition-colors" target="_blank" rel="noopener">Vanes</a></li>
+                    <li><a href="https://zapata.com.mx/freightliner/distribuidoras" class="hover:text-white transition-colors">Freightliner</a></li>
+                    <li><a href="https://zapata.com.mx/greatdane/distribuidoras" class="hover:text-white transition-colors">Great Dane</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Links de interés</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://zapata.com.mx/quienes-somos" class="hover:text-white transition-colors">Quiénes somos</a></li>
+                    <li><a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Soluciones integrales</a></li>
+                    <li><a href="https://zapata.com.mx/nuestra-comunidad" class="hover:text-white transition-colors">Nuestra comunidad</a></li>
+                    <li><a href="https://zapata.com.mx/aviso-de-privacidad" class="hover:text-white transition-colors">Políticas de privacidad</a></li>
+                    <li><a href="https://zapata.com.mx/formulario-derechos-arco" class="hover:text-white transition-colors">Ejercicio de los Derechos ARCO</a></li>
+                    <li><a href="https://zapata.com.mx/directorio" class="hover:text-white transition-colors">Directorio</a></li>
+                    <li><a href="https://www.talentozapata.com.mx/bolsa-de-trabajo" target="_blank" rel="noopener"  class="hover:text-white transition-colors">Bolsa de trabajo</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Contacto rápido</p>
+                <p class="font-light text-gray-400">Teléfono: <span class="text-white font-medium"><a href="tel:+525521220370">(55) 2122-0370</a></span></p>
+                <div class="pt-2 flex flex-col space-y-1 text-gray-400 text-[11px]">
+                    <a href="https://twitter.com/GrupoZapataMX" target="_blank" rel="noopener" class="hover:text-white transition-colors">X / Twitter</a>
+                    <a href="https://www.instagram.com/grupo_zapata_mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Instagram</a>
+                    <a href="https://mx.linkedin.com/company/zapata-camiones-s-a-de-c-v-" target="_blank" rel="noopener"  class="hover:text-white transition-colors">LinkedIn</a>
+                    <a href="https://www.facebook.com/GrupoZapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">Facebook</a>
+                    <a href="https://www.youtube.com/user/grupozapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">YouTube</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-gray-600 font-light">
+            &copy; 2026  Zapata. Todos los derechos reservados.
+        </div>
+    </footer>
+
+
+</body>
+</html>

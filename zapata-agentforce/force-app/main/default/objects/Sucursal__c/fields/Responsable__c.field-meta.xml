@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Responsable__c</fullName>
+    <description>Quien responde por este taller. Destino natural del escalamiento.</description>
+    <label>Responsable</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Sucursales a cargo</relationshipLabel>
+    <relationshipName>Sucursales_A_Cargo</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

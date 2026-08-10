@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>WorkOrder__c</fullName>
+    <description>Relacion auditable con la orden.</description>
+    <label>Orden de servicio</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>WorkOrder</referenceTo>
+    <relationshipLabel>Logs de agente</relationshipLabel>
+    <relationshipName>Logs_Agente</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

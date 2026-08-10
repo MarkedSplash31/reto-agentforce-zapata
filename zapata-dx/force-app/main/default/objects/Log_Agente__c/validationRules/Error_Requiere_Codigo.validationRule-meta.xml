@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Error_Requiere_Codigo</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(OR(ISPICKVAL(Outcome__c, &quot;ERROR&quot;), ISPICKVAL(Outcome__c, &quot;BLOCKED&quot;)), ISBLANK(Error_Code__c), ISBLANK(Guardrail_Triggered__c))</errorConditionFormula>
+    <errorDisplayField>Error_Code__c</errorDisplayField>
+    <errorMessage>Un resultado ERROR o BLOCKED debe indicar el codigo de error o el guardrail que lo provoco.</errorMessage>
+</ValidationRule>

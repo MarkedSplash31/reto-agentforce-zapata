@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Cobertura_Citable__c</fullName>
+    <description>EL AGENTE SOLO PUEDE CITAR ESTE CAMPO, nunca Estado_Cobertura__c. Al ser formula no puede quedar desactualizado: si la evaluacion perdio vigencia degrada solo a REQUIERE_DATO y obliga a reevaluar. Asi es imposible regalar una garantia con datos viejos.</description>
+    <label>Cobertura citable</label>
+    <formula>IF( Evaluacion_Vigente__c, TEXT(Estado_Cobertura__c), "REQUIERE_DATO" )</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <type>Text</type>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Autoservicio_Permitido__c</fullName>
+    <description>Solo verificaciones no invasivas y no criticas. Si es falso el agente se niega a guiar y deriva.</description>
+    <label>Autoservicio permitido</label>
+    <defaultValue>false</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

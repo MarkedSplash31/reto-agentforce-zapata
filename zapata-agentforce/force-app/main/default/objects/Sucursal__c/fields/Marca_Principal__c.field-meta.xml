@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Marca_Principal__c</fullName>
+    <description>Linea principal que atiende la agencia. Una misma direccion puede operar varias marcas con horarios distintos.</description>
+    <label>Marca principal</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Freightliner</fullName>
+                    <default>true</default>
+                    <label>Freightliner</label>
+                </value>
+                <value>
+                    <fullName>Mercedes-Benz Autobuses</fullName>
+                    <default>false</default>
+                    <label>Mercedes-Benz Autobuses</label>
+                </value>
+                <value>
+                    <fullName>Mercedes-Benz Vanes</fullName>
+                    <default>false</default>
+                    <label>Mercedes-Benz Vanes</label>
+                </value>
+                <value>
+                    <fullName>Great Dane</fullName>
+                    <default>false</default>
+                    <label>Great Dane</label>
+                </value>
+                <value>
+                    <fullName>Ford</fullName>
+                    <default>false</default>
+                    <label>Ford</label>
+                </value>
+                <value>
+                    <fullName>Nissan</fullName>
+                    <default>false</default>
+                    <label>Nissan</label>
+                </value>
+                <value>
+                    <fullName>Mazda</fullName>
+                    <default>false</default>
+                    <label>Mazda</label>
+                </value>
+                <value>
+                    <fullName>JAC</fullName>
+                    <default>false</default>
+                    <label>JAC</label>
+                </value>
+                <value>
+                    <fullName>Lincoln</fullName>
+                    <default>false</default>
+                    <label>Lincoln</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biblioteca de componentes — Sistema Zapata 2026</title>
+<link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+<style>
+  .font-serif-luxury { font-family: 'Cinzel', serif; }
+  .font-sans-clean   { font-family: 'Inter', sans-serif; }
+
+  /* --- chrome de la biblioteca (no forma parte del sistema Zapata) --- */
+  .lib-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 11px; line-height: 1.6; color: #9ca3af;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  .lib-copy:active { transform: translateY(1px); }
+  .lib-nav a.activo { color: #fff; border-left-color: rgba(251,191,36,.6); }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-track { background: #0b0c10; }
+  ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.08); }
+  ::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,.16); }
+
+  /* menú móvil — verbatim del sistema */
+  #mobile-menu { transform: translateY(-100%); opacity: 0; visibility: hidden;
+    transition: transform .4s cubic-bezier(0.4,0,0.2,1), opacity .4s cubic-bezier(0.4,0,0.2,1), visibility 0s linear .4s; }
+  #mobile-menu.open { transform: translateY(0); opacity: 1; visibility: visible;
+    transition: transform .4s cubic-bezier(0.4,0,0.2,1), opacity .4s cubic-bezier(0.4,0,0.2,1), visibility 0s linear 0s; }
+  .hamburger-line { display: block; width: 22px; height: 1.5px; background: currentColor;
+    transition: transform .35s cubic-bezier(0.4,0,0.2,1), opacity .25s ease; transform-origin: center; }
+  #hamburger-btn.open .line-top    { transform: translateY(7px) rotate(45deg); }
+  #hamburger-btn.open .line-mid    { opacity: 0; transform: scaleX(0); }
+  #hamburger-btn.open .line-bottom { transform: translateY(-7px) rotate(-45deg); }
+</style>
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<!-- ══ cabecera de la biblioteca ══ -->
+<header class="border-b border-white/5 bg-[#0b0c10]/80 backdrop-blur-md fixed top-0 left-0 w-full z-50">
+  <div class="max-w-[1600px] mx-auto px-6 h-20 flex items-center justify-between">
+    <div>
+      <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block">Sistema Zapata 2026</span>
+      <h1 class="font-serif-luxury text-xl text-white tracking-wide font-light">Biblioteca de componentes</h1>
+    </div>
+    <div class="hidden md:flex items-center gap-6 text-[10px] uppercase tracking-widest text-gray-500">
+      <span><span id="conteo" class="text-white font-medium">0</span> componentes</span>
+      <span class="hidden lg:inline">medidos con <span class="text-gray-300">getComputedStyle()</span></span>
+    </div>
+  </div>
+</header>
+
+<div class="max-w-[1600px] mx-auto px-6 pt-28 pb-24 grid grid-cols-1 lg:grid-cols-[200px_1fr] gap-10">
+
+  <!-- ══ índice lateral ══ -->
+  <nav class="lib-nav hidden lg:block sticky top-28 self-start max-h-[calc(100vh-8rem)] overflow-y-auto">
+    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-medium mb-3">Índice</p>
+    <div id="indice" class="flex flex-col text-[11px] font-light"></div>
+    <p class="text-[10px] uppercase tracking-widest text-gray-500 font-medium mt-8 mb-2">Uso</p>
+    <p class="text-[11px] leading-relaxed font-light text-gray-500">
+      Cada bloque muestra el componente vivo y su marcado exacto. El botón copia el HTML al
+      portapapeles, listo para pegar en cualquier página con Tailwind CDN y las fuentes del sistema.
+    </p>
+  </nav>
+
+  <main id="cuerpo" class="min-w-0"></main>
+</div>
+
+<script>
+/* ────────────────────────────────────────────────────────────────
+   Los componentes salen de mediciones reales sobre zapata.com.mx.
+   `codigo` es el marcado verbatim; `nota` explica lo que no se ve.
+   ──────────────────────────────────────────────────────────────── */
+const SECCIONES = [
+
+/* ══════════════════ TOKENS ══════════════════ */
+{ id:'color', titulo:'Color', eyebrow:'Tokens', items:[
+  { nombre:'Fondos — la escala completa', fondo:true, render:`
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      ${[['#07080a','footer','bg-[#07080a]'],['#0b0c10','canvas','bg-[#0b0c10]'],['#0d0e12','surface','bg-[#0d0e12]'],['#121318','elevated','bg-[#121318]'],['#171717','placeholder','bg-neutral-900']]
+        .map(([hex,rol,cls]) => `<div>
+          <div class="h-20 border border-white/10" style="background:${hex}"></div>
+          <p class="text-[10px] uppercase tracking-widest text-gray-300 font-medium mt-2">${rol}</p>
+          <p class="text-[10px] font-mono text-gray-500">${hex}</p>
+          <p class="text-[10px] font-mono text-gray-600">${cls}</p>
+        </div>`).join('')}
+    </div>`,
+    nota:'Las secciones alternan canvas ↔ surface y las tarjetas SIEMPRE invierten respecto a su sección. La diferencia entre #0b0c10 y #0d0e12 es de 2 unidades por canal: separa sin dibujar una línea. El sitio no usa una sola sombra en flujo.',
+    codigo:`<div class="bg-[#07080a]">…</div>   <!-- footer, el más profundo -->
+<div class="bg-[#0b0c10]">…</div>   <!-- canvas: body, secciones impares -->
+<div class="bg-[#0d0e12]">…</div>   <!-- surface: secciones pares -->
+<div class="bg-[#121318]">…</div>   <!-- elevated puntual -->
+<div class="bg-neutral-900">…</div> <!-- #171717 placeholder de imagen -->` },
+
+  { nombre:'Texto', fondo:true, render:`
+    <div class="space-y-2">
+      ${[['text-white','#ffffff','Énfasis máximo — títulos y CTAs'],
+         ['text-gray-100','#f3f4f6','Cuerpo base, heredado del body'],
+         ['text-gray-300','#d1d5db','Sub-hero, título de columna de footer'],
+         ['text-gray-400','#9ca3af','Descripción y link en reposo — el más usado'],
+         ['text-gray-500','#6b7280','Eyebrow de sección'],
+         ['text-gray-600','#4b5563','Copyright']]
+        .map(([cls,hex,rol]) => `<div class="flex items-center gap-4">
+          <span class="w-8 h-8 border border-white/10 shrink-0" style="background:${hex}"></span>
+          <span class="${cls} text-xs w-28 shrink-0 font-mono">${hex}</span>
+          <span class="${cls} text-xs">${rol}</span>
+        </div>`).join('')}
+    </div>`,
+    nota:'text-gray-400 (#9ca3af) es el color de todo texto descriptivo y de los links en reposo. El blanco puro se reserva para títulos y CTAs.',
+    codigo:`<p class="text-white">Énfasis máximo · #ffffff</p>
+<p class="text-gray-100">Cuerpo base · #f3f4f6</p>
+<p class="text-gray-300">Sub-hero, título de columna · #d1d5db</p>
+<p class="text-gray-400">Descripción, link en reposo · #9ca3af</p>
+<p class="text-gray-500">Eyebrow de sección · #6b7280</p>
+<p class="text-gray-600">Copyright · #4b5563</p>` },
+
+  { nombre:'Ámbar de precisión — los siete roles', fondo:true, render:`
+    <div class="space-y-5">
+      <div class="flex items-center gap-4 pb-4 border-b border-white/5">
+        <span class="w-16 h-16 border border-white/10 shrink-0" style="background:#fbbf24"></span>
+        <div>
+          <p class="text-[10px] uppercase tracking-widest text-amber-400 font-medium">Ámbar de precisión</p>
+          <p class="text-xs font-mono text-gray-400 mt-1">#fbbf24 · rgb(251, 191, 36)</p>
+          <p class="text-[11px] font-light text-gray-500 mt-1">brand.accent — nombre literal del tailwind.config de Zapata</p>
+        </div>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4">
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">1 · eyebrow de sección</p>
+          <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block">Localidades</span></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">2 · micro-etiqueta</p>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block">Mazda</span></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">3 · icono inline</p>
+          <span class="text-xs text-gray-400"><i class="fa-solid fa-location-dot text-amber-400 mr-2"></i>Tlalnepantla</span></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">4 · hover de título (pasa el cursor)</p>
+          <h3 class="font-serif-luxury text-xl text-white hover:text-amber-400 transition-colors cursor-default">Freightliner Zapata</h3></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">5 · regla divisoria</p>
+          <div class="h-px w-20 bg-amber-400/40"></div></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">6 · indicador en vivo</p>
+          <span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>En operación</span></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">7 · teléfono · único font-mono</p>
+          <a class="text-white hover:text-amber-400 font-mono tracking-wide text-xs">(55) 2122-0370</a></div>
+        <div><p class="text-[10px] uppercase tracking-widest text-gray-600 mb-1.5">+ checkbox · accent-amber-400</p>
+          <label class="flex items-start gap-2 text-[11px] font-light text-gray-400">
+            <input type="checkbox" checked class="mt-0.5 bg-[#0b0c10] border-white/10 focus:ring-0 rounded-none accent-amber-400">
+            Acepto el aviso de privacidad</label></div>
+      </div>
+    </div>`,
+    nota:'Nombre literal del código de Zapata: brand.accent #fbbf24 // "Ámbar de precisión". Marca lo local y lo accionable — sucursal, dato de contacto, estado en vivo. NUNCA el CTA principal, que siempre es blanco sólido. En el home aparece una sola vez; en páginas funcionales hasta 26.',
+    codigo:`<!-- 1 · eyebrow de sección -->
+<span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">Localidades</span>
+<!-- 2 · micro-etiqueta de dato -->
+<span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-1">Mazda</span>
+<!-- 3 · icono inline -->
+<i class="fa-solid fa-location-dot text-amber-400 mr-2"></i>
+<!-- 4 · hover de título de tarjeta -->
+<h3 class="font-serif-luxury text-xl text-white group-hover:text-amber-400 transition-colors">…</h3>
+<!-- 5 · regla divisoria -->
+<div class="mt-4 h-px w-20 bg-amber-400/40"></div>
+<!-- 6 · indicador en vivo -->
+<span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+<!-- 7 · teléfono, único font-mono del sistema -->
+<a class="text-white hover:text-amber-400 font-mono tracking-wide">(55) 2122-0370</a>` },
+
+  { nombre:'Semánticos — esmeralda y rojo', fondo:true, render:`
+    <div class="flex flex-wrap items-center gap-8">
+      <div class="flex items-center gap-3">
+        <span class="w-12 h-12 border border-white/10" style="background:rgb(16,185,129)"></span>
+        <div><p class="text-[10px] uppercase tracking-widest text-emerald-300 font-medium">Esmeralda</p>
+          <p class="text-[10px] font-mono text-gray-500">disponible · activo</p></div>
+      </div>
+      <span class="inline-flex items-center px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold uppercase tracking-[0.18em]">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>Disponible</span>
+      <a class="border border-white/10 text-emerald-500/90 hover:border-emerald-500/30 px-3 py-1.5 text-[11px] uppercase tracking-wide transition">Chip de estado</a>
+      <div class="flex items-center gap-3">
+        <span class="w-12 h-12 border border-white/10" style="background:rgb(239,68,68)"></span>
+        <div><p class="text-[10px] uppercase tracking-widest text-red-200 font-medium">Rojo</p>
+          <p class="text-[10px] font-mono text-gray-500">error · y sólo error</p></div>
+      </div>
+      <div class="bg-red-950/80 border border-red-500/30 text-red-200 text-xs tracking-wide px-4 py-3">Selecciona una fecha antes de continuar.</div>
+    </div>`,
+    nota:'Esmeralda = disponible/activo. Rojo = error y sólo error. El rojo de Freightliner y Great Dane es color de marca de esas armadoras, no semántico.',
+    codigo:`<!-- disponible -->
+<span class="inline-flex items-center px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold uppercase tracking-[0.18em]">Disponible</span>
+<!-- error (toast) -->
+<div class="bg-red-950/80 border border-red-500/30 text-red-200 text-xs tracking-wide px-4 py-3">Error</div>` },
+
+  { nombre:'Alfas sobre blanco — el sistema de bordes', fondo:true, render:`
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3">
+      ${[['border-white/5','1112 usos · borde por defecto'],['border-white/10','botón outline · input'],
+         ['border-white/20','CTA de nav · hover de tarjeta'],['border-white/30','variante'],['border-white/40','input en focus']]
+        .map(([cls,rol]) => `<div>
+          <div class="h-16 bg-[#0d0e12] border ${cls}"></div>
+          <p class="text-[10px] font-mono text-gray-400 mt-2">${cls}</p>
+          <p class="text-[10px] font-light text-gray-600 leading-snug">${rol}</p>
+        </div>`).join('')}
+    </div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-4">
+      ${[['bg-white/5','fondo del CTA de nav'],['bg-white/10','hover de botón secundario'],
+         ['bg-white/20','variante'],['border-dashed border-white/10','empty state — único borde no sólido']]
+        .map(([cls,rol]) => `<div>
+          <div class="h-16 border ${cls.includes('bg-') ? 'border-white/5 ' + cls : cls}"></div>
+          <p class="text-[10px] font-mono text-gray-400 mt-2">${cls}</p>
+          <p class="text-[10px] font-light text-gray-600 leading-snug">${rol}</p>
+        </div>`).join('')}
+    </div>`,
+    nota:'border-white/5 es el borde por defecto de TODO: 1112 usos en el corpus. /20 es el hover de tarjeta. /40 es el focus de input.',
+    codigo:`<div class="border border-white/5">…</div>   <!-- borde por defecto · 1112 usos -->
+<div class="border border-white/10">…</div>  <!-- botón outline, input en reposo -->
+<div class="border border-white/20">…</div>  <!-- CTA de nav, hover de tarjeta -->
+<div class="focus:border-white/40">…</div>   <!-- input en focus -->
+<div class="bg-white/5">…</div>              <!-- fondo del CTA de nav -->` },
+]},
+
+{ id:'tipografia', titulo:'Tipografía', eyebrow:'Tokens', items:[
+  { nombre:'Escala completa', fondo:true,
+    nota:'12px es el tamaño base del sistema: text-xs aparece 1469 veces en el corpus. Usar 14 o 16 como texto de interfaz rompe el contraste de escala con los títulos Cinzel y el sitio deja de verse Zapata. Cinzel se pide en peso 300 pero sólo se cargan 400 y 600: el navegador sintetiza.',
+    codigo:`<h1 class="font-serif-luxury text-4xl md:text-7xl text-white tracking-wide font-light">72px · 300 · ls 1.8px</h1>
+<h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-[0.15em] font-light leading-none">HERO INTERIOR · 48px · ls 7.2px</h1>
+<h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">30px/36px · 300 · ls 0.75px</h2>
+<h3 class="font-serif-luxury text-xl text-white tracking-wide">20px/28px · 400 · ls 0.5px</h3>
+<p  class="text-gray-400 text-xs leading-relaxed font-light">12px/19.5px · 300 — el párrafo del sistema</p>
+<span class="text-xs uppercase tracking-widest">12px · uppercase · ls 1.2px — nav, CTA</span>
+<span class="text-[10px] uppercase tracking-widest font-medium">10px · 500 — título de columna de footer</span>
+<span class="text-[11px] font-light">11px · 300 — link de footer</span>` },
+
+  { nombre:'Tracking — lo que convierte Inter en marca', fondo:true, render:`
+    <div class="space-y-4">
+      ${[['tracking-normal','—','sin tracking: se lee como dashboard, no como marca'],
+         ['tracking-wide','0.025em','títulos Cinzel'],
+         ['tracking-widest','0.1em','nav · CTA · títulos de footer — 1627 usos'],
+         ['tracking-[0.15em]','0.15em','H1 de página interior'],
+         ['tracking-[0.3em]','0.3em','eyebrow de sección'],
+         ['tracking-[0.5em]','0.5em','eyebrow del hero — único']]
+        .map(([cls,val,rol]) => `<div class="flex flex-col sm:flex-row sm:items-baseline gap-1 sm:gap-6 pb-3 border-b border-white/5">
+          <span class="text-[10px] font-mono text-gray-500 w-40 shrink-0">${cls}</span>
+          <span class="text-xs uppercase text-white ${cls} flex-1">Cita de Servicio</span>
+          <span class="text-[10px] font-light text-gray-600 sm:text-right">${val} · ${rol}</span>
+        </div>`).join('')}
+    </div>`,
+    nota:'tracking-widest aparece 1627 veces. Sin él, Inter se lee como dashboard; con él, se lee como identidad. Todo texto en mayúsculas lleva tracking, sin excepción.',
+    codigo:`<span class="tracking-wide">0.025em · títulos Cinzel</span>
+<span class="tracking-widest">0.1em · nav, CTA, títulos de footer · 1627 usos</span>
+<span class="tracking-[0.15em]">0.15em · H1 de página interior</span>
+<span class="tracking-[0.3em]">0.3em · eyebrow de sección</span>
+<span class="tracking-[0.5em]">0.5em · eyebrow del hero, único</span>` },
+]},
+
+/* ══════════════════ BOTONES ══════════════════ */
+{ id:'botones', titulo:'Botones', eyebrow:'Componentes', items:[
+  { nombre:'Primario', fondo:true,
+    nota:'155×48px · padding 16px 32px · radius 0 · sin sombra. Hover #ffffff → #e5e5e5 en 300ms. font-medium (500) en navegación; font-semibold (600) en flujos transaccionales.',
+    codigo:`<a class="bg-white text-black px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300">Ver Promos</a>` },
+
+  { nombre:'Secundario — sobre imagen', fondo:true,
+    nota:'187×50px, 2px más alto que el primario por el borde. backdrop-blur(8px) para separarse de la imagen de fondo.',
+    codigo:`<a class="border border-white/20 bg-black/40 backdrop-blur px-8 py-4 text-xs uppercase tracking-widest font-medium hover:bg-white/10 transition-all duration-300">Ver Soluciones</a>` },
+
+  { nombre:'Outline de tarjeta', fondo:true,
+    nota:'Ancho completo de la tarjeta, 42px de alto. Se invierte por completo en hover: fondo blanco, texto negro.',
+    codigo:`<a class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ver inventario</a>` },
+
+  { nombre:'CTA de navegación', fondo:true,
+    nota:'166×37px · padding 10px 20px. Lleva rounded-none explícito para anular Preflight.',
+    codigo:`<a class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">Cita de Servicio</a>` },
+
+  { nombre:'Directorio — la única variante ámbar', fondo:true,
+    nota:'130×25px · padding 4px 8px · 10px/500/ls 1px · transición 150ms. El único botón del sistema que no es blanco ni outline blanco. Se usa exclusivamente para navegar a directorios de sucursal.',
+    codigo:`<button class="text-[10px] tracking-widest text-amber-400 uppercase border border-amber-400/20 px-2 py-1 bg-amber-400/5 hover:bg-amber-400 hover:text-black transition-all font-medium flex items-center gap-1.5">
+  Ver Directorio <i class="fa-solid fa-chevron-right text-[8px]"></i>
+</button>` },
+
+  { nombre:'Avance de paso — transaccional', fondo:true,
+    nota:'font-semibold (600), no font-medium. Los botones de flujo transaccional pesan más que los de navegación.',
+    codigo:`<button type="button" class="bg-white text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">Continuar</button>` },
+
+  { nombre:'Deshabilitado', fondo:true, ancho:'max-w-sm',
+    nota:'disabled:opacity-10 — 10%, no el 40 o 50 habitual. Zapata apaga los controles deshabilitados casi por completo. Variante alterna en otras páginas: disabled:opacity-40 disabled:cursor-not-allowed.',
+    codigo:`<button disabled class="w-full bg-white text-black py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300 rounded-none disabled:opacity-10 disabled:pointer-events-none">Cotizar vía WhatsApp</button>` },
+
+  { nombre:'Link con flecha — se apaga en hover', fondo:true,
+    nota:'Va en dirección CONTRARIA a todo lo demás: #ffffff → #9ca3af. Ya es blanco en reposo para destacar dentro de la tarjeta, así que la única dirección disponible para señalar interacción es hacia abajo. No lo "corrijas".',
+    codigo:`<a class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Conocer más &rarr;</a>` },
+
+  { nombre:'Enlace subrayado de sección', fondo:true,
+    nota:'Acompaña al encabezado de sección, alineado a la derecha con items-end.',
+    codigo:`<a class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors border-b border-white/20 pb-1">Ver todas</a>` },
+]},
+
+/* ══════════════════ ESTRUCTURA ══════════════════ */
+{ id:'estructura', titulo:'Estructura', eyebrow:'Componentes', items:[
+  { nombre:'Encabezado de sección', fondo:true,
+    nota:'Ritmo 96/64/8: sección respira 96px, encabezado se separa 64px del contenido, eyebrow se pega 8px al título.',
+    codigo:`<div class="mb-16">
+  <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Portafolio Operativo</span>
+  <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Soluciones para cada necesidad</h2>
+  <p class="text-gray-400 text-xs font-light mt-2">Desde un auto familiar hasta una flota de carga.</p>
+</div>` },
+
+  { nombre:'Encabezado con acción', fondo:true,
+    nota:'items-end alinea el link con la línea base del bloque de texto, no con su centro.',
+    codigo:`<div class="flex justify-between items-end mb-16">
+  <div>
+    <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Oportunidades Vigentes</span>
+    <h2 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Estrena en Zapata</h2>
+  </div>
+  <a class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors border-b border-white/20 pb-1">Ver todas</a>
+</div>` },
+
+  { nombre:'Contenedor y retículas', fondo:false,
+    nota:'max-w-7xl aparece 280 veces: es el contenedor universal, 1280px con 24px de padding. Regla de gaps: a más columnas, menor gap — 2 col → 64px, 3 col → 32px, 4 col → 24px.',
+    codigo:`<div class="max-w-7xl mx-auto px-6">…</div>              <!-- 1280px · pad 24px -->
+<section class="py-24">…</section>                       <!-- 96px arriba y abajo -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">…</div>            <!-- 389px × 3 -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">…</div> <!-- 290px × 4 -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">…</div>  <!-- 584px × 2 -->` },
+]},
+
+/* ══════════════════ TARJETAS ══════════════════ */
+{ id:'tarjetas', titulo:'Tarjetas', eyebrow:'Componentes', items:[
+  { nombre:'Editorial — rejilla de 3', fondo:true, ancho:'max-w-sm',
+    nota:'389×405px. El hover es COMPUESTO: el borde del contenedor cambia en 300ms y la imagen escala en 500ms, ambos arrancando a la vez. El bg de la tarjeta invierte respecto al de su sección.',
+    codigo:`<div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+  <div>
+    <a href="#" class="block overflow-hidden aspect-[16/10] bg-neutral-900 mb-6">
+      <img src="…" alt="…" class="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-500">
+    </a>
+    <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-3">Nuestra comunidad</h3>
+    <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Personas, historias y proyectos que dan vida a la cultura Zapata.</p>
+  </div>
+  <a href="#" class="text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors self-start">Conocer más &rarr;</a>
+</div>` },
+
+  { nombre:'Solución — rejilla de 4', fondo:true, ancho:'max-w-[290px]',
+    nota:'290×492px. Imagen en aspect-[16/14] y sin escala en hover. El CTA es un botón outline, no un link con flecha.',
+    codigo:`<div class="bg-[#0b0c10] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+  <div>
+    <a href="#" class="block overflow-hidden aspect-[16/14] bg-neutral-900 mb-6">
+      <img src="…" alt="…" class="w-full h-full object-cover opacity-80">
+    </a>
+    <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Camiones Freightliner</h3>
+    <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Tractocamiones con la infraestructura de respaldo más robusta del país.</p>
+  </div>
+  <a href="#" class="block text-center border border-white/10 py-3 text-xs uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">Ver inventario</a>
+</div>` },
+
+  { nombre:'Producto — con etiqueta de marca', fondo:true, ancho:'max-w-sm',
+    nota:'Patrón de /estrena. La micro-etiqueta ámbar identifica la marca sobre el título Cinzel.',
+    codigo:`<div class="bg-[#0d0e12] border border-white/5 group hover:border-white/20 transition-all duration-300">
+  <a href="#" class="block overflow-hidden aspect-[4/4] bg-neutral-900">
+    <img src="…" alt="…" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+  </a>
+  <div class="p-6">
+    <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-1">Mazda</span>
+    <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-2">Mazda CX-5</h3>
+    <p class="text-gray-400 text-xs font-light">Localidad: Varias Localidades</p>
+  </div>
+</div>` },
+]},
+
+/* ══════════════════ FORMULARIOS ══════════════════ */
+{ id:'formularios', titulo:'Formularios', eyebrow:'Componentes', items:[
+  { nombre:'Input', fondo:true, ancho:'max-w-sm',
+    nota:'padding 10px 12px · 12px Inter · rounded-none explícito. El focus elimina el outline nativo y lo reemplaza por border-white/40 — contraste ~1.4:1, insuficiente para teclado. Al construir algo nuevo (no un clon literal) añade focus-visible:ring-1 focus-visible:ring-white/60.',
+    codigo:`<label class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Nombre</label>
+<input type="text" required data-sanitize="alpha" placeholder="Tu nombre"
+  class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">` },
+
+  { nombre:'Select — tres estados', fondo:true, ancho:'max-w-sm',
+    nota:'190×39px en su variante de filtro. El estado deshabilitado baja el fondo al 60% y pone cursor-not-allowed.',
+    codigo:`<!-- normal -->
+<select class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-3 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">…</select>
+<!-- filtro -->
+<select class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">…</select>
+<!-- deshabilitado -->
+<select disabled class="w-full bg-[#0b0c10]/60 border border-white/10 text-gray-500 px-3 py-3 text-xs focus:outline-none rounded-none cursor-not-allowed">…</select>` },
+
+  { nombre:'Checkbox de privacidad', fondo:true,
+    nota:'accent-amber-400 — el segundo uso sistemático del ámbar, en controles de formulario.',
+    codigo:`<label class="flex items-start gap-2 text-[11px] font-light text-gray-400">
+  <input type="checkbox" required class="mt-0.5 bg-[#0b0c10] border-white/10 focus:ring-0 rounded-none accent-amber-400">
+  Acepto el aviso de privacidad
+</label>` },
+
+  { nombre:'Barra de filtros', fondo:true,
+    nota:'Patrón de /accesorios: búsqueda + 3 selects + limpiar, en rejilla de 5 desde md. Debajo va la fila de conteo y descargo.',
+    codigo:`<div class="border border-white/5 bg-[#0d0e12] p-4 grid grid-cols-1 md:grid-cols-5 gap-3">
+  <input placeholder="BUSCAR ACCESORIO…" class="md:col-span-2 w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/40 rounded-none placeholder:text-gray-700">
+  <select class="…">TODAS LAS MARCAS</select>
+  <select class="…">TODAS LAS CATEGORÍAS</select>
+  <button class="border border-white/10 text-white text-[11px] uppercase tracking-widest px-4 hover:bg-white hover:text-black transition-colors">Limpiar</button>
+</div>` },
+]},
+
+/* ══════════════════ NAVEGACIÓN ══════════════════ */
+{ id:'navegacion', titulo:'Navegación', eyebrow:'Componentes', items:[
+  { nombre:'Barra fija', fondo:false,
+    nota:'81px de alto (80 + 1 de borde) · bg-[#0b0c10]/80 · backdrop-blur(12px). Los links van de #9ca3af a blanco en 150ms.',
+    codigo:`<nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0c10]/80 backdrop-blur-md border-b border-white/5">
+  <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+    <a href="/"><img src="…/logo-zapata-white.png" alt="logo_zapata" class="h-7 w-auto"></a>
+    <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-gray-400 uppercase">
+      <a class="hover:text-white transition-colors">Marcas</a>
+      <a class="hover:text-white transition-colors">Estrena</a>
+    </div>
+    <a class="hidden md:block border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">Cita de Servicio</a>
+  </div>
+</nav>` },
+
+  { nombre:'Hamburger + menú móvil', fondo:true, demo:'menu',
+    nota:'Líneas de 22×1.5px — sub-pixel deliberado. El visibility tiene delay ASIMÉTRICO: 0s linear .4s al cerrar (espera la animación) y 0s linear 0s al abrir. Evita que el panel invisible capture clicks; es un detalle que sólo se escribe después de encontrar el bug. Stagger de 60ms entre links.',
+    codigo:`<button id="hamburger-btn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"
+  class="md:hidden flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none">
+  <span class="hamburger-line line-top"></span>
+  <span class="hamburger-line line-mid"></span>
+  <span class="hamburger-line line-bottom"></span>
+</button>
+
+<style>
+#mobile-menu { transform: translateY(-100%); opacity: 0; visibility: hidden;
+  transition: transform .4s cubic-bezier(0.4,0,0.2,1), opacity .4s cubic-bezier(0.4,0,0.2,1), visibility 0s linear .4s; }
+#mobile-menu.open { transform: translateY(0); opacity: 1; visibility: visible;
+  transition: transform .4s cubic-bezier(0.4,0,0.2,1), opacity .4s cubic-bezier(0.4,0,0.2,1), visibility 0s linear 0s; }
+#mobile-menu.open a:nth-child(1) { transition-delay: .12s }  /* +60ms cada uno */
+</style>` },
+]},
+
+/* ══════════════════ ESTADO Y RETROALIMENTACIÓN ══════════════════ */
+{ id:'estado', titulo:'Estado y retroalimentación', eyebrow:'Componentes', items:[
+  { nombre:'Indicador en vivo', fondo:true,
+    nota:'6×6px. La ÚNICA animación continua del sistema 2026: pulse de Tailwind, 2s cubic-bezier(0.4,0,0.6,1) infinito — la única excepción al easing único. En /freightliner el mismo componente va en rojo de marca.',
+    codigo:`<span class="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400">
+  <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span> En operación
+</span>` },
+
+  { nombre:'Chip de disponibilidad', fondo:true,
+    nota:'92×31px · padding 6px 12px · 11px/400/ls 0.55px. El borde pasa de white/10 a emerald-500/30 en hover.',
+    codigo:`<a class="border border-white/10 text-emerald-500/90 hover:border-emerald-500/30 px-3 py-1.5 text-[11px] uppercase tracking-wide transition">Disponible</a>` },
+
+  { nombre:'Badge sólido', fondo:true,
+    nota:'font-bold (700) y tracking-[0.18em] — el badge es el elemento con más peso tipográfico del sistema.',
+    codigo:`<span class="inline-flex items-center px-3 py-1.5 bg-emerald-500/10 border border-emerald-400/25 text-emerald-300 text-[10px] font-bold uppercase tracking-[0.18em]">
+  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-2"></span>Activo
+</span>` },
+
+  { nombre:'Empty state', fondo:true,
+    nota:'border-dashed es el ÚNICO borde no sólido del sistema y existe exclusivamente para estados vacíos. Señala "aquí va contenido que todavía no existe" sin usar color.',
+    codigo:`<div class="border border-dashed border-white/10 p-6 text-center text-xs font-light text-gray-500">
+  No has agregado accesorios a tu lista. Selecciona componentes del catálogo izquierdo.
+</div>` },
+
+  { nombre:'Toast de error', fondo:true, demo:'toast',
+    nota:'fixed right-6 bottom-6 · z-50. Oculto con opacity-0 + translate-y-2, se revela quitando ambas. Rojo = error y sólo error.',
+    codigo:`<div id="toast" class="fixed right-6 bottom-6 px-4 py-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs tracking-wide opacity-0 translate-y-2 transition-all duration-300 z-50">
+  Selecciona una fecha antes de continuar.
+</div>` },
+
+  { nombre:'Fila de conteo y descargo', fondo:true,
+    nota:'Izquierda el conteo, derecha el descargo legal. Ambos 10-11px uppercase tracking-widest, en gris distinto.',
+    codigo:`<div class="flex justify-between items-center border-b border-white/5 pb-3 mb-6">
+  <span class="text-[11px] uppercase tracking-widest text-gray-300">Mostrando 24 accesorios</span>
+  <span class="text-[10px] uppercase tracking-widest text-gray-600">Sujeto a disponibilidad e instalación</span>
+</div>` },
+]},
+
+/* ══════════════════ FLUJOS ══════════════════ */
+{ id:'flujos', titulo:'Flujos', eyebrow:'Componentes', items:[
+  { nombre:'Stepper de 3 pasos', fondo:true,
+    nota:'Patrón de las 14 páginas de cita de servicio. El separador del título es &bull;, no dos puntos. El flujo pide datos personales en el paso 3 de 3: los pasos 1 y 2 son sobre el vehículo y la fecha, información que el usuario da sin resistencia.',
+    codigo:`<ol class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-10">
+  <li id="step-badge-1" class="border border-white/10 bg-[#0d0e12] p-3 flex items-center gap-3 transition-all duration-300">
+    <span class="w-6 h-6 flex items-center justify-center border border-white/20 text-[10px] text-white">1</span>
+    <span class="text-[10px] uppercase tracking-widest text-gray-400">Información del vehículo</span>
+  </li>
+  <!-- pasos 2 y 3 idénticos -->
+</ol>` },
+
+  { nombre:'Calendario', fondo:true, ancho:'max-w-xs',
+    nota:'Rejilla de 7 con gap 4px para los días; rejilla de 2 con gap 8px para los horarios. Las flechas son los caracteres ◀ ▶, no iconos, y llevan aria-label en español. Lo construye /public/js/citas_servicio/citas_servicio.js.',
+    codigo:`<div class="border border-white/10 bg-[#0d0e12] p-4">
+  <div class="flex items-center justify-between mb-3">
+    <button type="button" id="prevMonth" class="text-gray-400 hover:text-white px-1" aria-label="Mes anterior">◀</button>
+    <div id="monthLabel" class="uppercase tracking-widest text-white font-medium text-xs">ago 2026</div>
+    <button type="button" id="nextMonth" class="text-gray-400 hover:text-white px-1" aria-label="Mes siguiente">▶</button>
+  </div>
+  <div id="dow"  class="grid grid-cols-7 gap-1 text-center text-gray-500 font-medium uppercase mb-2 text-[10px]"></div>
+  <div id="days" class="grid grid-cols-7 gap-1 mt-1 text-center font-light text-xs"></div>
+  <div id="times" class="mt-3 grid grid-cols-2 gap-2"></div>
+</div>` },
+
+  { nombre:'Bandeja de beneficios — reducción de fricción', fondo:true,
+    nota:'Va ANTES del formulario, no después. El usuario lee por qué vale la pena antes de ver cuántos campos hay. Es el patrón de conversión de las 21 páginas de detalle de promoción.',
+    codigo:`<ul class="space-y-2 mb-8 text-xs font-light text-gray-400">
+  <li>• Proceso de compra fácil y guiado</li>
+  <li>• Atención personalizada</li>
+  <li>• Compra con confianza</li>
+  <li>• Recomendaciones de cuidado</li>
+</ul>` },
+]},
+
+/* ══════════════════ CAPAS ══════════════════ */
+{ id:'capas', titulo:'Capas flotantes', eyebrow:'Componentes', items:[
+  { nombre:'Modal', fondo:true, demo:'modal',
+    nota:'Las capas flotantes son la ÚNICA excepción a box-shadow: none. Lo que flota sobre la página necesita elevación; lo que está en el flujo se separa con fondo y borde. Scrim con bg-black/60 + backdrop-blur-sm.',
+    codigo:`<div class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+  <div class="relative w-full max-w-sm bg-[#0d0e12] border border-white/10 shadow-lg p-6">
+    <h3 class="font-serif-luxury text-lg text-white tracking-wide mb-3">Restricción de Homologación</h3>
+    <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Tu configuración técnica actual pertenece de forma exclusiva a esta división.</p>
+    <button class="w-full bg-white text-black py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors">Vaciar e Iniciar</button>
+  </div>
+</div>` },
+
+  { nombre:'CTA flotante móvil', fondo:true,
+    nota:'z-40 · sólo < md · shadow-lg. La segunda y última capa con sombra del sistema.',
+    codigo:`<a class="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-white text-black px-4 py-2.5 text-[10px] uppercase tracking-widest font-semibold shadow-lg hover:bg-neutral-200 transition-colors rounded-none md:hidden">
+  <i class="fa-brands fa-whatsapp"></i> Cotizar
+</a>` },
+
+  { nombre:'Panel sticky', fondo:false,
+    nota:'top-24 = 96px: los 80px de la nav fija más 16px de aire. Sin ese margen el panel se pega al borde inferior de la barra.',
+    codigo:`<aside class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">…</aside>` },
+]},
+
+/* ══════════════════ MOVIMIENTO ══════════════════ */
+{ id:'movimiento', titulo:'Movimiento', eyebrow:'Tokens', items:[
+  { nombre:'Easing y duraciones', fondo:false,
+    nota:'Un solo easing en todo el sitio: cubic-bezier(0.4, 0, 0.2, 1) — el ease-in-out de Tailwind — incluso en el CSS escrito a mano. Regla de duración: cuanto más grande el elemento que se mueve, más lenta la transición.',
+    codigo:`duration-150   colores de link · el default de transition-colors
+duration-300   duración por defecto · 599 usos · hovers de botón y borde
+duration-500   escala de imagen de tarjeta (339×212px)
+duration-700   escala de imagen grande (584px)
+400ms          apertura del menú móvil (a mano)
+350ms          rotación de las líneas del hamburger (a mano)
+
+/* siempre, sin excepción */
+cubic-bezier(0.4, 0, 0.2, 1)` },
+
+  { nombre:'Hover compuesto de tarjeta', fondo:true, ancho:'max-w-sm',
+    nota:'El group dispara dos transiciones simultáneas con duraciones distintas: borde en 300ms, imagen en 500ms. Pasa el cursor por encima para verlo.',
+    codigo:`<div class="… group hover:border-white/20 transition-all duration-300">
+  <img class="… group-hover:scale-105 transition-transform duration-500">
+</div>` },
+]},
+
+];
+
+/* ────────── demos que necesitan interacción propia ──────────
+   Declarados ANTES del render: el bucle los referencia. */
+const DEMO_MENU = `<div class="relative">
+  <button id="hamburger-btn" aria-label="Abrir menú" aria-expanded="false" aria-controls="mobile-menu"
+    class="flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none border border-white/10">
+    <span class="hamburger-line line-top"></span><span class="hamburger-line line-mid"></span><span class="hamburger-line line-bottom"></span>
+  </button>
+  <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-3">Pulsa para ver la animación</p>
+  <div id="mobile-menu" class="absolute top-16 left-0 w-64 bg-[#0b0c10]/95 backdrop-blur-lg border border-white/5 px-6 pb-6 pt-4 z-20">
+    <a class="block py-3 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">Marcas</a>
+    <a class="block py-3 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">Estrena</a>
+    <a class="block py-3 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">Accesorios</a>
+    <a class="block py-3 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">Servicio</a>
+    <a class="block mt-4 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">Cita de Servicio</a>
+  </div></div>`;
+
+const DEMO_TOAST = `<button id="lib-toast-btn" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">Disparar toast</button>
+  <div id="lib-toast" class="fixed right-6 bottom-6 px-4 py-3 bg-red-950/80 border border-red-500/30 text-red-200 text-xs tracking-wide opacity-0 translate-y-2 transition-all duration-300 z-50 pointer-events-none">Selecciona una fecha antes de continuar.</div>`;
+
+const DEMO_MODAL = `<button id="lib-modal-btn" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">Abrir modal</button>
+  <div id="lib-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" data-cerrar></div>
+    <div class="relative w-full max-w-sm bg-[#0d0e12] border border-white/10 shadow-lg p-6">
+      <h3 class="font-serif-luxury text-lg text-white tracking-wide mb-3">Restricción de Homologación</h3>
+      <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">Tu configuración técnica actual pertenece de forma exclusiva a esta división. Vacía los componentes activos para añadir una línea técnica diferente.</p>
+      <button class="w-full bg-white text-black py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors" data-cerrar>Vaciar e Iniciar</button>
+    </div></div>`;
+
+/* ────────── render ────────── */
+const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const cuerpo = document.getElementById('cuerpo');
+const indice = document.getElementById('indice');
+let total = 0;
+
+SECCIONES.forEach(sec => {
+  const a = document.createElement('a');
+  a.href = '#' + sec.id;
+  a.className = 'py-1.5 pl-3 border-l border-white/10 text-gray-500 hover:text-white transition-colors';
+  a.textContent = sec.titulo;
+  indice.appendChild(a);
+
+  const s = document.createElement('section');
+  s.id = sec.id;
+  s.className = 'mb-20 scroll-mt-28';
+  s.innerHTML = `<div class="mb-8 pb-4 border-b border-white/5">
+      <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">${sec.eyebrow}</span>
+      <h2 class="font-serif-luxury text-2xl text-white tracking-wide font-light">${sec.titulo}</h2>
+    </div>`;
+
+  sec.items.forEach(it => {
+    total++;
+    const bloque = document.createElement('article');
+    bloque.className = 'mb-8 border border-white/5 bg-[#0d0e12]';
+    bloque.innerHTML = `
+      <div class="px-5 py-3 border-b border-white/5 flex items-center justify-between gap-4">
+        <h3 class="text-xs uppercase tracking-widest text-white font-medium">${it.nombre}</h3>
+        <button class="lib-copy shrink-0 text-[10px] tracking-widest text-amber-400 uppercase border border-amber-400/20 px-2 py-1 bg-amber-400/5 hover:bg-amber-400 hover:text-black transition-all font-medium">Copiar</button>
+      </div>
+      ${it.fondo ? `<div class="p-8 bg-[#0b0c10] border-b border-white/5"><div class="${it.ancho||''} demo"></div></div>` : ''}
+      <div class="px-5 py-4 border-b border-white/5">
+        <p class="text-[11px] leading-relaxed font-light text-gray-400">${it.nota}</p>
+      </div>
+      <pre class="lib-code px-5 py-4 overflow-x-auto">${esc(it.codigo)}</pre>`;
+
+    if (it.fondo) {
+      const demo = bloque.querySelector('.demo');
+      // El demo renderiza el mismo marcado del snippet, salvo los que necesitan
+      // interaccion propia (menu, toast, modal), que se montan aparte.
+      if (it.render)                demo.innerHTML = it.render;          // demo a medida
+      else if (it.demo === 'menu')  demo.innerHTML = DEMO_MENU;
+      else if (it.demo === 'toast') demo.innerHTML = DEMO_TOAST;
+      else if (it.demo === 'modal') demo.innerHTML = DEMO_MODAL;
+      else demo.innerHTML = it.codigo.replace(/<!--[\s\S]*?-->/g, '').replace(/…/g, 'Contenido de ejemplo')
+             .replace(/src="Contenido de ejemplo"/g, 'src="../assets/public/images/home/2026/freightliner.jpeg"');
+    }
+
+    bloque.querySelector('.lib-copy').addEventListener('click', async (e) => {
+      try { await navigator.clipboard.writeText(it.codigo);
+        e.target.textContent = 'Copiado'; setTimeout(() => e.target.textContent = 'Copiar', 1400);
+      } catch { e.target.textContent = 'Selecciona el código'; setTimeout(() => e.target.textContent = 'Copiar', 1800); }
+    });
+
+    s.appendChild(bloque);
+  });
+  cuerpo.appendChild(s);
+});
+document.getElementById('conteo').textContent = total;
+
+</script>
+
+<script>
+/* montaje de los demos interactivos, tras el render */
+(function () {
+  const btn = document.getElementById('hamburger-btn');
+  const menu = document.getElementById('mobile-menu');
+  if (btn && menu) {
+    btn.addEventListener('click', () => {
+      const abierto = menu.classList.toggle('open');
+      btn.classList.toggle('open', abierto);
+      btn.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+      btn.setAttribute('aria-label', abierto ? 'Cerrar menú' : 'Abrir menú');
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { menu.classList.remove('open'); btn.classList.remove('open');
+        btn.setAttribute('aria-expanded','false'); btn.setAttribute('aria-label','Abrir menú'); }
+    });
+  }
+
+  const tb = document.getElementById('lib-toast-btn'), toast = document.getElementById('lib-toast');
+  if (tb && toast) tb.addEventListener('click', () => {
+    toast.classList.remove('opacity-0','translate-y-2');
+    setTimeout(() => toast.classList.add('opacity-0','translate-y-2'), 2600);
+  });
+
+  const mb = document.getElementById('lib-modal-btn'), modal = document.getElementById('lib-modal');
+  if (mb && modal) {
+    mb.addEventListener('click', () => { modal.classList.remove('hidden'); modal.classList.add('flex'); });
+    modal.addEventListener('click', e => {
+      if (e.target.hasAttribute('data-cerrar')) { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    });
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    });
+  }
+
+  // índice: marca la sección visible
+  const enlaces = [...document.querySelectorAll('.lib-nav a')];
+  const obs = new IntersectionObserver(ents => {
+    ents.forEach(e => {
+      if (e.isIntersecting) {
+        enlaces.forEach(a => a.classList.toggle('activo', a.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { rootMargin: '-100px 0px -70% 0px' });
+  document.querySelectorAll('main section').forEach(s => obs.observe(s));
+})();
+</script>
+
+<footer class="bg-[#07080a] py-12 border-t border-white/5 text-xs text-gray-500">
+  <div class="max-w-[1600px] mx-auto px-6">
+    <p class="font-serif-luxury tracking-widest text-white text-sm mb-3">SISTEMA ZAPATA 2026</p>
+    <p class="text-[11px] leading-relaxed font-light text-gray-400 max-w-2xl">
+      Componentes extraídos de <span class="text-gray-300">zapata.com.mx</span> con
+      <span class="text-gray-300">getComputedStyle()</span> sobre las páginas vivas.
+      Ningún valor está estimado. Documento de trabajo interno — el contenido, las marcas y los
+      logotipos son propiedad de Corporación Zapata y de las armadoras que representa.
+    </p>
+    <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-6">
+      Referencia completa en skills/zapata-design/references/
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>

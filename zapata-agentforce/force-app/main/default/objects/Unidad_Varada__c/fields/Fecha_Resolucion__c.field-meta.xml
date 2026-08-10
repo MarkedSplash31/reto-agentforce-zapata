@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Fecha_Resolucion__c</fullName>
+    <description>Momento en que la unidad volvio a rodar o entro a taller.</description>
+    <label>Fecha de resolucion</label>
+    <required>false</required>
+    <type>DateTime</type>
+</CustomField>

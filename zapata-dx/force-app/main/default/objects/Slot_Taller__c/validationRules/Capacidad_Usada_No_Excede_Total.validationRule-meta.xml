@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Capacidad_Usada_No_Excede_Total</fullName>
+    <active>true</active>
+    <errorConditionFormula>Capacidad_Usada__c &gt; Capacidad_Total__c</errorConditionFormula>
+    <errorDisplayField>Capacidad_Usada__c</errorDisplayField>
+    <errorMessage>Los cupos usados no pueden superar la capacidad total de la franja.</errorMessage>
+</ValidationRule>

@@ -1,0 +1,17 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+.metadata-org
+node_modules
+npm-debug.log*
+test-results
+playwright-report
+tests
+playwright*.config.*
+evidencia
+docs
+*.md
+Dockerfile*
+render.yaml

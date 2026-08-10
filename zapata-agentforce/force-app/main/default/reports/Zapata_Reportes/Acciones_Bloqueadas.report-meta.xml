@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Log_Agente__c.Correlation_Id__c</field>
+    </columns>
+    <columns>
+        <field>Log_Agente__c.Subagent__c</field>
+    </columns>
+    <columns>
+        <field>Log_Agente__c.Action_Name__c</field>
+    </columns>
+    <columns>
+        <field>Log_Agente__c.Guardrail_Triggered__c</field>
+    </columns>
+    <columns>
+        <field>Log_Agente__c.Error_Code__c</field>
+    </columns>
+    <columns>
+        <field>Log_Agente__c.Timestamp__c</field>
+    </columns>
+    <description>Prueba que el agente se nego cuando debia. Evidencia de la capa de confianza.</description>
+    <format>Tabular</format>
+    <filter>
+        <criteriaItems>
+            <column>Log_Agente__c.Outcome__c</column>
+            <operator>equals</operator>
+            <value>BLOCKED</value>
+        </criteriaItems>
+    </filter>
+    <name>Acciones bloqueadas por guardrail</name>
+    <reportType>CustomEntity$Log_Agente__c</reportType>
+</Report>

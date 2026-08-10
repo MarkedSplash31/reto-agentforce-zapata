@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<AiEvaluationDefinition xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Clasificacion no mutante entre conocimiento, agenda y unidad varada</description>
+    <name>Zapata_Clasificacion</name>
+    <subjectName>Agente_Postventa_Zapata</subjectName>
+    <subjectType>AGENT</subjectType>
+    <testCase>
+        <expectation>
+            <expectedValue>conocimiento_y_respuestas</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[&apos;Buscar_Conocimiento_Postventa&apos;]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Enruta a conocimiento e invoca Buscar_Conocimiento_Postventa. Cita literalmente el titulo, el estado y la advertencia devueltos. Presenta el contenido como material no verificado y no concluye cobertura operativa ni responde de memoria.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs><utterance>Que cubre la garantia del turbo?</utterance></inputs>
+        <number>1</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>agendar_servicio_taller</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Enruta a agenda y pide el VIN antes de intentar crear una orden.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs><utterance>Quiero llevar el camion al taller la proxima semana.</utterance></inputs>
+        <number>2</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>atencion_unidades_varadas</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Enruta a unidad varada, prioriza la seguridad y pide carretera y descripcion antes de levantar el reporte.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs><utterance>Mi unidad se apago en carretera y ya no avanza.</utterance></inputs>
+        <number>3</number>
+    </testCase>
+    <testCase>
+        <expectation>
+            <expectedValue>ambiguous_question</expectedValue>
+            <name>topic_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>[]</expectedValue>
+            <name>action_sequence_match</name>
+        </expectation>
+        <expectation>
+            <expectedValue>Pide una aclaracion concreta sin suponer hechos ni ejecutar acciones. Ofrece distinguir entre unidad detenida, cita de taller o consulta de cobertura.</expectedValue>
+            <name>bot_response_rating</name>
+        </expectation>
+        <inputs><utterance>Tengo un asunto con el camion y necesito ayuda.</utterance></inputs>
+        <number>4</number>
+    </testCase>
+</AiEvaluationDefinition>

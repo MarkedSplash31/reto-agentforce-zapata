@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>Zapata Postventa</label>
+    <description>Torre de control de postventa del Reto Agentforce. Una ventana por intencion del agente principal y sus cuatro subagents.</description>
+    <navType>Standard</navType>
+    <uiType>Lightning</uiType>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <tabs>Zapata_Inicio</tabs>
+    <tabs>Zapata_Garantia</tabs>
+    <tabs>Zapata_Diagnostico</tabs>
+    <tabs>Zapata_Agenda</tabs>
+    <tabs>Zapata_Compensacion</tabs>
+    <tabs>standard-Account</tabs>
+    <tabs>standard-report</tabs>
+    <tabs>standard-Product2</tabs>
+    <tabs>Log_Agente__c</tabs>
+</CustomApplication>

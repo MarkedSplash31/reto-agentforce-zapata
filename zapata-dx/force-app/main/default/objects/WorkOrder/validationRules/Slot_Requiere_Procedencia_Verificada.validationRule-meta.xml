@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Slot_Requiere_Procedencia_Verificada</fullName>
+    <active>true</active>
+    <description>Impide reservar o reprogramar contra horarios derivados o sin verificacion operacional.</description>
+    <errorConditionFormula>AND(OR(ISNEW(), ISCHANGED(Slot_Taller__c), ISCHANGED(StartDate), ISCHANGED(EndDate)), NOT(ISBLANK(Slot_Taller__c)), OR(ISBLANK(Slot_Taller__r.Procedencia__c), Slot_Taller__r.Procedencia__c &lt;&gt; &quot;OPERACIONAL_VERIFICADO&quot;))</errorConditionFormula>
+    <errorDisplayField>Slot_Taller__c</errorDisplayField>
+    <errorMessage>SLOT_NO_VERIFICADO: la franja no tiene procedencia OPERACIONAL_VERIFICADO.</errorMessage>
+</ValidationRule>

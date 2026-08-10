@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Tipo_Unidad__c</fullName>
+    <description>Clasificacion del modelo. Ordena el catalogo de manuales.</description>
+    <label>Tipo de unidad</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Tractocamion</fullName>
+                    <default>false</default>
+                    <label>Tractocamion</label>
+                </value>
+                <value>
+                    <fullName>Torton</fullName>
+                    <default>false</default>
+                    <label>Torton</label>
+                </value>
+                <value>
+                    <fullName>Rabon</fullName>
+                    <default>false</default>
+                    <label>Rabon</label>
+                </value>
+                <value>
+                    <fullName>Ligero</fullName>
+                    <default>false</default>
+                    <label>Ligero</label>
+                </value>
+                <value>
+                    <fullName>Autobus</fullName>
+                    <default>false</default>
+                    <label>Autobus</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

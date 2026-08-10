@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Placa__c</fullName>
+    <description>Placa capturada en la cita. Se copia del Asset pero se conserva aparte porque la unidad puede cambiar de placa.</description>
+    <label>Placa</label>
+    <externalId>false</externalId>
+    <length>15</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

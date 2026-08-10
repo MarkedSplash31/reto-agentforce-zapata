@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resuelto_Sin_Cita_Requiere_Pasos</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND(ISPICKVAL(Resultado__c, &quot;RESUELTO_SIN_CITA&quot;), ISBLANK(Pasos_Seguidos__c))</errorConditionFormula>
+    <errorDisplayField>Pasos_Seguidos__c</errorDisplayField>
+    <errorMessage>Un caso resuelto sin cita debe documentar los pasos que se le indicaron al operador. Sin evidencia no hay trazabilidad.</errorMessage>
+</ValidationRule>

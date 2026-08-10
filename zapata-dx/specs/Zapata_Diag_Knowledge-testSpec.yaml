@@ -1,0 +1,10 @@
+name: Zapata_Diag_Knowledge
+description: Un caso para saber si el subagente de conocimiento funciona con la identidad del agente
+subjectType: AGENT
+subjectName: Agente_Postventa_Zapata
+testCases:
+  - utterance: "Mi turbo sigue en garantia a 180 mil kilometros?"
+    expectedTopic: conocimiento_y_respuestas
+    expectedActions:
+      - Buscar_Conocimiento_Postventa
+    expectedOutcome: "Responde con el limite exacto que dice el articulo de garantia y menciona el articulo consultado. No dice que tuvo un inconveniente."

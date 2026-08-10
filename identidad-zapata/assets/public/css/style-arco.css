@@ -1,0 +1,128 @@
+.checkbox-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.custom-checkbox {
+    margin-right: 8px;
+    width: 16px;
+    height: 16px;
+}
+
+.checkbox-label {
+    font-size: 14px;
+    color: #333;
+    margin-top: -12px;
+}
+
+.radio-button{
+    display: flex;
+    justify-content: space-around;
+}
+
+.contact-details .title span {
+    color: #797979;
+}
+
+.form-group input.form-control, .form-group select.form-control, .form-group textarea.form-control {
+    background-color: #fbfbfb;
+    border: 1px solid #eee;
+    font-size: 16px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+    height: 56px;
+    letter-spacing: 0.6px;
+    text-transform: inherit;
+    padding-bottom: 10px;
+}
+
+.form-group input.form-control:focus,select.form-select:focus{
+    background-color: #fff;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, .1);
+    border: 0.5px solid #00000024;
+}
+
+.form-group input.form-control::placeholder{
+    color: #a8a8a8 !important;
+}
+
+select.form-control {
+    margin-bottom: 10px;
+}
+
+select.form-select {
+    margin-bottom: 10px;
+    padding: 0 36px 0 12px;
+    height: 56px;
+    border: 1px solid #eee;
+    border-radius: 0;
+    color: #000;
+    font-size: 16px;
+    font-family: 'Oswald', sans-serif;
+    font-weight: 500;
+}
+
+.contact-details .title:after {
+    background-color: #c5c5c5;
+    width: 150px;
+}
+
+.contact-details .title {
+    font-size: 25px;
+}
+
+#modelo, #anio,#placa{
+    background-color:#ebebeb;
+}
+
+.checkbox-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-item {
+    display: flex;
+    align-items: center;
+}
+
+.checkbox-label {
+    margin-left: 8px;
+}
+
+.file-input {
+    margin-left: 30px;
+    display: none;
+}
+
+textarea {
+    height: 150px;           
+    width: 100%;          
+    padding: 10px;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    outline: none;
+    resize: none;       
+    font-family: sans-serif;
+    box-sizing: border-box;
+    background-color: #fbfbfb;
+    border: 1px solid #eee;
+    font-size: 16px!important;
+    font-family: 'Oswald', sans-serif!important;
+    font-weight: 500!important;
+    letter-spacing: 0.6px!important;
+    text-transform: inherit;
+    padding-bottom: 10px;
+}
+
+textarea:focus {
+    border-color: #66ccff;
+    box-shadow: 0 0 8px 2px #66ccff;
+}

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Capacidad_No_Negativa</fullName>
+    <active>true</active>
+    <errorConditionFormula>OR(Capacidad_Total__c &lt; 0, Capacidad_Usada__c &lt; 0)</errorConditionFormula>
+    <errorDisplayField>Capacidad_Total__c</errorDisplayField>
+    <errorMessage>La capacidad no puede ser negativa.</errorMessage>
+</ValidationRule>

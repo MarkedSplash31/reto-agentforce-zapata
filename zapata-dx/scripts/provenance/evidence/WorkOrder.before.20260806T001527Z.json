@@ -1,0 +1,129 @@
+{
+  "generatedAtUtc": "2026-08-06T00:15:53.1692664Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "WorkOrder",
+  "count": 30,
+  "records": [
+    {
+      "Id": "0WOgK0000039o8jWAA",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALJNWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALW5WAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALXhWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALmDWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALmEWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALmFWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALpRWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ALr3WAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AM8nWAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMAPWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMDdWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMDeWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMOvWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMQXWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMS9WAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMSAWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AMyPWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AN3FWAW",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANMbWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANXtWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANZVWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANb7WAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANcjWAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003ANfxWAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AVTpWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AVVRWA4",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AX93WAG",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003AXAfWAO",
+      "Procedencia__c": null
+    },
+    {
+      "Id": "0WOgK000003Bi41WAC",
+      "Procedencia__c": null
+    }
+  ]
+}

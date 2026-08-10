@@ -1,0 +1,29 @@
+node_modules/
+.env
+.env.*
+!.env.example
+*.log
+npm-debug.log*
+
+# Resultados locales y artefactos de herramientas. Ninguno forma parte del release.
+test-results/
+playwright-report/
+blob-report/
+.playwright-mcp/
+coverage/
+.nyc_output/
+output/
+
+# Recuperaciones de metadata y evidencia con identificadores/registros de Salesforce.
+# Se conservan localmente bajo custodia, pero nunca se publican en el repo de hosting.
+.metadata-org/
+evidencia/
+*.token
+
+# Exportaciones de Bulk API/Data Loader y volcados ad-hoc potencialmente sensibles.
+*-success-records.csv
+*-failed-records.csv
+salesforce-exports/
+exports/
+
+.eca-*

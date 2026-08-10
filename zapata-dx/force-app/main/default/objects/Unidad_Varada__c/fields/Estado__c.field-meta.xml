@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Estado__c</fullName>
+    <description>Ciclo de vida del reporte.</description>
+    <label>Estado</label>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Reportada</fullName>
+                <default>true</default>
+                <label>Reportada</label>
+            </value>
+            <value>
+                <fullName>Asistencia asignada</fullName>
+                <default>false</default>
+                <label>Asistencia asignada</label>
+            </value>
+            <value>
+                <fullName>En sitio</fullName>
+                <default>false</default>
+                <label>En sitio</label>
+            </value>
+            <value>
+                <fullName>Resuelta en carretera</fullName>
+                <default>false</default>
+                <label>Resuelta en carretera</label>
+            </value>
+            <value>
+                <fullName>Remolcada a taller</fullName>
+                <default>false</default>
+                <label>Remolcada a taller</label>
+            </value>
+            <value>
+                <fullName>Cancelada</fullName>
+                <default>false</default>
+                <label>Cancelada</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

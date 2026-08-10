@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unidad_Varada__c</fullName>
+    <description>Relacion auditable con el reporte de unidad varada.</description>
+    <label>Unidad varada</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Unidad_Varada__c</referenceTo>
+    <relationshipLabel>Logs de agente</relationshipLabel>
+    <relationshipName>Logs_Agente</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

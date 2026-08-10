@@ -1,0 +1,84 @@
+{
+  "generatedAtUtc": "2026-08-06T00:24:18.5947266Z",
+  "targetOrgAlias": "zapata",
+  "sanitization": "Solo Id tecnico y valores de control previos; sin nombres, VIN, cuenta, ubicacion ni contenido.",
+  "object": "Asset",
+  "count": 15,
+  "records": [
+    {
+      "Id": "02igK000002QPUfQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUgQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUhQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUiQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUjQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUkQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUlQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUmQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUnQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUoQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUpQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUqQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUrQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUsQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    },
+    {
+      "Id": "02igK000002QPUtQAO",
+      "Unidad_Verificada__c": false,
+      "Procedencia__c": "SEED_SINTETICO_NO_VERIFICADO"
+    }
+  ]
+}

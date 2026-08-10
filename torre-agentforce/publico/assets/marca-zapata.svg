@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 56" width="290" height="56" role="img" aria-label="Zapata">
+  <title>Zapata</title>
+  <!--
+    Marca reconstruida, no extraída. Los tres slashes son paths geométricos:
+    paralelogramos con 12° de inclinación, ancho 11, separación 16, altura 28.
+    El wordmark va en Inter 600 con tracking 0.08em, que es el registro del
+    sistema para texto en mayúsculas.
+    Se sirve inline en el HTML para que Inter esté disponible; como archivo
+    suelto cae al stack sans-serif del sistema, que es aceptable para un favicon.
+  -->
+  <g fill="#ffffff">
+    <text x="0" y="40"
+          font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+          font-size="38" font-weight="600" letter-spacing="3.04">ZAPATA</text>
+    <!-- tres barras inclinadas 12°, de 11 de ancho, separadas 16 -->
+    <path d="M203 40 L209 12 L220 12 L214 40 Z"/>
+    <path d="M226 40 L232 12 L243 12 L237 40 Z"/>
+    <path d="M249 40 L255 12 L266 12 L260 40 Z"/>
+  </g>
+</svg>

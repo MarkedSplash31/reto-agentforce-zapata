@@ -1,0 +1,119 @@
+.inner-area {
+    padding-top: 201px;
+}
+.videoWrapper {
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top: 25px;
+    height: 0;
+}
+.videoWrapper iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+.content h4 {
+    color: #000;
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.8px;
+    margin-bottom: 18px;
+    text-transform: uppercase;
+}
+.img-postventa{
+    margin-bottom:40px;
+}
+.service-bus{
+    padding-top:0px;
+}
+.contenedor-img{
+    height: 350px;
+    display: flex;
+    padding: 15px;
+    align-items: center;
+    margin-bottom: 15px;
+    background-position: left center;
+    background-repeat: no-repeat;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+}
+.servicio{
+    background-image: url('../../images/autobuses/postventa-service-plus.jpg');
+}
+.puesta-a-punto{
+    background-image: url('../../images/autobuses/postventa-puesta-a-punto.jpg');
+}
+.bus-connection{
+    background-image: url('../../images/autobuses/postventa-bus-connection.jpg');
+}
+.postventa-ola{
+    background-image: url('../../images/autobuses/postventa-ola.jpg');
+}
+.refacciones{
+    background-image: url('../../images/autobuses/postventa-refacciones.jpg');
+}
+.original{
+    background-image: url('../../images/autobuses/postventa-100-original.jpg');
+}
+.garantias{
+    background-image: url('../../images/autobuses/postventa-garantias.jpg');
+}
+.garantias-extendidas{
+    background-image: url('../../images/autobuses/postventa-garantias-extendidas.jpg');
+}
+.medidas{
+    margin-bottom: 30px;
+    padding: 30px;
+    background-image: url('../../images/autobuses/medidas.jpg');
+    background-position:  center center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.medidas p {
+    padding: 15px;
+    line-height: 1.2;
+    margin-bottom: 15px;
+}
+.info-bus{
+    display: block;
+    position: relative;
+}
+.titulo-c{
+    padding: 4px;
+    background-color: #fff;
+    color: #000;
+    display: inline-block;
+}
+.titulo-c h5{
+    text-transform: inherit;
+}
+.info{
+    line-height: 1.2;
+    background: rgba(0,0,0,0.5);
+    padding: 4.5px;
+    margin-bottom: 7.5px;
+}
+.info p{
+    text-align: left;
+    color: #fff;
+}
+.btn-info{
+    top: 75%;
+    background-color: #38c0ff;
+    border-color: #38c0ff;
+    color: #fff;
+    display: inline-block;
+    font-size: 14px;
+    font-weight: 600;
+    letter-spacing: 0.6px;
+    padding: 8px;
+}
+.btn-info:hover {
+    color: #fff;
+}
+.linea{
+    background: #000;
+}

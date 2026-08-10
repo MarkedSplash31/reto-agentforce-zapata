@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Servicios_Completos__c</fullName>
+    <description>Condicion indispensable de la extendida: 100% de los servicios en taller autorizado y documentados. Un solo servicio omitido la cancela.</description>
+    <label>Servicios preventivos completos</label>
+    <defaultValue>false</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

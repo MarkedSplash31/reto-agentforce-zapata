@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reportar varada | Torre de Postventa Zapata</title>
+<meta name="description" content="Reporta una unidad varada: datos de la unidad, ventana de atención y contacto. La torre despacha grúa y reserva slot de taller.">
+<link rel="icon" href="assets/marca-zapata.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<header class="pt-32 pb-4 max-w-7xl mx-auto px-6">
+  <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">Asistencia en carretera</span>
+  <h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-[0.15em] font-light leading-none">REPORTAR VARADA</h1>
+  <p class="text-gray-400 text-xs leading-relaxed font-light mt-4 max-w-2xl">
+    Tres pasos. Los datos de contacto van al final, cuando ya resolvimos lo operativo.
+  </p>
+</header>
+
+<main class="pb-24 max-w-7xl mx-auto px-6">
+
+  <!-- stepper -->
+  <ol class="grid grid-cols-1 md:grid-cols-3 gap-3 mt-10 mb-10">
+    <li id="badge-1" class="border border-white/10 bg-[#0d0e12] p-3 flex items-center gap-3 transition-all duration-300">
+      <span class="w-6 h-6 flex items-center justify-center border border-white/20 text-[10px] text-white shrink-0">1</span>
+      <span class="text-[10px] uppercase tracking-widest text-gray-400">Información de la unidad</span>
+    </li>
+    <li id="badge-2" class="border border-white/10 bg-[#0d0e12] p-3 flex items-center gap-3 transition-all duration-300">
+      <span class="w-6 h-6 flex items-center justify-center border border-white/20 text-[10px] text-white shrink-0">2</span>
+      <span class="text-[10px] uppercase tracking-widest text-gray-400">Ventana de atención</span>
+    </li>
+    <li id="badge-3" class="border border-white/10 bg-[#0d0e12] p-3 flex items-center gap-3 transition-all duration-300">
+      <span class="w-6 h-6 flex items-center justify-center border border-white/20 text-[10px] text-white shrink-0">3</span>
+      <span class="text-[10px] uppercase tracking-widest text-gray-400">Contacto</span>
+    </li>
+  </ol>
+
+  <form id="wizard" class="grid grid-cols-1 lg:grid-cols-12 gap-10" novalidate>
+
+    <div class="lg:col-span-7">
+
+      <!-- ══ PASO 1 ══ -->
+      <section id="paso-1">
+        <div class="mb-8">
+          <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Paso 1 &bull; Información de la unidad</span>
+          <h2 class="font-serif-luxury text-2xl text-white tracking-wide font-light">¿Qué unidad es y qué le pasa?</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label for="vin" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">VIN <span class="text-amber-400">*</span></label>
+            <input id="vin" name="vin" required maxlength="17" placeholder="17 caracteres"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div>
+            <label for="placa" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Placa</label>
+            <input id="placa" name="placa" placeholder="AB-12-345"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div>
+            <label for="odometro" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Odómetro (km) <span class="text-amber-400">*</span></label>
+            <input id="odometro" name="odometro" required inputmode="numeric" placeholder="000,000"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div>
+            <label for="sucursal" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Sucursal receptora <span class="text-amber-400">*</span></label>
+            <select id="sucursal" name="sucursal" required
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none font-light">
+              <option value="">-- Selecciona sucursal --</option>
+              <option>Tlalnepantla</option><option>Aeropuerto</option><option>Monterrey</option>
+              <option>Querétaro</option><option>Guadalajara</option><option>Guadalajara R. Michel</option>
+              <option>León</option><option>Celaya</option><option>Tampico</option>
+            </select>
+          </div>
+          <div class="sm:col-span-2">
+            <label for="sintoma" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Síntoma observado <span class="text-amber-400">*</span></label>
+            <textarea id="sintoma" name="sintoma" required rows="3" placeholder="Describe qué ocurrió y en qué condiciones."
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 font-light"></textarea>
+          </div>
+        </div>
+
+        <div class="mt-8">
+          <button type="button" id="a-paso-2"
+            class="bg-white text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ══ PASO 2 ══ -->
+      <section id="paso-2" class="hidden">
+        <div class="mb-8">
+          <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Paso 2 &bull; Ventana de atención</span>
+          <h2 class="font-serif-luxury text-2xl text-white tracking-wide font-light">¿Cuándo puede entrar a taller?</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div class="border border-white/10 bg-[#0d0e12] p-4">
+            <div class="flex items-center justify-between mb-3">
+              <button type="button" id="mes-prev" class="text-gray-400 hover:text-white px-1 transition-colors" aria-label="Mes anterior">&#9664;</button>
+              <div id="mes-label" class="uppercase tracking-widest text-white font-medium text-xs"></div>
+              <button type="button" id="mes-next" class="text-gray-400 hover:text-white px-1 transition-colors" aria-label="Mes siguiente">&#9654;</button>
+            </div>
+            <div id="dow"  class="grid grid-cols-7 gap-1 text-center text-gray-500 font-medium uppercase mb-2 text-[10px]"></div>
+            <div id="dias" class="grid grid-cols-7 gap-1 mt-1 text-center font-light text-xs"></div>
+          </div>
+
+          <div>
+            <p class="text-[10px] uppercase tracking-widest text-gray-400 font-medium mb-3">Horario disponible</p>
+            <div id="horas" class="grid grid-cols-2 gap-2"></div>
+            <div id="sin-fecha" class="border border-dashed border-white/10 p-6 text-center text-xs font-light text-gray-500 mt-2">
+              Selecciona una fecha en el calendario para ver los horarios de la sucursal.
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-8 flex items-center gap-3">
+          <button type="button" id="a-paso-1"
+            class="border border-white/10 text-white px-6 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300">
+            Atrás
+          </button>
+          <button type="button" id="a-paso-3"
+            class="bg-white text-black px-6 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300">
+            Continuar
+          </button>
+        </div>
+      </section>
+
+      <!-- ══ PASO 3 ══ -->
+      <section id="paso-3" class="hidden">
+        <div class="mb-8">
+          <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Paso 3 &bull; Contacto</span>
+          <h2 class="font-serif-luxury text-2xl text-white tracking-wide font-light">¿Con quién confirmamos?</h2>
+        </div>
+
+        <ul class="space-y-2 mb-8 text-xs font-light text-gray-400">
+          <li>&bull; Despacho de grúa coordinado por la torre</li>
+          <li>&bull; Slot de taller reservado antes de que llegue</li>
+          <li>&bull; Cobertura evaluada contra la regla vigente</li>
+          <li>&bull; Folio único para seguir el caso</li>
+        </ul>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <div>
+            <label for="nombre" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Nombre completo <span class="text-amber-400">*</span></label>
+            <input id="nombre" name="nombre" required placeholder="Tu nombre"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div>
+            <label for="tel" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Teléfono móvil <span class="text-amber-400">*</span></label>
+            <input id="tel" name="tel" type="tel" required placeholder="(55) 0000 0000"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div class="sm:col-span-2">
+            <label for="correo" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Correo electrónico <span class="text-amber-400">*</span></label>
+            <input id="correo" name="correo" type="email" required placeholder="tu@correo.com"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          </div>
+          <div class="sm:col-span-2">
+            <label for="notas" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium block mb-2">Comentarios operativos u observaciones</label>
+            <textarea id="notas" name="notas" rows="2" placeholder="Opcional"
+              class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 font-light"></textarea>
+          </div>
+          <div class="sm:col-span-2">
+            <label class="flex items-start gap-2 text-[11px] font-light text-gray-400">
+              <input type="checkbox" id="privacidad" required class="mt-0.5 bg-[#0b0c10] border-white/10 focus:ring-0 rounded-none accent-amber-400">
+              Acepto el aviso de privacidad
+            </label>
+          </div>
+        </div>
+
+        <div class="mt-8 flex items-center gap-3">
+          <button type="button" id="a-paso-2b"
+            class="border border-white/10 text-white px-6 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-colors duration-300">
+            Atrás
+          </button>
+          <button type="submit" id="enviar"
+            class="bg-white text-black px-8 py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300 disabled:opacity-10 disabled:pointer-events-none">
+            Reportar varada
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <!-- resumen sticky -->
+    <aside class="lg:col-span-5 space-y-6 lg:sticky lg:top-24 self-start">
+      <div class="border border-white/5 bg-[#0d0e12] p-6">
+        <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-2">Resumen del reporte</span>
+        <h2 class="font-serif-luxury text-xl text-white tracking-wide mb-6">Lo que va a la torre</h2>
+        <dl id="resumen" class="space-y-3"></dl>
+        <div class="mt-6 pt-4 border-t border-white/5 flex items-center gap-2 text-[10px] uppercase tracking-widest text-gray-400">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+          Centro de mando activo &middot; 24/7
+        </div>
+      </div>
+
+      <div class="border border-white/5 bg-[#0d0e12] p-6">
+        <p class="text-[10px] uppercase tracking-widest text-gray-300 font-medium mb-3">Qué pasa después</p>
+        <ol class="space-y-2 text-[11px] font-light text-gray-400">
+          <li>1. La torre valida el VIN contra el padrón de la red.</li>
+          <li>2. Se evalúa cobertura por kilometraje y antigüedad.</li>
+          <li>3. Se despacha grúa y se reserva slot en la sucursal.</li>
+          <li>4. Recibes folio y confirmación en tu correo.</li>
+        </ol>
+      </div>
+    </aside>
+  </form>
+</main>
+
+<div id="footer"></div>
+<script src="js/sistema.js"></script>
+<script>
+const $ = s => document.querySelector(s);
+let pasoActual = 1, fechaSel = null, horaSel = null;
+let cursor = new Date(); cursor.setDate(1);
+
+/* ── stepper ── */
+function irA(n) {
+  pasoActual = n;
+  [1,2,3].forEach(i => {
+    $('#paso-'+i).classList.toggle('hidden', i !== n);
+    const b = $('#badge-'+i);
+    b.classList.toggle('border-amber-400/40', i === n);
+    b.classList.toggle('bg-amber-400/5', i === n);
+    b.classList.toggle('border-white/10', i !== n);
+    b.querySelector('span:last-child').classList.toggle('text-white', i === n);
+    b.querySelector('span:last-child').classList.toggle('text-gray-400', i !== n);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── calendario ── */
+const DOW = ['Do','Lu','Ma','Mi','Ju','Vi','Sa'];
+const MES = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+$('#dow').innerHTML = DOW.map(d => `<div class="py-1">${d}</div>`).join('');
+
+function pintarMes() {
+  $('#mes-label').textContent = `${MES[cursor.getMonth()]} ${cursor.getFullYear()}`;
+  const primero = new Date(cursor.getFullYear(), cursor.getMonth(), 1).getDay();
+  const dias    = new Date(cursor.getFullYear(), cursor.getMonth()+1, 0).getDate();
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  let html = '';
+  for (let i = 0; i < primero; i++) html += '<div></div>';
+  for (let d = 1; d <= dias; d++) {
+    const f = new Date(cursor.getFullYear(), cursor.getMonth(), d);
+    const pasado = f < hoy;
+    const domingo = f.getDay() === 0;
+    const libre = !pasado && !domingo;
+    const sel = fechaSel && f.getTime() === fechaSel.getTime();
+    html += `<button type="button" data-d="${d}" ${libre?'':'disabled'}
+      class="py-1.5 border transition-colors duration-300 ${
+        sel ? 'bg-white text-black border-white'
+            : libre ? 'border-white/10 text-gray-300 hover:border-white/40 hover:text-white'
+                    : 'border-transparent text-gray-700 cursor-not-allowed'}">${d}</button>`;
+  }
+  $('#dias').innerHTML = html;
+  $('#dias').querySelectorAll('button[data-d]:not([disabled])').forEach(b =>
+    b.addEventListener('click', () => {
+      fechaSel = new Date(cursor.getFullYear(), cursor.getMonth(), +b.dataset.d);
+      horaSel = null; pintarMes(); pintarHoras(); resumen();
+    }));
+}
+
+function pintarHoras() {
+  const cont = $('#horas'), vacio = $('#sin-fecha');
+  if (!fechaSel) { cont.innerHTML=''; vacio.classList.remove('hidden'); return; }
+  vacio.classList.add('hidden');
+  const slots = ['07:00','08:30','10:00','11:30','13:00','15:00','16:30'];
+  cont.innerHTML = slots.map(h => `
+    <button type="button" data-h="${h}"
+      class="py-2 border text-[11px] tracking-widest transition-colors duration-300 ${
+        horaSel===h ? 'bg-white text-black border-white'
+                    : 'border-white/10 text-gray-300 hover:border-white/40 hover:text-white'}">${h}</button>`).join('');
+  cont.querySelectorAll('button[data-h]').forEach(b =>
+    b.addEventListener('click', () => { horaSel = b.dataset.h; pintarHoras(); resumen(); }));
+}
+
+/* ── resumen ── */
+function fila(k, v) {
+  return `<div class="flex justify-between gap-4">
+    <dt class="text-[10px] uppercase tracking-widest text-gray-600 shrink-0">${k}</dt>
+    <dd class="text-[11px] font-light text-right ${v ? 'text-gray-300' : 'text-gray-700'}">${v || '—'}</dd></div>`;
+}
+function resumen() {
+  const f = fechaSel ? `${fechaSel.getDate()} ${MES[fechaSel.getMonth()]} ${fechaSel.getFullYear()}` : '';
+  $('#resumen').innerHTML =
+    fila('VIN',       $('#vin').value.toUpperCase()) +
+    fila('Placa',     $('#placa').value.toUpperCase()) +
+    fila('Odómetro',  $('#odometro').value ? $('#odometro').value + ' km' : '') +
+    fila('Sucursal',  $('#sucursal').value) +
+    fila('Fecha',     f) +
+    fila('Horario',   horaSel) +
+    fila('Contacto',  $('#nombre').value);
+}
+
+/* ── validación por paso ── */
+function validar(n) {
+  if (n === 1) {
+    for (const id of ['vin','odometro','sucursal','sintoma']) {
+      if (!$('#'+id).value.trim()) { $('#'+id).focus(); toast('Completa los campos obligatorios de la unidad.'); return false; }
+    }
+    if ($('#vin').value.trim().length !== 17) { $('#vin').focus(); toast('El VIN debe tener 17 caracteres.'); return false; }
+  }
+  if (n === 2) {
+    if (!fechaSel) { toast('Selecciona una fecha antes de continuar.'); return false; }
+    if (!horaSel)  { toast('Selecciona un horario disponible.'); return false; }
+  }
+  return true;
+}
+
+$('#a-paso-2').addEventListener('click', () => { if (validar(1)) irA(2); });
+$('#a-paso-3').addEventListener('click', () => { if (validar(2)) irA(3); });
+$('#a-paso-1').addEventListener('click', () => irA(1));
+$('#a-paso-2b').addEventListener('click', () => irA(2));
+$('#mes-prev').addEventListener('click', () => { cursor.setMonth(cursor.getMonth()-1); pintarMes(); });
+$('#mes-next').addEventListener('click', () => { cursor.setMonth(cursor.getMonth()+1); pintarMes(); });
+$('#wizard').addEventListener('input', resumen);
+
+$('#wizard').addEventListener('submit', e => {
+  e.preventDefault();
+  for (const id of ['nombre','tel','correo']) {
+    if (!$('#'+id).value.trim()) { $('#'+id).focus(); toast('Faltan datos de contacto.'); return; }
+  }
+  if (!$('#privacidad').checked) { toast('Acepta el aviso de privacidad para continuar.'); return; }
+  const folio = 'VAR-' + Math.floor(4830 + $('#odometro').value.length * 7 + $('#vin').value.length);
+  modal({
+    titulo: 'Reporte recibido',
+    cuerpo: `Folio <span class="text-white font-mono">${folio}</span>.<br><br>
+      La torre despachó grúa a la ubicación reportada y reservó el slot en
+      <span class="text-gray-300">${$('#sucursal').value}</span>.
+      Recibirás la confirmación en <span class="text-gray-300">${$('#correo').value}</span>.<br><br>
+      <span class="text-gray-600 text-[11px]">Demostración local: no se envía nada a ningún sistema.</span>`,
+    cta: 'Entendido'
+  });
+});
+
+irA(1); pintarMes(); pintarHoras(); resumen();
+</script>
+</body>
+</html>

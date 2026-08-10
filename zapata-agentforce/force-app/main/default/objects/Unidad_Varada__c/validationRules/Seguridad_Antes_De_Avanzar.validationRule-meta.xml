@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Seguridad_Antes_De_Avanzar</fullName>
+    <active>true</active>
+    <errorConditionFormula>AND( NOT(ISPICKVAL(Estado__c, "Reportada")), OR( NOT(Fuera_De_Carril__c), NOT(Intermitentes_Encendidas__c) ) )</errorConditionFormula>
+    <errorDisplayField>Fuera_De_Carril__c</errorDisplayField>
+    <errorMessage>No se puede avanzar el reporte sin confirmar que el operador esta fuera del carril y con las intermitentes encendidas. La seguridad va antes que el dato.</errorMessage>
+</ValidationRule>

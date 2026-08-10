@@ -1,0 +1,139 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   SISTEMA ZAPATA 2026 — tokens y componentes
+   Reconstruido desde skills/zapata-design, no copiado de zapata.com.mx.
+
+   Los valores son los medidos con getComputedStyle() sobre el sitio vivo.
+   Se declaran aquí como custom properties para que el sistema sea explícito y
+   portable: las clases de Tailwind resuelven a estos mismos números, pero un
+   token con nombre sobrevive a un cambio de framework y una clase no.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── fondos ── */
+  --z-footer:      #07080a;   /* el negro más profundo, sólo el footer */
+  --z-canvas:      #0b0c10;   /* body y secciones impares          brand.darkBg  */
+  --z-surface:     #0d0e12;   /* secciones pares                   brand.surface */
+  --z-elevated:    #121318;
+  --z-placeholder: #171717;   /* detrás de imágenes mientras cargan */
+
+  /* ── texto ── */
+  --z-txt-max:  #ffffff;
+  --z-txt-base: #f3f4f6;
+  --z-txt-sub:  #d1d5db;
+  --z-txt-desc: #9ca3af;      /* el más usado: descripción y link en reposo */
+  --z-txt-eyeb: #6b7280;
+  --z-txt-min:  #4b5563;
+  --z-txt-ph:   #374151;
+
+  /* ── acento ── brand.accent, "Ámbar de precisión" en el código de Zapata ── */
+  --z-ambar:      #fbbf24;
+  --z-ambar-90:   rgba(251,191,36,.9);
+  --z-ambar-80:   rgba(251,191,36,.8);
+  --z-ambar-40:   rgba(251,191,36,.4);
+  --z-ambar-20:   rgba(251,191,36,.2);
+  --z-ambar-05:   rgba(251,191,36,.05);
+
+  /* ── semánticos ── */
+  --z-ok:      rgba(16,185,129,.9);
+  --z-ok-bg:   rgba(16,185,129,.1);
+  --z-ok-bd:   rgba(52,211,153,.25);
+  --z-err-bg:  rgba(69,10,10,.8);
+  --z-err-bd:  rgba(239,68,68,.3);
+  --z-err-txt: #fecaca;
+
+  /* ── alfas sobre blanco: el sistema de bordes ── */
+  --z-l05: rgba(255,255,255,.05);   /* borde por defecto de todo */
+  --z-l10: rgba(255,255,255,.10);
+  --z-l20: rgba(255,255,255,.20);
+  --z-l40: rgba(255,255,255,.40);   /* input en focus */
+
+  /* ── movimiento: un solo easing en todo el sistema ── */
+  --z-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --z-t-rapido: 150ms;
+  --z-t-base:   300ms;   /* por defecto */
+  --z-t-imagen: 500ms;
+  --z-t-grande: 700ms;
+
+  /* ── ritmo vertical 96 / 64 / 8 ── */
+  --z-seccion: 96px;
+  --z-titulo:  64px;
+  --z-eyebrow: 8px;
+
+  --z-contenedor: 1280px;
+  --z-gutter:     24px;
+  --z-nav:        80px;
+}
+
+/* ── familias ─────────────────────────────────────────────────────────────
+   Cinzel para títulos, Inter para todo lo demás. Ninguna otra.
+   Cinzel se carga en 400 y 600 pero se usa en 300 y 400: el navegador
+   sintetiza el 300. Se replica tal cual — "corregirlo" cambia el render.     */
+.font-serif-luxury { font-family: 'Cinzel', serif; }
+.font-sans-clean   { font-family: 'Inter', sans-serif; }
+
+/* ── esquina viva ─────────────────────────────────────────────────────────
+   El radio 0 es la firma del sistema. Preflight de Tailwind y los controles
+   nativos traen radio propio: hay que anularlo explícitamente.              */
+input, select, textarea, button { border-radius: 0; }
+
+/* ── menú móvil ───────────────────────────────────────────────────────────
+   El delay de `visibility` es ASIMÉTRICO a propósito: .4s al cerrar (espera a
+   que acabe la animación) y 0s al abrir. Sin eso, el panel invisible sigue
+   capturando clicks durante 400ms.                                          */
+#menu-movil {
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform .4s var(--z-ease), opacity .4s var(--z-ease), visibility 0s linear .4s;
+}
+#menu-movil.abierto {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform .4s var(--z-ease), opacity .4s var(--z-ease), visibility 0s linear 0s;
+}
+#menu-movil a {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+/* stagger de 60ms */
+#menu-movil.abierto a:nth-child(1) { opacity: 1; transform: none; transition-delay: .12s; }
+#menu-movil.abierto a:nth-child(2) { opacity: 1; transform: none; transition-delay: .18s; }
+#menu-movil.abierto a:nth-child(3) { opacity: 1; transform: none; transition-delay: .24s; }
+#menu-movil.abierto a:nth-child(4) { opacity: 1; transform: none; transition-delay: .30s; }
+#menu-movil.abierto a:nth-child(5) { opacity: 1; transform: none; transition-delay: .36s; }
+
+/* hamburguesa · líneas de 1.5px, sub-pixel deliberado */
+.linea-burger {
+  display: block; width: 22px; height: 1.5px; background: currentColor;
+  transition: transform .35s var(--z-ease), opacity .25s ease;
+  transform-origin: center;
+}
+#btn-burger.abierto .linea-sup { transform: translateY(7px)  rotate(45deg); }
+#btn-burger.abierto .linea-med { opacity: 0; transform: scaleX(0); }
+#btn-burger.abierto .linea-inf { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── barra de scroll, en la paleta del sistema ── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--z-canvas); }
+::-webkit-scrollbar-thumb { background: var(--z-l05); }
+::-webkit-scrollbar-thumb:hover { background: var(--z-l10); }
+
+/* ── accesibilidad ────────────────────────────────────────────────────────
+   Zapata usa focus:outline-none con un cambio de borde de white/10 a white/40:
+   contraste ~1.4:1, insuficiente para navegación por teclado. Esto es una
+   página NUEVA, no un clon, así que se corrige: anillo visible sin romper la
+   estética. Documentado como desviación deliberada del original.            */
+:focus-visible {
+  outline: 1px solid rgba(255,255,255,.6);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

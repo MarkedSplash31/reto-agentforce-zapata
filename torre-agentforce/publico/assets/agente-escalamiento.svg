@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 600" role="img" aria-labelledby="title desc">
+  <title id="title">Esquema de escalamiento humano</title>
+  <desc id="desc">Diagrama técnico abstracto de una conversación que se transfiere a una cola humana con trazabilidad.</desc>
+  <rect width="960" height="600" fill="#0d0e12"/>
+  <g fill="none" stroke="#374151" stroke-width="2">
+    <path d="M104 126H394V314H104Z"/>
+    <path d="M566 286H856V474H566Z"/>
+    <path d="M394 220H480V380H566"/>
+    <path d="M160 180H336M160 226H306M160 272H336"/>
+    <path d="M622 340H798M622 386H768M622 432H798"/>
+    <path d="M480 124V476" stroke-dasharray="12 14"/>
+  </g>
+  <g fill="#d1d5db">
+    <rect x="86" y="108" width="36" height="36"/>
+    <rect x="376" y="202" width="36" height="36"/>
+    <rect x="548" y="362" width="36" height="36"/>
+    <rect x="838" y="456" width="36" height="36"/>
+  </g>
+  <path d="M436 336H524V424H436Z" fill="#fbbf24"/>
+  <path d="M458 380H502M480 358V402" stroke="#0d0e12" stroke-width="10"/>
+</svg>

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Meses_Desde_Instalacion__c</fullName>
+    <description>Meses cumplidos desde la instalacion. Es un hecho calculado, no un dato que alguien pueda dejar viejo. La accion lo compara contra Meses_Limite__c.</description>
+    <label>Meses desde instalacion</label>
+    <formula>(YEAR(TODAY()) - YEAR(InstallDate)) * 12 + (MONTH(TODAY()) - MONTH(InstallDate)) - IF(DAY(TODAY()) &lt; DAY(InstallDate), 1, 0)</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <precision>18</precision>
+    <scale>0</scale>
+    <type>Number</type>
+</CustomField>

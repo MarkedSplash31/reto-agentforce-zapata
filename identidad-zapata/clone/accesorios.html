@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<!--
+      CLON DE ANÁLISIS — Corporación Zapata (zapata.com.mx), generación 2026.
+      Generado por skills/zapata-design/scripts/clonar-pagina.py
+      Uso interno. No se despliega públicamente.
+
+      Diferencias deliberadas respecto al original, todas y las únicas:
+        - Sin GTM / GA4 / Google Ads / Meta / TikTok / Clarity / reCAPTCHA.
+        - csrf-token con valor placeholder (no hay backend Laravel; el nodo
+          se conserva porque el JS del sitio lo lee y borrarlo daría TypeError).
+        - Assets locales bajo ../assets/ en vez de /public/ del origen.
+        - Formularios sin action funcional.
+      Todo lo demás — CDN de Tailwind, Google Fonts, Font Awesome, CSS y JS
+      inline, marcado y texto — es idéntico al original.
+-->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- CSRF Token -->
+    <meta name="csrf-token" content="CLON-LOCAL-SIN-BACKEND">
+    <title>Catálogo de Accesorios | Zapata</title>
+    <!-- Favicon -->
+    <link rel="shortcut icon" href="../assets/public/images/zapata.ico">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+    <style>
+        .font-serif-luxury { font-family: 'Cinzel', serif; }
+        .font-sans-clean { font-family: 'Inter', sans-serif; }
+
+        /* Mobile menu */
+        #mobile-menu {
+            transform: translateY(-100%);
+            opacity: 0;
+            visibility: hidden;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0.4s;
+        }
+        #mobile-menu.open {
+            transform: translateY(0);
+            opacity: 1;
+            visibility: visible;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+                        visibility 0s linear 0s;
+        }
+
+        /* Hamburger lines */
+        .hamburger-line {
+            display: block;
+            width: 22px;
+            height: 1.5px;
+            background: currentColor;
+            transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.25s ease;
+            transform-origin: center;
+        }
+        #hamburger-btn.open .line-top    { transform: translateY(7px) rotate(45deg); }
+        #hamburger-btn.open .line-mid    { opacity: 0; transform: scaleX(0); }
+        #hamburger-btn.open .line-bottom { transform: translateY(-7px) rotate(-45deg); }
+
+        /* Staggered link fade-in */
+        #mobile-menu a {
+            opacity: 0;
+            transform: translateY(8px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+        #mobile-menu.open a:nth-child(1) { opacity: 1; transform: translateY(0); transition-delay: 0.12s; }
+        #mobile-menu.open a:nth-child(2) { opacity: 1; transform: translateY(0); transition-delay: 0.18s; }
+        #mobile-menu.open a:nth-child(3) { opacity: 1; transform: translateY(0); transition-delay: 0.24s; }
+        #mobile-menu.open a:nth-child(4) { opacity: 1; transform: translateY(0); transition-delay: 0.30s; }
+        #mobile-menu.open a:nth-child(5) { opacity: 1; transform: translateY(0); transition-delay: 0.36s; }
+    </style>
+        <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                darkBg: '#0b0c10',
+                surface: '#0d0e12',
+                accent: '#fbbf24' // Ámbar de precisión
+              }
+            }
+          }
+        }
+      }
+    </script>   
+    
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+    
+    <nav class="fixed top-0 left-0 w-full z-50 bg-[#0b0c10]/80 backdrop-blur-md border-b border-white/5">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <!-- Logo -->
+            <div class="flex flex-col tracking-[0.3em] text-white">
+                <a href="https://zapata.com.mx"><img src="../assets/public/images/home/logo-zapata-white.png" alt="logo_zapata" class="h-7 w-auto"></a>
+            </div>
+
+            <!-- Desktop links -->
+            <div class="hidden md:flex items-center space-x-8 text-xs tracking-widest text-gray-400 uppercase">
+                <a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Marcas</a>
+                <a href="https://zapata.com.mx/estrena" class="hover:text-white transition-colors">Estrena</a>
+                <a href="https://zapata.com.mx/accesorios" class="hover:text-white transition-colors">Accesorios</a>
+                <a href="https://zapata.com.mx/citas-de-servicio" class="hover:text-white transition-colors">Servicio</a>
+            </div>
+
+            <!-- Desktop CTA -->
+            <div class="hidden md:block">
+                <a href="https://zapata.com.mx/citas-de-servicio" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+                    Cita de Servicio
+                </a>
+            </div>
+
+            <!-- Mobile: hamburger button -->
+            <button id="hamburger-btn"
+                aria-label="Abrir menú"
+                aria-expanded="false"
+                aria-controls="mobile-menu"
+                class="md:hidden flex flex-col justify-center items-center gap-[5.5px] w-10 h-10 text-gray-300 hover:text-white transition-colors focus:outline-none">
+                <span class="hamburger-line line-top"></span>
+                <span class="hamburger-line line-mid"></span>
+                <span class="hamburger-line line-bottom"></span>
+            </button>
+        </div>
+
+        <!-- Mobile menu panel -->
+        <div id="mobile-menu"
+             role="dialog"
+             aria-label="Menú de navegación"
+             class="md:hidden absolute top-full left-0 w-full bg-[#0b0c10]/95 backdrop-blur-lg border-b border-white/5 px-6 pb-8 pt-6">
+            <a href="https://zapata.com.mx/marcas"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Marcas
+            </a>
+            <a href="https://zapata.com.mx/estrena"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Estrena
+            </a>
+            <a href="https://zapata.com.mx/accesorios"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Accesorios
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block py-4 text-xs uppercase tracking-widest text-gray-400 hover:text-white border-b border-white/5 transition-colors">
+                Servicio
+            </a>
+            <a href="https://zapata.com.mx/citas-de-servicio"
+               class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+                Cita de Servicio
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        (function () {
+            var btn  = document.getElementById('hamburger-btn');
+            var menu = document.getElementById('mobile-menu');
+
+            btn.addEventListener('click', function () {
+                var isOpen = menu.classList.toggle('open');
+                btn.classList.toggle('open', isOpen);
+                btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                btn.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+            });
+
+            // Close on outside click
+            document.addEventListener('click', function (e) {
+                if (!btn.contains(e.target) && !menu.contains(e.target)) {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+
+            // Close on Escape
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') {
+                    menu.classList.remove('open');
+                    btn.classList.remove('open');
+                    btn.setAttribute('aria-expanded', 'false');
+                    btn.setAttribute('aria-label', 'Abrir menú');
+                }
+            });
+        })();
+    </script>
+    
+        <header class="pt-32 pb-4 max-w-7xl mx-auto px-6">
+        <div class="max-w-3xl">
+            <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">Equipa tu vehículo</span>
+            <h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-[0.15em] font-light leading-none">
+                ACCESORIOS ORIGINALES
+            </h1>
+            <p class="mt-4 text-xs text-gray-400 leading-relaxed max-w-xl font-light tracking-wide">
+                Más estilo a tu vehículop para que luzca como nuevo. Pide tu cotización en accesorios y te contactaremos vía whatsapp
+            </p>
+        </div>
+    </header>
+
+    <!-- Cart count pill — floats in the bottom-right corner on mobile, visible on all viewports -->
+    <button id="openCartBtn" type="button"
+        class="fixed bottom-6 right-6 z-40 flex items-center gap-2 bg-white text-black px-4 py-2.5 text-[10px] uppercase tracking-widest font-semibold shadow-lg hover:bg-neutral-200 transition-colors rounded-none md:hidden">
+        <i class="fa-solid fa-list-check"></i>
+        Lista
+        <span id="cartCountPill" class="bg-amber-400 text-black text-[9px] font-bold px-1.5 py-0.5 leading-none rounded-none min-w-[16px] text-center">0</span>
+    </button>
+    <!-- Desktop cart pill anchored next to the sticky form heading -->
+    <span id="cartCountPill" class="hidden"></span>
+
+    <main class="pb-24 max-w-7xl mx-auto px-6">
+        
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 mb-8 bg-[#0d0e12] border border-white/5 p-4" id="filtersBand">
+            <div class="md:col-span-5 relative">
+                <span class="absolute inset-y-0 left-3.5 flex items-center text-gray-500">
+                    <svg viewBox="0 0 24 24" class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-width="2.5">
+                        <circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.2-3.2"></path>
+                    </svg>
+                </span>
+                <input id="searchInput" type="search" placeholder="BUSCAR ACCESORIO..." class="w-full bg-[#0b0c10] border border-white/10 text-white pl-9 pr-4 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 transition-colors rounded-none placeholder:text-gray-600" />
+            </div>
+            <div class="md:col-span-2">
+                <select id="brandSelect" class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">
+                    <option value="all">TODAS LAS MARCAS</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <select id="categorySelect" class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">
+                    <option value="all">TODAS LAS CATEGORÍAS</option>
+                    <option value="proteccion">PROTECCIÓN</option>
+                    <option value="seguridad">SEGURIDAD</option>
+                    <option value="interior">INTERIOR</option>
+                    <option value="exterior">EXTERIOR</option>
+                    <option value="desempeno">DESEMPEÑO</option>
+                </select>
+            </div>
+            <div class="md:col-span-2">
+                <select id="sortSelect" class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">
+                    <option value="relevance">RELEVANCIA</option>
+                    <option value="priceAsc">PRECIO: MENOR A MAYOR</option>
+                    <option value="priceDesc">PRECIO: MAYOR A MENOR</option>
+                </select>
+            </div>
+            <div class="md:col-span-1">
+                <button id="clearBtn" class="w-full bg-white/5 border border-white/10 text-xs uppercase tracking-widest py-2.5 hover:bg-white hover:text-black transition-colors rounded-none font-medium" type="button">
+                    LIMPIAR
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+            
+            <div class="lg:col-span-7 space-y-4">
+                <div class="flex items-center justify-between border-b border-white/5 pb-2 mb-4">
+                    <p id="resultsMeta" class="text-[10px] uppercase tracking-widest text-gray-400 font-medium">Mostrando 0 productos</p>
+                    <span class="text-[9px] uppercase tracking-widest text-gray-500 font-light">Sujeto a disponibilidad e instalación</span>
+                </div>
+                
+                <div id="productsGrid" class="grid gap-4 sm:grid-cols-2"></div>
+            </div>
+
+            <div id="leads-form" class="lg:col-span-5 space-y-6 lg:sticky lg:top-24">
+                <div class="bg-[#0d0e12] border border-white/5 p-6 md:p-8">
+                    <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-1">Aplica Red de Distribución Zapata</span>
+                    <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-6">Solicitud de Cotización</h3>
+                    
+                    <div class="mb-6">
+                        <div id="cartEmpty" class="border border-dashed border-white/10 p-6 text-center text-xs font-light text-gray-500">
+                            No has agregado accesorios a tu lista. Selecciona componentes del catálogo izquierdo para estructurar tu cotización.
+                        </div>
+                        <div id="cartItems" class="space-y-3 hidden max-h-60 overflow-y-auto pr-2 border-b border-white/5 pb-4"></div>
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs tracking-widest uppercase mb-6 font-medium">
+                        <span class="text-gray-400">Subtotal Estimado</span>
+                        <span id="cartSubtotal" class="font-serif-luxury text-sm text-white font-semibold">$0.00</span>
+                    </div>
+
+                    <form id="quoteForm" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-gray-400 mb-1.5 font-medium">Nombre</label>
+                                <input type="text" id="quoteName" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700" placeholder="Tu nombre">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-gray-400 mb-1.5 font-medium">Vehículo (Modelo/Año)</label>
+                                <input type="text" id="quoteNotes" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700" placeholder="Ej. Frontier 2025">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-gray-400 mb-1.5 font-medium">Teléfono</label>
+                                <input type="tel" id="quotePhone" required class="w-full bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700" placeholder="(55) 0000 0000">
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase tracking-widest text-gray-400 mb-1.5 font-medium">Agencia Preferente</label>
+                                <select id="agencySelect" class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 appearance-none font-light rounded-none">
+                                    <option value="" selected disabled>-- Selecciona Agencia --</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 flex flex-col sm:flex-row gap-2">
+                            <button type="submit" id="sendWhatsBtn" disabled class="flex-1 bg-white text-black py-3 text-xs uppercase tracking-widest font-semibold hover:bg-neutral-200 transition-colors duration-300 rounded-none disabled:opacity-10 disabled:pointer-events-none">
+                                <i class="fa-brands fa-whatsapp mr-1.5"></i> Cotizar vía WhatsApp
+                            </button>
+                            <button type="button" id="clearCartBtn" class="bg-white/5 border border-white/10 text-gray-400 px-4 py-3 text-xs uppercase tracking-widest hover:text-white hover:bg-white/10 transition-colors rounded-none">
+                                Vaciar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="bg-[#0d0e12]/50 border border-white/5 p-5 text-[11px] text-gray-500 font-light leading-relaxed space-y-2">
+                    <p class="text-[10px] font-medium uppercase tracking-wider text-gray-400 mb-1">Políticas de cotización</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Los precios mostrados corresponden a estimaciones base sugeridas en moneda nacional (MXN).</li>
+                        <li>Por estricto orden de compatibilidad técnica, no se permite procesar solicitudes que mezclen accesorios de marcas operativas distintas en un mismo ticket.</li>
+                    </ul>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="brandModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+      <div class="absolute inset-0 bg-black/70 backdrop-blur-xs" onclick="brandModal()"></div>
+      <div class="relative w-full max-w-sm bg-[#0d0e12] border border-white/10 p-6 rounded-none shadow-2xl">
+        <div>
+          <h3 class="font-serif-luxury text-sm text-white tracking-widest uppercase">Restricción de Homologación</h3>
+          <p class="text-xs text-gray-400 mt-3 leading-relaxed font-light">Tu configuración técnica actual pertenece de forma exclusiva a la división <span id="modalBrandName" class="font-semibold uppercase text-amber-400"></span>. Vacía los componentes activos para añadir una línea técnica diferente.</p>
+        </div>
+        <div class="flex gap-2 mt-6">
+          <button onclick="brandModal()" class="flex-1 border border-white/10 bg-white/5 text-xs uppercase tracking-widest text-gray-300 py-2.5 hover:bg-white/10 transition rounded-none">Regresar</button>
+          <button id="clearCartAndAddBtn" class="flex-1 bg-white text-black text-xs uppercase tracking-widest font-semibold py-2.5 hover:bg-neutral-200 transition rounded-none">Vaciar e Iniciar</button>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs text-gray-500">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 text-left">
+            <div class="space-y-4">
+                <p class="font-serif-luxury tracking-widest text-white text-sm">CORPORACIÓN ZAPATA</p>
+                <p class="text-[11px] leading-relaxed font-light text-gray-400">
+                    Boulevard Manuel Ávila Camacho 685<br>
+                    Piso 10, Centro Industrial Alce Blanco,<br>
+                    CP 53370 Naucalpan de Juárez.
+                </p>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Nuestras marcas</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://lincolnzapatazonaesmeralda.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Lincoln</a></li>
+                    <li><a href="https://zapata.com.mx/distribuidora-nissan" class="hover:text-white transition-colors">Nissan</a></li>
+                    <li><a href="https://www.subastasv4b.com.mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">V4B</a></li>
+                    <li><a href="https://zapata.com.mx/autobuses" class="hover:text-white transition-colors">Mercedes-Benz Autobuses</a></li>
+                    <li><a href="https://www.mercedes-benz-zapatavanes.com.mx/es/vans/startpage.html" class="hover:text-white transition-colors" target="_blank" rel="noopener">Vanes</a></li>
+                    <li><a href="https://zapata.com.mx/freightliner/distribuidoras" class="hover:text-white transition-colors">Freightliner</a></li>
+                    <li><a href="https://zapata.com.mx/greatdane/distribuidoras" class="hover:text-white transition-colors">Great Dane</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Links de interés</p>
+                <ul class="space-y-2 font-light text-gray-400 text-[11px]">
+                    <li><a href="https://zapata.com.mx/quienes-somos" class="hover:text-white transition-colors">Quiénes somos</a></li>
+                    <li><a href="https://zapata.com.mx/marcas" class="hover:text-white transition-colors">Soluciones integrales</a></li>
+                    <li><a href="https://zapata.com.mx/nuestra-comunidad" class="hover:text-white transition-colors">Nuestra comunidad</a></li>
+                    <li><a href="https://zapata.com.mx/aviso-de-privacidad" class="hover:text-white transition-colors">Políticas de privacidad</a></li>
+                    <li><a href="https://zapata.com.mx/formulario-derechos-arco" class="hover:text-white transition-colors">Ejercicio de los Derechos ARCO</a></li>
+                    <li><a href="https://zapata.com.mx/directorio" class="hover:text-white transition-colors">Directorio</a></li>
+                    <li><a href="https://www.talentozapata.com.mx/bolsa-de-trabajo" target="_blank" rel="noopener"  class="hover:text-white transition-colors">Bolsa de trabajo</a></li>
+                </ul>
+            </div>
+            <div class="space-y-3">
+                <p class="text-gray-300 uppercase tracking-widest font-medium text-[10px]">Contacto rápido</p>
+                <p class="font-light text-gray-400">Teléfono: <span class="text-white font-medium"><a href="tel:+525521220370">(55) 2122-0370</a></span></p>
+                <div class="pt-2 flex flex-col space-y-1 text-gray-400 text-[11px]">
+                    <a href="https://twitter.com/GrupoZapataMX" target="_blank" rel="noopener" class="hover:text-white transition-colors">X / Twitter</a>
+                    <a href="https://www.instagram.com/grupo_zapata_mx/" target="_blank" rel="noopener" class="hover:text-white transition-colors">Instagram</a>
+                    <a href="https://mx.linkedin.com/company/zapata-camiones-s-a-de-c-v-" target="_blank" rel="noopener"  class="hover:text-white transition-colors">LinkedIn</a>
+                    <a href="https://www.facebook.com/GrupoZapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">Facebook</a>
+                    <a href="https://www.youtube.com/user/grupozapata" target="_blank" rel="noopener" class="hover:text-white transition-colors">YouTube</a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-gray-600 font-light">
+            &copy; 2026  Zapata. Todos los derechos reservados.
+        </div>
+    </footer>
+
+        <script>
+      const PRODUCTS = [];
+
+      // Mapa de marca (lowercase) → array de agencias
+      const AGENCIES_BY_BRAND = [];
+
+      const state = {
+        filters: { search: '', brand: 'all', category: 'all', sort: 'relevance' },
+        cart: []
+      };
+
+      const formatCurrency = (amount) => {
+        return new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(amount);
+      };
+
+      const searchInput = document.getElementById('searchInput');
+      const brandSelect = document.getElementById('brandSelect');
+      const categorySelect = document.getElementById('categorySelect');
+      const sortSelect = document.getElementById('sortSelect');
+      const productsGrid = document.getElementById('productsGrid');
+      const resultsMeta = document.getElementById('resultsMeta');
+      const cartItemsContainer = document.getElementById('cartItems');
+      const cartEmptyState = document.getElementById('cartEmpty');
+      const cartSubtotal = document.getElementById('cartSubtotal');
+      const sendWhatsBtn = document.getElementById('sendWhatsBtn');
+      const cartCountPill = document.getElementById('cartCountPill');
+      let pendingProduct = null;
+
+      function init() {
+        populateBrands();
+        renderProducts();
+        setupEventListeners();
+      }
+
+      function populateBrands() {
+        const brands = [...new Set(PRODUCTS.map(p => p.brand.toLowerCase()))];
+        brands.sort().forEach(b => {
+          const opt = document.createElement('option');
+          opt.value = b;
+          opt.textContent = b.toUpperCase();
+          brandSelect.appendChild(opt);
+        });
+      }
+
+      function setupEventListeners() {
+        searchInput.addEventListener('input', (e) => { state.filters.search = e.target.value.toLowerCase(); renderProducts(); });
+        brandSelect.addEventListener('change', (e) => {
+          state.filters.brand = e.target.value;
+          renderProducts();
+          // Si el carrito está vacío, pre-filtrar agencias por la marca seleccionada
+          if (state.cart.length === 0) {
+            updateAgencySelect(e.target.value === 'all' ? null : e.target.value);
+          }
+        });
+        categorySelect.addEventListener('change', (e) => { state.filters.category = e.target.value; renderProducts(); });
+        sortSelect.addEventListener('change', (e) => { state.filters.sort = e.target.value; renderProducts(); });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+          searchInput.value = ''; brandSelect.value = 'all'; categorySelect.value = 'all'; sortSelect.value = 'relevance';
+          state.filters = { search: '', brand: 'all', category: 'all', sort: 'relevance' };
+          renderProducts();
+          if (state.cart.length === 0) updateAgencySelect(null);
+        });
+
+        document.getElementById('openCartBtn').addEventListener('click', () => {
+            document.getElementById('leads-form').scrollIntoView({ behavior: 'smooth' });
+        });
+        
+        document.getElementById('clearCartBtn').addEventListener('click', clearCart);
+        document.getElementById('clearCartAndAddBtn').addEventListener('click', () => {
+          clearCart();
+          if(pendingProduct) { addToCart(pendingProduct); }
+          brandModal();
+        });
+
+        document.getElementById('quoteForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            sendWhatsAppQuote();
+        });
+      }
+
+      function renderProducts() {
+        let filtered = PRODUCTS.filter(p => {
+          const matchSearch = p.name.toLowerCase().includes(state.filters.search) || p.id.toLowerCase().includes(state.filters.search);
+          const matchBrand = state.filters.brand === 'all' || p.brand.toLowerCase() === state.filters.brand;
+          const matchCat = state.filters.category === 'all' || p.category.toLowerCase() === state.filters.category.toLowerCase();
+          return matchSearch && matchBrand && matchCat;
+        });
+
+        if (state.filters.sort === 'priceAsc') {
+          filtered.sort((a, b) => parseFloat(a.price) - parseFloat(b.price));
+        } else if (state.filters.sort === 'priceDesc') {
+          filtered.sort((a, b) => parseFloat(b.price) - parseFloat(a.price));
+        }
+
+        resultsMeta.textContent = `Mostrando ${filtered.length} accesorio${filtered.length === 1 ? '' : 's'}`;
+        productsGrid.innerHTML = '';
+
+        if(filtered.length === 0) {
+          productsGrid.innerHTML = `<div class="col-span-full py-12 border border-white/5 bg-[#0d0e12] text-center text-xs text-gray-500 font-light">No se encontraron accesorios coincidentes.</div>`;
+          return;
+        }
+
+        filtered.forEach(p => {
+          let highlightsHtml = '';
+          try {
+            const arr = JSON.parse(p.highlights);
+            highlightsHtml = arr.slice(0, 2).map(h => `<div class="flex items-center text-[10px] text-gray-400 font-light"><span class="text-amber-400 mr-2">&bull;</span> ${h}</div>`).join('');
+          } catch(e) {}
+
+          const card = document.createElement('div');
+          card.className = "bg-[#0d0e12] border border-white/5 p-4 flex flex-col justify-between group hover:border-white/10 transition-colors";
+          card.innerHTML = `
+            <div>
+              <div class="overflow-hidden aspect-[4/4] bg-[#121318] mb-4 relative flex items-center justify-center border border-white/5">
+                <img class="h-full w-full object-cover" src="../assets/public/images/accesorios_2026/${p.brand.toLowerCase().replace(/\s+/g, "-")}/${p.image}" alt="${p.name}">
+              </div>
+              <div>
+                <span class="text-[9px] uppercase tracking-widest text-amber-400 font-medium">${p.brand}</span>
+                <h4 class="font-serif-luxury text-sm text-white tracking-wide mt-0.5 line-clamp-1">${p.name}</h4>
+                <p class="text-xs font-semibold text-gray-300 mt-1">${formatCurrency(parseFloat(p.price))}</p>
+                <div class="mt-3 space-y-1 border-t border-white/5 pt-3">${highlightsHtml}</div>
+              </div>
+            </div>
+            <button onclick="handleAddToCart('${p.id}')" class="mt-4 w-full bg-white/5 border border-white/10 text-white py-2 text-[10px] uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+              Añadir a Lista
+            </button>
+          `;
+          productsGrid.appendChild(card);
+        });
+      }
+
+      function handleAddToCart(productId) {
+        const product = PRODUCTS.find(p => p.id === productId);
+        if(!product) return;
+
+        if (state.cart.length > 0 && state.cart[0].brand.toLowerCase() !== product.brand.toLowerCase()) {
+          pendingProduct = product;
+          document.getElementById('modalBrandName').textContent = state.cart[0].brand;
+          brandModal();
+          return;
+        }
+        addToCart(product);
+      }
+
+      function addToCart(product) {
+        const existing = state.cart.find(item => item.id === product.id);
+        if (existing) {
+          existing.quantity += 1;
+        } else {
+          state.cart.push({ ...product, quantity: 1 });
+        }
+        updateCartUI();
+      }
+
+      function brandModal() {
+        document.getElementById('brandModal').classList.toggle('hidden');
+      }
+
+      function updateCartUI() {
+        const totalItems = state.cart.reduce((acc, item) => acc + item.quantity, 0);
+        cartCountPill.textContent = totalItems;
+
+        if(state.cart.length === 0) {
+          cartEmptyState.classList.remove('hidden');
+          cartItemsContainer.classList.add('hidden');
+          sendWhatsBtn.disabled = true;
+          cartSubtotal.textContent = formatCurrency(0);
+          updateAgencySelect(null);
+          return;
+        }
+
+        updateAgencySelect(state.cart[0].brand);
+
+        cartEmptyState.classList.add('hidden');
+        cartItemsContainer.classList.remove('hidden');
+        sendWhatsBtn.disabled = false;
+
+        cartItemsContainer.innerHTML = '';
+        let subtotal = 0;
+
+        state.cart.forEach(item => {
+          const itemSubtotal = parseFloat(item.price) * item.quantity;
+          subtotal += itemSubtotal;
+
+          const el = document.createElement('div');
+          el.className = "flex items-center justify-between border-b border-white/5 pb-2.5 gap-2 text-xs";
+          el.innerHTML = `
+            <div class="min-w-0 flex-1">
+              <p class="font-medium text-white truncate text-[11px] uppercase tracking-wide">${item.name}</p>
+              <p class="text-[10px] text-gray-500 font-light mt-0.5">${formatCurrency(parseFloat(item.price))} x ${item.quantity}</p>
+            </div>
+            <div class="flex items-center gap-1 shrink-0">
+              <button onclick="changeQty('${item.id}', -1)" type="button" class="w-5 h-5 bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-white">-</button>
+              <button onclick="changeQty('${item.id}', 1)" type="button" class="w-5 h-5 bg-white/5 border border-white/10 flex items-center justify-center text-xs text-gray-400 hover:text-white">+</button>
+            </div>
+          `;
+          cartItemsContainer.appendChild(el);
+        });
+
+        cartSubtotal.textContent = formatCurrency(subtotal);
+      }
+
+      function changeQty(id, delta) {
+        const idx = state.cart.findIndex(item => item.id === id);
+        if(idx === -1) return;
+        state.cart[idx].quantity += delta;
+        if(state.cart[idx].quantity <= 0) {
+          state.cart.splice(idx, 1);
+        }
+        updateCartUI();
+      }
+
+      function clearCart() {
+        state.cart = [];
+        pendingProduct = null;
+        updateCartUI();
+        updateAgencySelect(null);
+      }
+
+      // Actualiza el select de agencias según la marca activa
+      function updateAgencySelect(brandKey) {
+        const agencySelect = document.getElementById('agencySelect');
+        agencySelect.innerHTML = '<option value="" selected disabled>-- Selecciona Agencia --</option>';
+
+        const key = brandKey ? brandKey.toLowerCase() : null;
+        const agencies = (key && AGENCIES_BY_BRAND[key]) ? AGENCIES_BY_BRAND[key] : [];
+
+        if (agencies.length === 0) {
+          // Sin marca activa: mostrar todas las agencias
+          Object.values(AGENCIES_BY_BRAND).flat().forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            agencySelect.appendChild(opt);
+          });
+        } else {
+          agencies.forEach(name => {
+            const opt = document.createElement('option');
+            opt.value = name;
+            opt.textContent = name;
+            agencySelect.appendChild(opt);
+          });
+        }
+      }
+
+      function sendWhatsAppQuote() {
+        if(state.cart.length === 0) return;
+        
+        const clientName = document.getElementById('quoteName').value.trim();
+        const vehicleDetails = document.getElementById('quoteNotes').value.trim();
+        const clientPhone = document.getElementById('quotePhone').value.trim();
+        const targetAgency = document.getElementById('agencySelect').value || 'No especificada';
+        const targetPhone = state.cart[0].phone || '525521220370';
+
+        let products = '';
+        let text = `Hola, mi nombre es *${clientName}*.\n`;
+        text += `Solicito cotización formal para componentes de la división *${state.cart[0].brand.toUpperCase()}*:\n\n`;
+        
+        state.cart.forEach(item => {
+          text += `• ${item.quantity}x - ${item.name} (${formatCurrency(parseFloat(item.price))} c/u)\n`;
+          products += `• ${item.quantity}x - ${item.name} (${formatCurrency(parseFloat(item.price))} c/u)\n`;
+        });
+
+        text += `\n*Vehículo del Cliente:* ${vehicleDetails}`;
+        text += `\n*Teléfono de Contacto:* ${clientPhone}`;
+        text += `\n*Agencia de Preferencia:* ${targetAgency}\n`;
+
+        const encoded = encodeURIComponent(text);
+        window.open(`https://wa.me/${targetPhone}?text=${encoded}`, '_blank');
+
+        // Guardar cotización en BD
+        fetch("/accesorios/guardar-cotizacion", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+          },
+          body: JSON.stringify({
+            brand: state.cart[0].brand,
+            name: clientName,
+            phone: clientPhone,
+            model: vehicleDetails,
+            location: targetAgency,
+            products: products,
+            quote: text,
+          })
+        }).then(res => {
+          if (!res.ok) throw new Error("Error al guardar cotización");
+          return res.json();
+        }).then(data => {
+        //   console.log("Cotización guardada");
+          location.reload();
+        }).catch(err => {
+          console.error("Error al guardar cotización:", err);
+        });
+      }
+
+      document.addEventListener('DOMContentLoaded', init);
+    </script>    
+
+</body>
+</html>

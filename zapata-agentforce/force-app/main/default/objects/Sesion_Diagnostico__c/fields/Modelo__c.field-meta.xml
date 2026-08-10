@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modelo__c</fullName>
+    <description>Modelo consultado. El diagnostico funciona por modelo aunque no haya unidad identificada.</description>
+    <label>Modelo</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>Product2</referenceTo>
+    <relationshipLabel>Sesiones de diagnostico</relationshipLabel>
+    <relationshipName>Sesiones_Diagnostico</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

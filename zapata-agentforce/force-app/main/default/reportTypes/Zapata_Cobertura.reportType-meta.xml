@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <baseObject>Regla_Cobertura__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <description>Que politica de garantia esta vigente por modelo y sistema.</description>
+    <label>Zapata - Reglas de cobertura</label>
+    <sections>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Name</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Sistema__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Meses_Limite__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Km_Limite__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Vigencia_Odometro_Dias__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Version__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Activa__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+            <columns>
+                <checkedByDefault>true</checkedByDefault>
+                <field>Knowledge_Article_Id__c</field>
+                <table>Regla_Cobertura__c</table>
+            </columns>
+        <masterLabel>Zapata - Reglas de cobertura</masterLabel>
+    </sections>
+</ReportType>

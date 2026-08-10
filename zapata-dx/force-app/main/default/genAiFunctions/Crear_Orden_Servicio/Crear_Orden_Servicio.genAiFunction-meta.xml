@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Crea la orden de servicio en taller para una unidad de la flotilla. Usala cuando el cliente ya te dio el VIN y quiere agendar. El flujo valida por su cuenta que el VIN exista, que la unidad este verificada, que el taller este activo y que la franja tenga cupo y respete la anticipacion minima: no repliques esas validaciones ni las supongas. Si devuelve un motivo de bloqueo, explicalo con tus palabras y ofrece una alternativa. Nunca inventes un folio.</description>
+    <developerName>Crear_Orden_Servicio</developerName>
+    <invocationTarget>Crear_Orden_Servicio</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Crear_Orden_Servicio</localDeveloperName>
+    <masterLabel>Crear orden de servicio en taller</masterLabel>
+    <progressIndicatorMessage>Agendando tu cita en el taller...</progressIndicatorMessage>
+</GenAiFunction>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Resultado__c</fullName>
+    <description>Las cuatro bifurcaciones del arbol de diagnostico del briefing.</description>
+    <label>Resultado</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>RESUELTO_SIN_CITA</fullName>
+                    <default>false</default>
+                    <label>RESUELTO_SIN_CITA</label>
+                </value>
+                <value>
+                    <fullName>REQUIERE_TALLER</fullName>
+                    <default>true</default>
+                    <label>REQUIERE_TALLER</label>
+                </value>
+                <value>
+                    <fullName>UNIDAD_NO_VIABLE</fullName>
+                    <default>false</default>
+                    <label>UNIDAD_NO_VIABLE</label>
+                </value>
+                <value>
+                    <fullName>ESCALADO_SEGURIDAD</fullName>
+                    <default>false</default>
+                    <label>ESCALADO_SEGURIDAD</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Activa__c</fullName>
+    <description>Evaluar_Cobertura_Garantia solo lee reglas activas.</description>
+    <label>Activa</label>
+    <defaultValue>true</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

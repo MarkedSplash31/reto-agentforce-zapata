@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Coordinador__c</fullName>
+    <description>Quien coordina la asistencia en carretera. El agente escala aqui.</description>
+    <label>Coordinador de asistencia</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>User</referenceTo>
+    <relationshipLabel>Reportes de varada asignados</relationshipLabel>
+    <relationshipName>Reportes_Varada_Asignados</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

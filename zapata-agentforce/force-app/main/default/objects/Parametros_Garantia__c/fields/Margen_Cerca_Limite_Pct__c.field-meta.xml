@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Margen_Cerca_Limite_Pct__c</fullName>
+    <description>Que tan cerca del limite se considera zona de riesgo. Con 10%, una unidad a menos de 25,000 km del tope cae en CERCA_DEL_LIMITE y el agente debe confirmar el odometro antes de decidir.</description>
+    <label>Margen de cercania al limite (%)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

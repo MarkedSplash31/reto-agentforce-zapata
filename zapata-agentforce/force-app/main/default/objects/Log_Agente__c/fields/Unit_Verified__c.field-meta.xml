@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Unit_Verified__c</fullName>
+    <description>Gate de seguridad al momento del evento.</description>
+    <label>Unidad verificada</label>
+    <defaultValue>false</defaultValue>
+    <type>Checkbox</type>
+</CustomField>

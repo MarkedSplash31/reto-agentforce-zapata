@@ -1,0 +1,63 @@
+{
+  "required" : [ "varVIN", "varSintoma", "varCorrelationId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "varVIN" : {
+      "title" : "VIN de la unidad",
+      "description" : "VIN de 17 caracteres alfanumericos que dicto el cliente. Se busca contra el numero de serie de la unidad. Si el cliente no lo tiene, pidelo: no inventes uno ni uses uno de otra conversacion.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : true
+    },
+    "varSucursalClave" : {
+      "title" : "Taller",
+      "description" : "Codigo o nombre del taller, por ejemplo FL-QRO o Queretaro. Obligatorio salvo que ya traigas una franja concreta. Si el cliente no dice cual, preguntale.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varFechaDeseada" : {
+      "title" : "Dia que pidio el cliente",
+      "description" : "Dia a partir del cual quiere la cita. Se toma la primera franja libre de ese dia o posterior. Si el cliente no da fecha, dejalo vacio y se toma la primera disponible. Si pide una hora concreta, no la mandes aqui: menciona en el sintoma que prefiere manana o tarde.",
+      "lightning:type" : "lightning__dateType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varSlotId" : {
+      "title" : "Franja elegida",
+      "description" : "Identificador interno de franja. Solo se usa si una accion previa te lo devolvio. NUNCA se lo pidas al cliente ni se lo menciones.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varTipoServicio" : {
+      "title" : "Tipo de servicio",
+      "description" : "Uno de: Diagnostico, Mantenimiento, Garantia, Reparacion mayor. Si no queda claro por lo que dijo el cliente, dejalo vacio en vez de adivinar.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varSintoma" : {
+      "title" : "Sintoma reportado",
+      "description" : "Lo que el cliente describio, con sus palabras. No escribas aqui un diagnostico ni una causa que el cliente no menciono.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : true
+    },
+    "varCorrelationId" : {
+      "title" : "Correlation Id",
+      "description" : "Identificador del hilo de la conversacion. Usa el mismo valor en todas las acciones de esta conversacion para que la traza se pueda reconstruir.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "varSessionKey" : {
+      "title" : "Session Key",
+      "description" : "Referencia de la sesion. No incluyas datos personales.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

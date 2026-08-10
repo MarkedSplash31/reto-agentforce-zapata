@@ -1,0 +1,44 @@
+# Dependencias
+node_modules/
+
+# Secretos y entorno. `.env` nunca entra: lleva SF_CLIENT_SECRET y APP_ADMIN_PASS.
+.env
+.env.*
+*.token
+
+# Artefactos de Salesforce CLI
+.sf/
+.sfdx/
+.localdevserver/
+deploy-options.json
+
+# Evidencia cruda y metadata recuperada de la org. Contiene identificadores de
+# Salesforce, VIN sinteticos, cuerpos de escenario y correos de usuarios de
+# prueba. Se custodia en local; publicarla exige redaccion previa.
+evidencia/
+.metadata-org/
+salesforce-exports/
+exports/
+*-success-records.csv
+*-failed-records.csv
+
+# Resultados de pruebas y reportes: se regeneran, no son fuente.
+test-results/
+playwright-report/
+blob-report/
+.playwright-mcp/
+coverage/
+.nyc_output/
+output/
+*.log
+
+# Bundle de historia git: binario opaco, no auditable como fuente.
+*.bundle
+
+# Copias descargadas del sitio publico de Zapata. Se usaron como referencia de
+# diseno; son contenido de un tercero y traen correos reales de distribuidoras.
+identidad-zapata/recon/
+
+# Sistema
+.DS_Store
+Thumbs.db

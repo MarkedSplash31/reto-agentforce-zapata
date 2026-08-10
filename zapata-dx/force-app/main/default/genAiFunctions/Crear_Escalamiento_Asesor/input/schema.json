@@ -1,0 +1,42 @@
+{
+  "required" : [ "motivo", "correlationId" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "motivo" : {
+      "title" : "Motivo del escalamiento",
+      "description" : "Resumen fiel, en una linea, de por que el cliente necesita un asesor. No agregues datos que el cliente no haya dicho.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : false
+    },
+    "correlationId" : {
+      "title" : "Correlation Id",
+      "description" : "Identificador estable de la conversacion. Usa RoutableId y conserva el mismo valor en cada reintento.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : false
+    },
+    "contactId" : {
+      "title" : "Contact Id",
+      "description" : "ContactId vinculado a la sesion, si existe. No inventes ni pidas este identificador al cliente.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : false
+    },
+    "riesgoSeguridad" : {
+      "title" : "Hay riesgo de seguridad",
+      "description" : "Verdadero solo cuando la conversacion contiene un riesgo de seguridad explicito.",
+      "lightning:type" : "lightning__booleanType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    },
+    "contextoTorreJson" : {
+      "title" : "Contexto estructurado de la Torre",
+      "description" : "JSON v1 opcional reservado para la Torre. Agentforce debe omitirlo.",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : true,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

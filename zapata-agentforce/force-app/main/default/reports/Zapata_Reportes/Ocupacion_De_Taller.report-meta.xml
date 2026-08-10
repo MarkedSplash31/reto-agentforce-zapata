@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <columns>
+        <field>Slot_Taller__c.Inicio__c</field>
+    </columns>
+    <columns>
+        <field>Slot_Taller__c.Tipo_Servicio__c</field>
+    </columns>
+    <columns>
+        <field>Slot_Taller__c.Capacidad_Total__c</field>
+    </columns>
+    <columns>
+        <field>Slot_Taller__c.Capacidad_Usada__c</field>
+    </columns>
+    <columns>
+        <field>Slot_Taller__c.Cupos_Libres__c</field>
+    </columns>
+    <description>Franjas y cupos disponibles por taller.</description>
+    <format>Tabular</format>
+    <name>Ocupacion de taller</name>
+    <reportType>CustomEntity$Slot_Taller__c</reportType>
+</Report>

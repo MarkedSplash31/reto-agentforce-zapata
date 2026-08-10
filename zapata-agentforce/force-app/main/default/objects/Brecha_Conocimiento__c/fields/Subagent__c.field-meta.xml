@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Subagent__c</fullName>
+    <description>Subagent que detecto la brecha.</description>
+    <label>Subagent</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Garantia</fullName>
+                    <default>false</default>
+                    <label>Garantia</label>
+                </value>
+                <value>
+                    <fullName>Diagnostico</fullName>
+                    <default>false</default>
+                    <label>Diagnostico</label>
+                </value>
+                <value>
+                    <fullName>Agenda</fullName>
+                    <default>false</default>
+                    <label>Agenda</label>
+                </value>
+                <value>
+                    <fullName>Compensacion</fullName>
+                    <default>false</default>
+                    <label>Compensacion</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unidades en ruta | Torre de Postventa Zapata</title>
+<meta name="description" content="Estado en vivo de las unidades de la red Zapata: varadas, en traslado, en taller y liberadas.">
+<link rel="icon" href="assets/marca-zapata.svg">
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<link rel="stylesheet" href="css/sistema.css">
+</head>
+<body class="bg-[#0b0c10] text-gray-100 font-sans-clean antialiased selection:bg-neutral-700 selection:text-white">
+
+<div id="nav"></div>
+
+<!-- hero de página interior: 48px con tracking 0.15em, sin imagen de fondo -->
+<header class="pt-32 pb-4 max-w-7xl mx-auto px-6">
+  <span class="text-[10px] uppercase tracking-[0.3em] text-amber-400/90 font-medium block mb-2">Estado en vivo</span>
+  <h1 class="font-serif-luxury text-3xl md:text-5xl text-white tracking-[0.15em] font-light leading-none">UNIDADES EN RUTA</h1>
+  <p class="text-gray-400 text-xs leading-relaxed font-light mt-4 max-w-2xl">
+    Corte de la red de camiones. Filtra por sucursal y estado; el folio abre la traza completa
+    de la conversación, la decisión y el Flow que actuó.
+  </p>
+</header>
+
+<main class="pb-24 max-w-7xl mx-auto px-6">
+
+  <!-- filtros -->
+  <div class="border border-white/5 bg-[#0d0e12] p-4 grid grid-cols-1 md:grid-cols-5 gap-3 mt-8">
+    <div class="md:col-span-2 relative">
+      <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-600 text-[11px]"></i>
+      <input id="q" type="search" placeholder="BUSCAR VIN O FOLIO…" aria-label="Buscar por VIN o folio"
+        class="w-full bg-[#0b0c10] border border-white/10 text-white pl-8 pr-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+    </div>
+    <select id="f-sucursal" aria-label="Filtrar por sucursal"
+      class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">
+      <option value="">TODAS LAS SUCURSALES</option>
+      <option>Tlalnepantla</option><option>Monterrey</option><option>Querétaro</option>
+      <option>Guadalajara</option><option>León</option><option>Celaya</option><option>Tampico</option>
+    </select>
+    <select id="f-estado" aria-label="Filtrar por estado"
+      class="w-full bg-[#0b0c10] border border-white/10 text-gray-300 px-3 py-2.5 text-[11px] tracking-widest uppercase focus:outline-none focus:border-white/30 appearance-none font-light rounded-none transition-colors">
+      <option value="">TODOS LOS ESTADOS</option>
+      <option>Varada</option><option>En traslado</option><option>En taller</option><option>Liberada</option>
+    </select>
+    <button id="limpiar" class="border border-white/10 text-white text-[11px] uppercase tracking-widest px-4 py-2.5 hover:bg-white hover:text-black transition-colors duration-300">
+      Limpiar
+    </button>
+  </div>
+
+  <!-- conteo y descargo -->
+  <div class="flex justify-between items-center border-b border-white/5 pb-3 mt-6 mb-6">
+    <span class="text-[11px] uppercase tracking-widest text-gray-300"><span id="conteo">0</span> unidades</span>
+    <span class="text-[10px] uppercase tracking-widest text-gray-600">Corte de las últimas 24 horas</span>
+  </div>
+
+  <div id="lista" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+
+  <div id="vacio" class="hidden border border-dashed border-white/10 p-6 text-center text-xs font-light text-gray-500">
+    Ningún registro coincide con los filtros. Ajusta la sucursal o el estado.
+  </div>
+</main>
+
+<div id="footer"></div>
+<script src="js/sistema.js"></script>
+<script>
+/* Datos de demostración. En producción vienen de Salesforce vía el Flow de la torre. */
+const UNIDADES = [
+  { folio:'VAR-4821', vin:'3AKJHHDR9LSLM1042', modelo:'Cascadia 126', suc:'Monterrey',    estado:'Varada',      km:'482,110', desde:'hace 38 min', sintoma:'Pérdida de presión de aire en sistema de frenos.' },
+  { folio:'VAR-4819', vin:'1FUJGLD59CLBP2214', modelo:'M2 106',       suc:'Tlalnepantla', estado:'En traslado', km:'218,940', desde:'hace 2 h 10', sintoma:'Falla de arranque en frío tras cambio de batería.' },
+  { folio:'VAR-4815', vin:'3ALACWDT4FDGK9921', modelo:'114SD',        suc:'Querétaro',    estado:'En taller',   km:'96,300',  desde:'hace 6 h',    sintoma:'Fuga de refrigerante en manguera superior.' },
+  { folio:'VAR-4812', vin:'1FVACWDT8HHJT4410', modelo:'Cascadia 116', suc:'Guadalajara',  estado:'Varada',      km:'331,775', desde:'hace 1 h 05', sintoma:'Sobrecalentamiento con alarma en tablero.' },
+  { folio:'VAR-4808', vin:'3AKJGLD52ESFR8830', modelo:'FL-360',       suc:'León',         estado:'Liberada',    km:'150,220', desde:'ayer',        sintoma:'Ajuste de suspensión trasera. Sin cargo por garantía.' },
+  { folio:'VAR-4803', vin:'1FUJHLDR1CLBM7712', modelo:'M2 112',       suc:'Celaya',       estado:'En taller',   km:'404,650', desde:'hace 9 h',    sintoma:'Reemplazo de turbo. Refacción en tránsito.' },
+  { folio:'VAR-4799', vin:'3ALHCYFE6JDKP1188', modelo:'Cascadia 126', suc:'Tampico',      estado:'Liberada',    km:'62,410',  desde:'ayer',        sintoma:'Mantenimiento por kilometraje. Dentro de cobertura.' },
+  { folio:'VAR-4795', vin:'1FVHCYDC9DHFL2205', modelo:'114SD',        suc:'Monterrey',    estado:'En traslado', km:'289,530', desde:'hace 3 h 40', sintoma:'Neumático direccional dañado en carretera.' },
+];
+
+/* El estado gobierna el color. Ámbar marca lo que exige acción ahora;
+   esmeralda lo resuelto; el resto queda en la escala neutra del sistema. */
+const ESTADOS = {
+  'Varada':      { cls:'text-amber-400 border-amber-400/20 bg-amber-400/5', punto:'bg-amber-400 animate-pulse' },
+  'En traslado': { cls:'text-gray-300 border-white/10',                     punto:'bg-gray-400' },
+  'En taller':   { cls:'text-gray-300 border-white/10',                     punto:'bg-gray-400' },
+  'Liberada':    { cls:'text-emerald-500/90 border-white/10',               punto:'bg-emerald-400' },
+};
+
+const $ = s => document.querySelector(s);
+const lista = $('#lista'), vacio = $('#vacio');
+
+function tarjeta(u) {
+  const e = ESTADOS[u.estado];
+  return `
+  <article class="bg-[#0d0e12] border border-white/5 p-6 flex flex-col justify-between group hover:border-white/20 transition-all duration-300">
+    <div>
+      <div class="flex items-start justify-between gap-3 mb-4">
+        <div>
+          <span class="text-[10px] uppercase tracking-widest text-amber-400 font-medium block mb-1">${u.suc}</span>
+          <h2 class="font-serif-luxury text-xl text-white tracking-wide">${u.modelo}</h2>
+        </div>
+        <span class="shrink-0 inline-flex items-center gap-2 border ${e.cls} px-2 py-1 text-[10px] uppercase tracking-widest font-medium">
+          <span class="w-1.5 h-1.5 rounded-full ${e.punto}"></span>${u.estado}
+        </span>
+      </div>
+
+      <dl class="space-y-1.5 mb-4">
+        <div class="flex justify-between gap-4">
+          <dt class="text-[10px] uppercase tracking-widest text-gray-600">VIN</dt>
+          <dd class="text-[11px] font-mono tracking-wide text-gray-300">${u.vin}</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-[10px] uppercase tracking-widest text-gray-600">Odómetro</dt>
+          <dd class="text-[11px] font-mono tracking-wide text-gray-300">${u.km} km</dd>
+        </div>
+        <div class="flex justify-between gap-4">
+          <dt class="text-[10px] uppercase tracking-widest text-gray-600">Reportada</dt>
+          <dd class="text-[11px] font-light text-gray-400">${u.desde}</dd>
+        </div>
+      </dl>
+
+      <p class="text-gray-400 text-xs leading-relaxed font-light mb-6">${u.sintoma}</p>
+    </div>
+
+    <div class="flex items-center justify-between gap-3">
+      <span class="text-[10px] uppercase tracking-widest text-gray-600 font-mono">${u.folio}</span>
+      <button class="traza text-xs uppercase tracking-widest text-white hover:text-gray-400 transition-colors" data-folio="${u.folio}">
+        Ver traza &rarr;
+      </button>
+    </div>
+  </article>`;
+}
+
+function pintar() {
+  const q   = $('#q').value.trim().toUpperCase();
+  const suc = $('#f-sucursal').value;
+  const est = $('#f-estado').value;
+  const r = UNIDADES.filter(u =>
+    (!q   || u.vin.includes(q) || u.folio.includes(q)) &&
+    (!suc || u.suc === suc) &&
+    (!est || u.estado === est));
+  lista.innerHTML = r.map(tarjeta).join('');
+  $('#conteo').textContent = r.length;
+  vacio.classList.toggle('hidden', r.length > 0);
+  lista.querySelectorAll('.traza').forEach(b => b.addEventListener('click', () => {
+    const u = UNIDADES.find(x => x.folio === b.dataset.folio);
+    modal({
+      titulo: `Traza ${u.folio}`,
+      cuerpo: `Unidad ${u.modelo} · ${u.suc}.<br><br>
+        <span class="text-gray-300">Knowledge:</span> artículo de cobertura por kilometraje, versión publicada.<br>
+        <span class="text-gray-300">Decisión:</span> ${u.km} km evaluados contra la regla vigente.<br>
+        <span class="text-gray-300">Flow:</span> slot reservado y sucursal notificada.<br>
+        <span class="text-gray-300">Registro:</span> folio correlacionado con la conversación.`,
+      cta: 'Cerrar'
+    });
+  }));
+}
+
+['#q','#f-sucursal','#f-estado'].forEach(s => $(s).addEventListener('input', pintar));
+$('#limpiar').addEventListener('click', () => {
+  $('#q').value=''; $('#f-sucursal').value=''; $('#f-estado').value='';
+  pintar(); toast('Filtros restablecidos.');
+});
+pintar();
+</script>
+</body>
+</html>

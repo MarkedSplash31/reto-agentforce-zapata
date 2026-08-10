@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>WorkOrder__c</fullName>
+    <description>Orden creada si el diagnostico derivo en cita.</description>
+    <label>Orden generada</label>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <referenceTo>WorkOrder</referenceTo>
+    <relationshipLabel>Sesiones de diagnostico</relationshipLabel>
+    <relationshipName>Sesiones_Diagnostico</relationshipName>
+    <required>false</required>
+    <type>Lookup</type>
+</CustomField>

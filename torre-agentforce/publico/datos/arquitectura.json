@@ -1,0 +1,262 @@
+{
+ "generadoEn": "2026-08-06T06:16:18.185Z",
+ "fuente": "org zapata · GenAiPlannerBundle Agente_Postventa_Zapata_v15 · Flows recuperados",
+ "versionActiva": "v15",
+ "subagentes": [
+  {
+   "nombre": "agent_router",
+   "tipo": "router",
+   "descripcion": "Dar la bienvenida en español (es_MX) y determinar el subagente adecuado según la intención del usuario",
+   "acciones": [],
+   "transiciones": [
+    "conocimiento_y_respuestas",
+    "agendar_servicio_taller",
+    "atencion_unidades_varadas",
+    "escalamiento_asesor_humano"
+   ],
+   "ejecutaAlgo": false
+  },
+  {
+   "nombre": "conocimiento_y_respuestas",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [
+    {
+     "nombre": "Buscar_Conocimiento_Postventa",
+     "destino": "Buscar_Conocimiento_Postventa",
+     "entradas": [
+      "pregunta"
+     ]
+    }
+   ],
+   "transiciones": [],
+   "ejecutaAlgo": true
+  },
+  {
+   "nombre": "agendar_servicio_taller",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [
+    {
+     "nombre": "Consultar_disponibilidad_de_taller",
+     "destino": "Consultar_disponibilidad_de_taller",
+     "entradas": [
+      "sucursal"
+     ]
+    },
+    {
+     "nombre": "Crear_Orden_Servicio",
+     "destino": "Crear_Orden_Servicio",
+     "entradas": [
+      "varVIN",
+      "varSlotId",
+      "varSintoma"
+     ]
+    },
+    {
+     "nombre": "Reprogramar_Orden_Servicio",
+     "destino": "Reprogramar_Orden_Servicio",
+     "entradas": [
+      "varFolio",
+      "varNuevoSlotId",
+      "varMotivo"
+     ]
+    }
+   ],
+   "transiciones": [],
+   "ejecutaAlgo": true
+  },
+  {
+   "nombre": "atencion_unidades_varadas",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [
+    {
+     "nombre": "Crear_Reporte_Unidad_Varada",
+     "destino": "Crear_Reporte_Unidad_Varada",
+     "entradas": [
+      "varCarretera",
+      "varSucursalClave",
+      "varFueraDeCarril",
+      "varIntermitentes",
+      "varDescripcionFalla"
+     ]
+    }
+   ],
+   "transiciones": [],
+   "ejecutaAlgo": true
+  },
+  {
+   "nombre": "escalamiento_asesor_humano",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [
+    {
+     "nombre": "Crear_Escalamiento_Asesor",
+     "destino": "Crear_Escalamiento_Asesor",
+     "entradas": [
+      "motivo",
+      "riesgoSeguridad"
+     ]
+    }
+   ],
+   "transiciones": [],
+   "ejecutaAlgo": true
+  },
+  {
+   "nombre": "off_topic",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [],
+   "transiciones": [],
+   "ejecutaAlgo": false
+  },
+  {
+   "nombre": "ambiguous_question",
+   "tipo": "subagent",
+   "descripcion": "",
+   "acciones": [],
+   "transiciones": [],
+   "ejecutaAlgo": false
+  }
+ ],
+ "implementacionesAcciones": [
+  {
+   "accion": "Buscar_Conocimiento_Postventa",
+   "tipo": "apex",
+   "destino": "BuscarConocimientoPostventa",
+   "fuenteMetadata": "GenAiFunction:Buscar_Conocimiento_Postventa recuperada de org zapata",
+   "fuenteBackend": "ApexClass:BuscarConocimientoPostventa recuperado de org zapata",
+   "escribe": [],
+   "lee": [
+    "Knowledge__kav"
+   ]
+  },
+  {
+   "accion": "Consultar_disponibilidad_de_taller",
+   "tipo": "apex",
+   "destino": "ZapataAgendaController",
+   "fuenteMetadata": "GenAiFunction:Consultar_disponibilidad_de_taller recuperada de org zapata",
+   "fuenteBackend": "ApexClass:ZapataAgendaController recuperado de org zapata",
+   "escribe": [],
+   "lee": [
+    "Slot_Taller__c",
+    "Sucursal__c",
+    "Modelo_Sucursal__c"
+   ]
+  },
+  {
+   "accion": "Crear_Orden_Servicio",
+   "tipo": "flow",
+   "destino": "Crear_Orden_Servicio",
+   "fuenteMetadata": "GenAiFunction:Crear_Orden_Servicio recuperada de org zapata",
+   "fuenteBackend": "Flow:Crear_Orden_Servicio recuperado de org zapata",
+   "escribe": [
+    "WorkOrder",
+    "Slot_Taller__c"
+   ],
+   "lee": [
+    "Sucursal__c",
+    "Asset"
+   ]
+  },
+  {
+   "accion": "Reprogramar_Orden_Servicio",
+   "tipo": "flow",
+   "destino": "Reprogramar_Orden_Servicio",
+   "fuenteMetadata": "GenAiFunction:Reprogramar_Orden_Servicio recuperada de org zapata",
+   "fuenteBackend": "Flow:Reprogramar_Orden_Servicio recuperado de org zapata",
+   "escribe": [
+    "Case",
+    "WorkOrder",
+    "Slot_Taller__c"
+   ],
+   "lee": [
+    "Sucursal__c"
+   ]
+  },
+  {
+   "accion": "Crear_Reporte_Unidad_Varada",
+   "tipo": "flow",
+   "destino": "Crear_Reporte_Unidad_Varada",
+   "fuenteMetadata": "GenAiFunction:Crear_Reporte_Unidad_Varada recuperada de org zapata",
+   "fuenteBackend": "Flow:Crear_Reporte_Unidad_Varada recuperado de org zapata",
+   "escribe": [
+    "Unidad_Varada__c"
+   ],
+   "lee": [
+    "Sucursal__c",
+    "Asset"
+   ]
+  },
+  {
+   "accion": "Crear_Escalamiento_Asesor",
+   "tipo": "apex",
+   "destino": "EscalarAsesorHumano",
+   "fuenteMetadata": "GenAiFunction:Crear_Escalamiento_Asesor recuperada de org zapata",
+   "fuenteBackend": "ApexClass:EscalarAsesorHumano recuperado de org zapata",
+   "escribe": [
+    "Log_Agente__c",
+    "Case",
+    "CaseComment"
+   ],
+   "lee": [
+    "Group"
+   ]
+  }
+ ],
+ "requisitosArquitectura": {
+  "escalamientoDurable": {
+   "cumple": true,
+   "accion": "Crear_Escalamiento_Asesor",
+   "backend": "EscalarAsesorHumano",
+   "escriturasRequeridas": [
+    "Case",
+    "CaseComment",
+    "Log_Agente__c"
+   ],
+   "derivadoDe": [
+    "GenAiFunction:Crear_Escalamiento_Asesor recuperada de org zapata",
+    "ApexClass:EscalarAsesorHumano recuperado de org zapata"
+   ]
+  }
+ },
+ "flows": {
+  "Crear_Orden_Servicio": {
+   "escribe": [
+    "WorkOrder",
+    "Slot_Taller__c"
+   ],
+   "lee": [
+    "Sucursal__c",
+    "Asset"
+   ]
+  },
+  "Reprogramar_Orden_Servicio": {
+   "escribe": [
+    "Case",
+    "WorkOrder",
+    "Slot_Taller__c"
+   ],
+   "lee": [
+    "Sucursal__c"
+   ]
+  },
+  "Crear_Reporte_Unidad_Varada": {
+   "escribe": [
+    "Unidad_Varada__c"
+   ],
+   "lee": [
+    "Sucursal__c",
+    "Asset"
+   ]
+  },
+  "Registrar_Log_Agente": {
+   "escribe": [
+    "Log_Agente__c"
+   ],
+   "lee": []
+  }
+ },
+ "mermaid": "graph LR\n  BOT[\"Agente Postventa Zapata<br/>v15 · activa\"]:::bot\n  agent_router[\"agent router\"]:::router\n  BOT --> agent_router\n  agent_router -->|enruta| conocimiento_y_respuestas\n  agent_router -->|enruta| agendar_servicio_taller\n  agent_router -->|enruta| atencion_unidades_varadas\n  agent_router -->|enruta| escalamiento_asesor_humano\n  conocimiento_y_respuestas[\"conocimiento y respuestas\"]:::sub\n  Buscar_Conocimiento_Postventa([\"Buscar Conocimiento Postventa\"]):::accion\n  conocimiento_y_respuestas --> Buscar_Conocimiento_Postventa\n  agendar_servicio_taller[\"agendar servicio taller\"]:::sub\n  Consultar_disponibilidad_de_taller([\"Consultar disponibilidad de taller\"]):::accion\n  agendar_servicio_taller --> Consultar_disponibilidad_de_taller\n  Crear_Orden_Servicio([\"Crear Orden Servicio\"]):::accion\n  agendar_servicio_taller --> Crear_Orden_Servicio\n  Reprogramar_Orden_Servicio([\"Reprogramar Orden Servicio\"]):::accion\n  agendar_servicio_taller --> Reprogramar_Orden_Servicio\n  atencion_unidades_varadas[\"atencion unidades varadas\"]:::sub\n  Crear_Reporte_Unidad_Varada([\"Crear Reporte Unidad Varada\"]):::accion\n  atencion_unidades_varadas --> Crear_Reporte_Unidad_Varada\n  escalamiento_asesor_humano[\"escalamiento asesor humano\"]:::sub\n  Crear_Escalamiento_Asesor([\"Crear Escalamiento Asesor\"]):::accion\n  escalamiento_asesor_humano --> Crear_Escalamiento_Asesor\n  off_topic[\"off topic\"]:::sub\n  off_topic -.->|sin acción| SINACCION_off_topic[\"no ejecuta nada\"]:::vacio\n  ambiguous_question[\"ambiguous question\"]:::sub\n  ambiguous_question -.->|sin acción| SINACCION_ambiguous_question[\"no ejecuta nada\"]:::vacio\n  Buscar_Conocimiento_Postventa --> APEX_BuscarConocimientoPostventa[[\"Apex BuscarConocimientoPostventa\"]]:::apex\n  OBJ_Knowledge__kav[(\"Knowledge__kav\")]:::objeto\n  APEX_BuscarConocimientoPostventa -.->|lee| OBJ_Knowledge__kav\n  Consultar_disponibilidad_de_taller --> APEX_ZapataAgendaController[[\"Apex ZapataAgendaController\"]]:::apex\n  OBJ_Slot_Taller__c[(\"Slot_Taller__c\")]:::objeto\n  APEX_ZapataAgendaController -.->|lee| OBJ_Slot_Taller__c\n  OBJ_Sucursal__c[(\"Sucursal__c\")]:::objeto\n  APEX_ZapataAgendaController -.->|lee| OBJ_Sucursal__c\n  OBJ_Modelo_Sucursal__c[(\"Modelo_Sucursal__c\")]:::objeto\n  APEX_ZapataAgendaController -.->|lee| OBJ_Modelo_Sucursal__c\n  Crear_Orden_Servicio --> FLOW_Crear_Orden_Servicio[[\"Flow Crear Orden Servicio\"]]:::flow\n  OBJ_WorkOrder[(\"WorkOrder\")]:::objeto\n  FLOW_Crear_Orden_Servicio -->|escribe| OBJ_WorkOrder\n  OBJ_Slot_Taller__c[(\"Slot_Taller__c\")]:::objeto\n  FLOW_Crear_Orden_Servicio -->|escribe| OBJ_Slot_Taller__c\n  OBJ_Sucursal__c[(\"Sucursal__c\")]:::objeto\n  FLOW_Crear_Orden_Servicio -.->|lee| OBJ_Sucursal__c\n  OBJ_Asset[(\"Asset\")]:::objeto\n  FLOW_Crear_Orden_Servicio -.->|lee| OBJ_Asset\n  Reprogramar_Orden_Servicio --> FLOW_Reprogramar_Orden_Servicio[[\"Flow Reprogramar Orden Servicio\"]]:::flow\n  OBJ_Case[(\"Case\")]:::objeto\n  FLOW_Reprogramar_Orden_Servicio -->|escribe| OBJ_Case\n  OBJ_WorkOrder[(\"WorkOrder\")]:::objeto\n  FLOW_Reprogramar_Orden_Servicio -->|escribe| OBJ_WorkOrder\n  OBJ_Slot_Taller__c[(\"Slot_Taller__c\")]:::objeto\n  FLOW_Reprogramar_Orden_Servicio -->|escribe| OBJ_Slot_Taller__c\n  OBJ_Sucursal__c[(\"Sucursal__c\")]:::objeto\n  FLOW_Reprogramar_Orden_Servicio -.->|lee| OBJ_Sucursal__c\n  Crear_Reporte_Unidad_Varada --> FLOW_Crear_Reporte_Unidad_Varada[[\"Flow Crear Reporte Unidad Varada\"]]:::flow\n  OBJ_Unidad_Varada__c[(\"Unidad_Varada__c\")]:::objeto\n  FLOW_Crear_Reporte_Unidad_Varada -->|escribe| OBJ_Unidad_Varada__c\n  OBJ_Sucursal__c[(\"Sucursal__c\")]:::objeto\n  FLOW_Crear_Reporte_Unidad_Varada -.->|lee| OBJ_Sucursal__c\n  OBJ_Asset[(\"Asset\")]:::objeto\n  FLOW_Crear_Reporte_Unidad_Varada -.->|lee| OBJ_Asset\n  Crear_Escalamiento_Asesor --> APEX_EscalarAsesorHumano[[\"Apex EscalarAsesorHumano\"]]:::apex\n  OBJ_Log_Agente__c[(\"Log_Agente__c\")]:::objeto\n  APEX_EscalarAsesorHumano -->|escribe| OBJ_Log_Agente__c\n  OBJ_Case[(\"Case\")]:::objeto\n  APEX_EscalarAsesorHumano -->|escribe| OBJ_Case\n  OBJ_CaseComment[(\"CaseComment\")]:::objeto\n  APEX_EscalarAsesorHumano -->|escribe| OBJ_CaseComment\n  OBJ_Group[(\"Group\")]:::objeto\n  APEX_EscalarAsesorHumano -.->|lee| OBJ_Group\n  FLOW_Registrar_Log_Agente[[\"Flow Registrar Log Agente\"]]:::flow\n  OBJ_Log_Agente__c[(\"Log_Agente__c\")]:::objeto\n  FLOW_Registrar_Log_Agente -->|escribe| OBJ_Log_Agente__c\n  FLOW_Crear_Orden_Servicio -.->|subflow| FLOW_Registrar_Log_Agente\n  FLOW_Reprogramar_Orden_Servicio -.->|subflow| FLOW_Registrar_Log_Agente\n  FLOW_Crear_Reporte_Unidad_Varada -.->|subflow| FLOW_Registrar_Log_Agente\n  classDef bot fill:#3a2a0a,stroke:#fbbf24,stroke-width:2px,color:#f3f4f6\n  classDef router fill:#121318,stroke:#ffffff33,color:#f3f4f6\n  classDef sub fill:#0d0e12,stroke:#ffffff33,color:#f3f4f6\n  classDef accion fill:#0b0c10,stroke:#fbbf2455,color:#f3f4f6\n  classDef flow fill:#0b0c10,stroke:#ffffff22,color:#d1d5db\n  classDef apex fill:#111827,stroke:#60a5fa,color:#dbeafe\n  classDef objeto fill:#07080a,stroke:#ffffff22,color:#9ca3af\n  classDef vacio fill:#3a1010,stroke:#dc2626,color:#fecaca"
+}

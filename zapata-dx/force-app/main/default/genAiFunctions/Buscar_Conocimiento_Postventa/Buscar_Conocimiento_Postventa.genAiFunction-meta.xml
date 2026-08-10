@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Busca material de apoyo de postventa y devuelve contenido, titulos, estado y advertencia de procedencia. El material v1.0-sintetica-no-verificada no es una politica oficial ni permite decidir cobertura operativa. Cita siempre la procedencia y ofrece validacion humana cuando la fuente no este verificada.</description>
+    <developerName>Buscar_Conocimiento_Postventa</developerName>
+    <invocationTarget>BuscarConocimientoPostventa</invocationTarget>
+    <invocationTargetType>apex</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <isIncludeInProgressIndicator>true</isIncludeInProgressIndicator>
+    <localDeveloperName>Buscar_Conocimiento_Postventa</localDeveloperName>
+    <masterLabel>Buscar en base de conocimiento de postventa</masterLabel>
+    <progressIndicatorMessage>Consultando la base de conocimiento...</progressIndicatorMessage>
+</GenAiFunction>

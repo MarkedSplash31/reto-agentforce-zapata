@@ -1,0 +1,214 @@
+/* ══════════════════════════════════════════════════════════════════════════
+   SISTEMA ZAPATA 2026 — tokens y componentes
+   Reconstruido desde skills/zapata-design, no copiado de zapata.com.mx.
+
+   Los valores son los medidos con getComputedStyle() sobre el sitio vivo.
+   Se declaran aquí como custom properties para que el sistema sea explícito y
+   portable: las clases de Tailwind resuelven a estos mismos números, pero un
+   token con nombre sobrevive a un cambio de framework y una clase no.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* ── fondos ── */
+  --z-footer:      #07080a;   /* el negro más profundo, sólo el footer */
+  --z-canvas:      #0b0c10;   /* body y secciones impares          brand.darkBg  */
+  --z-surface:     #0d0e12;   /* secciones pares                   brand.surface */
+  --z-elevated:    #121318;
+  --z-placeholder: #171717;   /* detrás de imágenes mientras cargan */
+
+  /* ── texto ── */
+  --z-txt-max:  #ffffff;
+  --z-txt-base: #f3f4f6;
+  --z-txt-sub:  #d1d5db;
+  --z-txt-desc: #9ca3af;      /* el más usado: descripción y link en reposo */
+  --z-txt-eyeb: #6b7280;
+  --z-txt-min:  #4b5563;
+  --z-txt-ph:   #374151;
+
+  /* ── acento ── brand.accent, "Ámbar de precisión" en el código de Zapata ── */
+  --z-ambar:      #fbbf24;
+  --z-ambar-90:   rgba(251,191,36,.9);
+  --z-ambar-80:   rgba(251,191,36,.8);
+  --z-ambar-40:   rgba(251,191,36,.4);
+  --z-ambar-20:   rgba(251,191,36,.2);
+  --z-ambar-05:   rgba(251,191,36,.05);
+
+  /* ── semánticos ── */
+  --z-ok:      rgba(16,185,129,.9);
+  --z-ok-bg:   rgba(16,185,129,.1);
+  --z-ok-bd:   rgba(52,211,153,.25);
+  --z-err-bg:  rgba(69,10,10,.8);
+  --z-err-bd:  rgba(239,68,68,.3);
+  --z-err-txt: #fecaca;
+
+  /* ── alfas sobre blanco: el sistema de bordes ── */
+  --z-l05: rgba(255,255,255,.05);   /* borde por defecto de todo */
+  --z-l10: rgba(255,255,255,.10);
+  --z-l20: rgba(255,255,255,.20);
+  --z-l40: rgba(255,255,255,.40);   /* input en focus */
+
+  /* ── movimiento: un solo easing en todo el sistema ── */
+  --z-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --z-t-rapido: 150ms;
+  --z-t-base:   300ms;   /* por defecto */
+  --z-t-imagen: 500ms;
+  --z-t-grande: 700ms;
+
+  /* ── ritmo vertical 96 / 64 / 8 ── */
+  --z-seccion: 96px;
+  --z-titulo:  64px;
+  --z-eyebrow: 8px;
+
+  --z-contenedor: 1280px;
+  --z-gutter:     24px;
+  --z-nav:        80px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html, body { width: 100%; max-width: 100%; margin: 0; }
+
+/* ── familias ─────────────────────────────────────────────────────────────
+   Inter y Cinzel se sirven como recursos locales; el sistema queda como
+   respaldo y la CSP no depende de Google Fonts.                             */
+.font-serif-luxury { font-family: 'Cinzel', Georgia, 'Times New Roman', serif; }
+.font-sans-clean   { font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif; }
+
+/* El shell conserva una estructura usable aun si el artefacto de utilidades no
+   se sirve. Así el menú nunca depende de un CDN para respetar el viewport. */
+#nav nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 50;
+  width: 100%;
+  max-width: 100vw;
+  background: rgba(11,12,16,.92);
+}
+#nav nav > div:first-child {
+  width: 100%;
+  max-width: var(--z-contenedor);
+  min-width: 0;
+  height: var(--z-nav);
+  margin-inline: auto;
+  padding-inline: var(--z-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+#nav svg { display: block; width: auto; height: 28px; max-width: min(220px, 65vw); }
+#btn-burger {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+#dialogo-acceso { width: min(92vw, 34rem); max-width: calc(100vw - 32px); }
+
+/* ── esquina viva ─────────────────────────────────────────────────────────
+   El radio 0 es la firma del sistema. Preflight de Tailwind y los controles
+   nativos traen radio propio: hay que anularlo explícitamente.              */
+input, select, textarea, button { border-radius: 0; }
+
+/* Los Ids de Salesforce y payloads del agente son cadenas largas sin espacios.
+   Deben partirse en móvil en vez de ensanchar tarjetas, formularios o el viewport. */
+body { overflow-x: clip; }
+main, section, form, dl, dd, .min-w-0 { min-width: 0; }
+dd, .font-mono, [data-breakable] {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+dialog::backdrop { background: rgba(0,0,0,.82); }
+
+@media (max-width: 639px) {
+  :root { --z-gutter: 16px; }
+  section.max-w-7xl { padding-left: var(--z-gutter); padding-right: var(--z-gutter); }
+  .mobile-stack { flex-direction: column; }
+  .mobile-stack > * { width: 100%; }
+}
+
+/* ── menú móvil ───────────────────────────────────────────────────────────
+   El delay de `visibility` es ASIMÉTRICO a propósito: .4s al cerrar (espera a
+   que acabe la animación) y 0s al abrir. Sin eso, el panel invisible sigue
+   capturando clicks durante 400ms.                                          */
+#menu-movil {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  max-width: 100vw;
+  padding: 24px var(--z-gutter) 32px;
+  overflow-x: clip;
+  background: rgba(11,12,16,.98);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: transform .4s var(--z-ease), opacity .4s var(--z-ease), visibility 0s linear .4s;
+}
+#menu-movil.abierto {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+  transition: transform .4s var(--z-ease), opacity .4s var(--z-ease), visibility 0s linear 0s;
+}
+#menu-movil a {
+  display: block;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity .3s ease, transform .3s ease;
+}
+#menu-movil button { width: 100%; }
+
+@media (max-width: 1023px) {
+  #nav-links-escritorio, #nav-acciones-escritorio { display: none !important; }
+}
+
+@media (min-width: 1024px) {
+  #nav-links-escritorio, #nav-acciones-escritorio { display: flex !important; }
+  #btn-burger, #menu-movil { display: none !important; }
+}
+/* stagger de 60ms */
+#menu-movil.abierto a:nth-child(1) { opacity: 1; transform: none; transition-delay: .12s; }
+#menu-movil.abierto a:nth-child(2) { opacity: 1; transform: none; transition-delay: .18s; }
+#menu-movil.abierto a:nth-child(3) { opacity: 1; transform: none; transition-delay: .24s; }
+#menu-movil.abierto a:nth-child(4) { opacity: 1; transform: none; transition-delay: .30s; }
+#menu-movil.abierto a:nth-child(5) { opacity: 1; transform: none; transition-delay: .36s; }
+#menu-movil.abierto a:nth-child(6) { opacity: 1; transform: none; transition-delay: .42s; }
+#menu-movil.abierto a:nth-child(7) { opacity: 1; transform: none; transition-delay: .48s; }
+#menu-movil.abierto a:nth-child(9) { opacity: 1; transform: none; transition-delay: .54s; }
+
+/* hamburguesa · líneas de 1.5px, sub-pixel deliberado */
+.linea-burger {
+  display: block; width: 22px; height: 1.5px; background: currentColor;
+  transition: transform .35s var(--z-ease), opacity .25s ease;
+  transform-origin: center;
+}
+#btn-burger.abierto .linea-sup { transform: translateY(7px)  rotate(45deg); }
+#btn-burger.abierto .linea-med { opacity: 0; transform: scaleX(0); }
+#btn-burger.abierto .linea-inf { transform: translateY(-7px) rotate(-45deg); }
+
+/* ── barra de scroll, en la paleta del sistema ── */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: var(--z-canvas); }
+::-webkit-scrollbar-thumb { background: var(--z-l05); }
+::-webkit-scrollbar-thumb:hover { background: var(--z-l10); }
+
+/* ── accesibilidad ────────────────────────────────────────────────────────
+   Zapata usa focus:outline-none con un cambio de borde de white/10 a white/40:
+   contraste ~1.4:1, insuficiente para navegación por teclado. Esto es una
+   página NUEVA, no un clon, así que se corrige: anillo visible sin romper la
+   estética. Documentado como desviación deliberada del original.            */
+:focus-visible {
+  outline: 1px solid rgba(255,255,255,.6);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .01ms !important;
+  }
+}

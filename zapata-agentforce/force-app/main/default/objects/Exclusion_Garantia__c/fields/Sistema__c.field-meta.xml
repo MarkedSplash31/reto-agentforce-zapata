@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Sistema__c</fullName>
+    <description>Sistema al que pertenece la pieza.</description>
+    <label>Sistema</label>
+    <required>false</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+                <value>
+                    <fullName>Tren motriz</fullName>
+                    <default>false</default>
+                    <label>Tren motriz</label>
+                </value>
+                <value>
+                    <fullName>Electrico y electronica</fullName>
+                    <default>false</default>
+                    <label>Electrico y electronica</label>
+                </value>
+                <value>
+                    <fullName>Cabina</fullName>
+                    <default>false</default>
+                    <label>Cabina</label>
+                </value>
+                <value>
+                    <fullName>Chasis y estructura</fullName>
+                    <default>false</default>
+                    <label>Chasis y estructura</label>
+                </value>
+                <value>
+                    <fullName>Frenos</fullName>
+                    <default>false</default>
+                    <label>Frenos</label>
+                </value>
+                <value>
+                    <fullName>Refrigeracion</fullName>
+                    <default>false</default>
+                    <label>Refrigeracion</label>
+                </value>
+                <value>
+                    <fullName>Corrosion</fullName>
+                    <default>false</default>
+                    <label>Corrosion</label>
+                </value>
+                <value>
+                    <fullName>General</fullName>
+                    <default>true</default>
+                    <label>General</label>
+                </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>
