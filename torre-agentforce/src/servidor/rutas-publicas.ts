@@ -81,6 +81,35 @@ function exigirMetodo(req: IncomingMessage, metodo: string): void {
   }
 }
 
+/** Un número de serie tal como lo teclea un cliente: 11 a 17 alfanuméricos. */
+const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
+
+/**
+ * Antepone al mensaje del cliente lo que la ORG dice sobre el número de serie que
+ * mencionó, si mencionó alguno.
+ *
+ * El hecho lo aporta Salesforce —se busca el `Asset`—; la app sólo lo consulta a
+ * tiempo. Nada aquí afirma nada por su cuenta: si la unidad existe no se añade una
+ * sola palabra, y si no existe se dice exactamente eso.
+ */
+async function conAvisoDeUnidad(texto: string): Promise<string> {
+  const posible = POSIBLE_VIN.exec(texto);
+  if (!posible) return texto;
+  const vin = posible[0];
+  try {
+    const encontradas = await datos.listarUnidades({ busqueda: vin });
+    if (encontradas.registros.length > 0) return texto;
+  } catch {
+    // Si la org no responde no se inventa un veredicto: el turno sigue tal cual.
+    return texto;
+  }
+  return (
+    `[DATO VERIFICADO EN EL PADRON DE ZAPATA: el numero de serie ${vin} NO corresponde a ` +
+    `ninguna unidad registrada. Diselo al cliente ANTES de cualquier otra cosa y no ` +
+    `presentes la poliza general como si fuera la cobertura de esa unidad.]\n\n${texto}`
+  );
+}
+
 /** Garantiza sesión de visitante, creándola si es la primera visita. */
 function sesionVisitante(ctx: Contexto): { sesion: SesionWeb; cookie?: string } {
   const actual = leerSesion(ctx.cookies);
@@ -350,6 +379,21 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     const texto = (b.texto ?? '').trim();
     if (!texto) throw new HttpRequestError(400, 'MENSAJE_VACIO', 'Escribe tu mensaje.');
 
+    // Si el cliente dictó un número de serie, se comprueba contra la org ANTES de
+    // pasarle el turno al agente, y el resultado viaja con el mensaje.
+    //
+    // Por qué aquí y no en la instrucción del agente: se intentó seis veces que el
+    // planner mandara el VIN a la acción de conocimiento —declararlo en el esquema,
+    // pedirlo en la instrucción, marcarlo `is_user_input`, extraerlo del texto en
+    // Apex, incrustar el aviso en el contenido— y en las seis siguió contestando la
+    // póliza general sin decir que esa unidad no existe. Quien se equivoca de un
+    // dígito lee esa póliza como si fuera su cobertura.
+    //
+    // Esto no es un dato inventado ni escrito a mano: la respuesta sale de consultar
+    // `Asset` en Salesforce. Lo único que hace la app es preguntarlo a tiempo y
+    // ponérselo delante al agente, en vez de confiar en que se acuerde de preguntarlo.
+    const textoParaElAgente = await conAvisoDeUnidad(texto);
+
     if (cookie) res.setHeader('Set-Cookie', cookie);
     res.writeHead(200, {
       'Content-Type': 'text/event-stream; charset=utf-8',
@@ -440,7 +484,7 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
       await abrirSiHaceFalta();
       let emitido = 0;
       try {
-        for await (const ev of agente.enviarMensajeStream(sesion.agentSessionId!, texto)) {
+        for await (const ev of agente.enviarMensajeStream(sesion.agentSessionId!, textoParaElAgente)) {
           emitido++;
           emitir(ev.tipo, ev);
         }
@@ -468,7 +512,7 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         agente.descartarSesion(sesion.agentSessionId!);
         sesion.agentSessionId = null;
         await abrirSiHaceFalta();
-        for await (const ev of agente.enviarMensajeStream(sesion.agentSessionId!, texto)) {
+        for await (const ev of agente.enviarMensajeStream(sesion.agentSessionId!, textoParaElAgente)) {
           emitir(ev.tipo, ev);
         }
       }
