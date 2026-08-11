@@ -97,13 +97,43 @@ private class ZapataProvenienciaTest {
         Assert.isFalse(todos.isEmpty());
         Assert.isFalse(porSucursal.isEmpty());
         Assert.isFalse(sucursales.isEmpty());
-        Assert.areEqual(false, agenda.hayDisponibilidad);
-        Assert.areEqual('SLOTS_NO_VERIFICADOS', agenda.motivoBloqueo);
+        // Una franja con capacidad asumida YA NO bloquea el taller: se ofrece diciendo
+        // que el cupo lo confirma el taller. Antes se devolvia SLOTS_NO_VERIFICADOS y
+        // eso dejaba fuera a ocho de las nueve sucursales de Zapata, cuyos horarios
+        // estan publicados aunque nadie haya verificado cuantas unidades caben.
+        Assert.areEqual(true, agenda.hayDisponibilidad);
+        Assert.areEqual(null, agenda.motivoBloqueo);
         Assert.areEqual('SITIO_WEB_CAPACIDAD_ASUMIDA', agenda.estadoProcedencia);
+        Assert.isTrue(
+            agenda.mensaje.contains('el cupo lo confirma el taller'),
+            'la respuesta debe decir quien confirma, no callarlo'
+        );
+        Assert.isTrue(
+            agenda.opciones[0].contains('sujeto a confirmacion'),
+            'cada franja no verificada se ofrece marcada'
+        );
         Assert.areEqual('SUCURSAL_NO_ENCONTRADA', ausente.motivoBloqueo);
+        // La vista de franjas refleja la procedencia de CADA una, en vez de dar por
+        // hecho que ninguna esta verificada. La version anterior exigia
+        // `disponible == false` para todas, lo que solo era cierto mientras la org no
+        // tuviera ni una franja operacional; en cuanto Queretaro tuvo las suyas, la
+        // prueba pasaba o fallaba segun los datos y no segun el codigo.
         for (ZapataAgendaController.SlotView slot : todos) {
-            Assert.areEqual(false, slot.disponible);
-            Assert.isNotNull(slot.advertenciaProveniencia);
+            // La garantia va en un solo sentido: sin procedencia operacional NUNCA se
+            // marca reservable. Al reves no aplica, porque una franja verificada puede
+            // estar llena y entonces tampoco lo esta. Afirmar la equivalencia hacia los
+            // dos lados hacia depender la prueba de cuantos cupos quedaran ese dia.
+            if (!ZapataAgendaController.esProcedenciaOperacional(slot.procedencia)) {
+                Assert.areEqual(
+                    false,
+                    slot.disponible,
+                    'sin procedencia operacional no puede presentarse como reservable'
+                );
+                Assert.isNotNull(
+                    slot.advertenciaProveniencia,
+                    'una franja no verificada debe venir con su advertencia'
+                );
+            }
         }
     }
 
@@ -138,8 +168,11 @@ private class ZapataProvenienciaTest {
                 new List<ZapataAgendaController.Peticion>{ conModelo, conSistema, noAtendido }
             );
 
-        Assert.areEqual('SLOTS_NO_VERIFICADOS', respuestas[0].motivoBloqueo);
-        Assert.areEqual('SLOTS_NO_VERIFICADOS', respuestas[1].motivoBloqueo);
+        Assert.areEqual(null, respuestas[0].motivoBloqueo);
+        Assert.areEqual(null, respuestas[1].motivoBloqueo);
+        Assert.areEqual('SITIO_WEB_CAPACIDAD_ASUMIDA', respuestas[0].estadoProcedencia);
+        // Lo que SI sigue bloqueando es que el taller no atienda ese modelo: eso es un
+        // hecho del catalogo, no una laguna de datos.
         Assert.areEqual('MODELO_NO_ATENDIDO', respuestas[2].motivoBloqueo);
     }
 

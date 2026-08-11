@@ -29,6 +29,12 @@ public with sharing class BuscarConocimientoPostventa {
             description='Texto de la consulta del cliente. Ej: garantia turbo, servicio 40000 km, unidad varada'
             required=true)
         public String pregunta;
+
+        @InvocableVariable(
+            label='VIN mencionado por el cliente'
+            description='Numero de serie que el cliente dicto, si lo dicto. La accion comprueba si esa unidad existe en el padron para que el agente no presente la poliza general como si fuera su cobertura.'
+            required=false)
+        public String vin;
     }
 
     public class Respuesta {
@@ -46,6 +52,16 @@ public with sharing class BuscarConocimientoPostventa {
 
         @InvocableVariable(label='Advertencia de procedencia')
         public String advertenciaFuente;
+
+        @InvocableVariable(
+            label='Unidad encontrada en el padron'
+            description='Verdadero solo si el VIN dictado existe como Asset. Si es falso, el material que sigue es la poliza general y NO la cobertura de esa unidad.')
+        public Boolean unidadEncontrada;
+
+        @InvocableVariable(
+            label='Aviso sobre la unidad'
+            description='Texto obligatorio cuando el VIN no existe. Debe decirse ANTES del contenido.')
+        public String avisoUnidad;
     }
 
     @InvocableMethod(
@@ -62,6 +78,15 @@ public with sharing class BuscarConocimientoPostventa {
             r.titulos    = '';
             r.estadoFuente = VERSION_SINTETICA;
             r.advertenciaFuente = AVISO_SINTETICO;
+
+            // Si el cliente dicto un numero de serie, se comprueba ANTES de responder.
+            //
+            // Sin esto el agente contestaba con la poliza general ante un VIN que no
+            // existe y jamas aclaraba que esa unidad no aparece: quien se equivocaba de
+            // digito podia leer el resultado como la cobertura de su camion. El material
+            // es correcto y va marcado como no verificado, pero callar que la unidad no
+            // existe convierte una respuesta cierta en una respuesta enganosa.
+            resolverUnidad(s.vin, r);
 
             String termino = limpiar(s.pregunta);
 
@@ -145,6 +170,40 @@ public with sharing class BuscarConocimientoPostventa {
     }
 
     /** Quita caracteres que rompen SOSL y normaliza espacios. */
+    /**
+     * Comprueba el VIN contra el padron de unidades. No bloquea la busqueda: el
+     * conocimiento general sigue sirviendo. Lo que hace es obligar a que la respuesta
+     * diga si esa unidad existe, para que la poliza no se lea como su cobertura.
+     */
+    private static void resolverUnidad(String vinCrudo, Respuesta r) {
+        String vin = vinCrudo == null ? '' : vinCrudo.trim();
+        if (String.isBlank(vin)) {
+            // No se dicto ninguna unidad: no hay nada que afirmar ni que negar.
+            r.unidadEncontrada = null;
+            r.avisoUnidad = null;
+            return;
+        }
+
+        List<Asset> unidades = [
+            SELECT Id, Name, SerialNumber
+            FROM Asset
+            WHERE SerialNumber = :vin
+            WITH USER_MODE
+            LIMIT 1
+        ];
+
+        if (unidades.isEmpty()) {
+            r.unidadEncontrada = false;
+            r.avisoUnidad =
+                'El numero de serie ' + vin + ' no aparece en el padron de unidades de ' +
+                'Zapata. Lo que sigue es material general de postventa y NO la cobertura ' +
+                'de esa unidad. Pide al cliente que verifique el numero o escala con un asesor.';
+        } else {
+            r.unidadEncontrada = true;
+            r.avisoUnidad = null;
+        }
+    }
+
     private static String limpiar(String entrada) {
         if (String.isBlank(entrada)) return '';
         String salida = entrada.replaceAll('[?¿!¡*&|{}\\[\\]()^~:\\\\"\'+-]', ' ');

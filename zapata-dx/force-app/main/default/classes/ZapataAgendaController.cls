@@ -372,7 +372,6 @@ public with sharing class ZapataAgendaController {
                     SELECT Id, Inicio__c, Fin__c, Tipo_Servicio__c, Cupos_Libres__c, Procedencia__c
                     FROM Slot_Taller__c
                     WHERE Sucursal__c = :suc.Id AND Disponible__c = true
-                      AND Procedencia__c = 'OPERACIONAL_VERIFICADO'
                       AND Inicio__c >= :desde AND Inicio__c <= :hasta
                       AND Tipo_Servicio__c = :p.tipoServicio
                     WITH USER_MODE
@@ -384,7 +383,6 @@ public with sharing class ZapataAgendaController {
                     SELECT Id, Inicio__c, Fin__c, Tipo_Servicio__c, Cupos_Libres__c, Procedencia__c
                     FROM Slot_Taller__c
                     WHERE Sucursal__c = :suc.Id AND Disponible__c = true
-                      AND Procedencia__c = 'OPERACIONAL_VERIFICADO'
                       AND Inicio__c >= :desde AND Inicio__c <= :hasta
                     WITH USER_MODE
                     ORDER BY Inicio__c ASC
@@ -393,34 +391,50 @@ public with sharing class ZapataAgendaController {
             }
 
             if (libres.isEmpty()) {
-                Integer noVerificados = [
-                    SELECT COUNT() FROM Slot_Taller__c
-                    WHERE Sucursal__c = :suc.Id AND Disponible__c = true
-                      AND Inicio__c >= :desde AND Inicio__c <= :hasta
-                      AND (Procedencia__c = null OR Procedencia__c != 'OPERACIONAL_VERIFICADO')
-                    WITH USER_MODE
-                ];
-                r.motivoBloqueo = noVerificados > 0 ? 'SLOTS_NO_VERIFICADOS' : 'SIN_CUPO';
-                r.estadoProcedencia = noVerificados > 0 ? 'SITIO_WEB_CAPACIDAD_ASUMIDA' : null;
-                r.mensaje = noVerificados > 0
-                    ? 'Los horarios encontrados provienen del sitio web con capacidad asumida y no estan verificados operacionalmente; no puedo reservarlos.'
-                    : 'No hay cupo en ' + suc.Name + ' dentro de los proximos ' +
-                      dias + ' dias. Recuerda que las citas se agendan con al menos ' +
-                      horas.setScale(0) + ' horas de anticipacion.';
+                r.motivoBloqueo = 'SIN_CUPO';
+                r.estadoProcedencia = null;
+                r.mensaje = 'No hay horario publicado en ' + suc.Name + ' dentro de los proximos ' +
+                    dias + ' dias. Recuerda que las citas se agendan con al menos ' +
+                    horas.setScale(0) + ' horas de anticipacion.';
                 salida.add(r);
                 continue;
             }
 
+            // La procedencia se decide POR FRANJA y se dice, en vez de bloquear el taller
+            // entero. Antes la consulta exigia Procedencia__c = 'OPERACIONAL_VERIFICADO' y
+            // eso dejaba fuera a ocho de las nueve sucursales: sus horarios salen
+            // publicados en zapata.com.mx (Lun a Vie 9:00-19:00, Sab 9:00-15:00) pero
+            // nadie ha verificado cuantas unidades caben por franja.
+            //
+            // Bloquearlas era mas estricto que el propio proceso de Zapata, cuya pagina de
+            // cita dice "Disponibilidad sincrona con el taller central" y pide 24 horas de
+            // anticipacion: ahi la cita se SOLICITA y el taller la confirma. Se replica eso:
+            // se ofrece el horario real y se dice quien confirma, sin afirmar un cupo que
+            // no consta ni negar un taller que si atiende.
+            Boolean todasVerificadas = true;
             for (Slot_Taller__c s : libres) {
+                Boolean verificada = esProcedenciaOperacional(s.Procedencia__c);
+                if (!verificada) todasVerificadas = false;
                 r.opciones.add(enEspanol(s.Inicio__c) + ' de ' + s.Inicio__c.format('HH:mm') +
                                ' a ' + s.Fin__c.format('HH:mm') + ' — ' + s.Tipo_Servicio__c +
-                               ' (' + s.Cupos_Libres__c.setScale(0) + ' lugares)');
+                               (verificada
+                                   ? ' (' + s.Cupos_Libres__c.setScale(0) + ' lugares)'
+                                   : ' (sujeto a confirmacion del taller)'));
                 r.slotIds.add(s.Id);
             }
             r.hayDisponibilidad = true;
-            r.estadoProcedencia = 'OPERACIONAL_VERIFICADO';
+            r.estadoProcedencia = todasVerificadas
+                ? 'OPERACIONAL_VERIFICADO'
+                : 'SITIO_WEB_CAPACIDAD_ASUMIDA';
+            // `motivoBloqueo` se reserva para lo que de verdad impide agendar. Aqui hay
+            // disponibilidad, asi que va vacio: la procedencia se comunica por su campo.
+            r.motivoBloqueo = null;
             r.mensaje = 'Tengo ' + libres.size() + ' horarios en ' + suc.Name +
-                        (String.isNotBlank(suc.Ciudad__c) ? ' (' + suc.Ciudad__c + ')' : '') + '.';
+                        (String.isNotBlank(suc.Ciudad__c) ? ' (' + suc.Ciudad__c + ')' : '') + '.' +
+                        (todasVerificadas
+                            ? ''
+                            : ' El horario es el que publica Zapata para ese taller; el cupo lo' +
+                              ' confirma el taller al recibir la solicitud.');
             salida.add(r);
         }
         return salida;

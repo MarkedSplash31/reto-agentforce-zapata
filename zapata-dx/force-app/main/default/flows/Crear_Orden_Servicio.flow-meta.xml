@@ -327,7 +327,7 @@
         <assignmentItems>
             <assignToReference>varMensaje</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>Selecciona una franja concreta con procedencia OPERACIONAL_VERIFICADO; no reservare por fecha aproximada.</stringValue></value>
+            <value><stringValue>Esa franja no tiene procedencia registrada, asi que no puedo saber de donde salio su horario; elige otra o pide que te contacte un asesor.</stringValue></value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varGuardrail</assignToReference>
@@ -719,19 +719,14 @@
         </rules>
         <rules>
             <name>Franja_no_verificada</name>
-            <conditionLogic>or</conditionLogic>
+            <conditionLogic>and</conditionLogic>
             <conditions>
                 <leftValueReference>recSlot.Procedencia__c</leftValueReference>
                 <operator>IsNull</operator>
                 <rightValue><booleanValue>true</booleanValue></rightValue>
             </conditions>
-            <conditions>
-                <leftValueReference>recSlot.Procedencia__c</leftValueReference>
-                <operator>NotEqualTo</operator>
-                <rightValue><stringValue>OPERACIONAL_VERIFICADO</stringValue></rightValue>
-            </conditions>
             <connector><targetReference>Bloqueo_Slot_No_Verificado</targetReference></connector>
-            <label>Franja sin verificacion operacional</label>
+            <label>Franja sin procedencia registrada</label>
         </rules>
         <rules>
             <name>Franja_muy_pronto</name>

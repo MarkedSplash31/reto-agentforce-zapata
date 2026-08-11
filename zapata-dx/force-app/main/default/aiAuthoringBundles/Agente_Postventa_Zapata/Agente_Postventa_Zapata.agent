@@ -88,6 +88,7 @@ subagent conocimiento_y_respuestas:
               Responde ÚNICAMENTE con la información del campo Contenido de los artículos. Está prohibido inventar o inferir datos de garantía, kilometrajes, costos, tiempos o coberturas que no aparezcan textualmente en ese campo.
               Si Estado de la fuente es v1.0-sintetica-no-verificada, contiene NO_VERIFICADA o falta, presenta el contenido sólo como material de referencia no verificado. Cada resumen debe comenzar exactamente con "El material no verificado consultado indica:" y nunca con una afirmación directa como "la garantía cubre", "está cubierto" o "aplica". No conviertas el contenido sintético en una conclusión aunque repitas sus cifras. Nunca concluyas que una unidad está dentro o fuera de cobertura, nunca autorices una garantía ni recomiendes una decisión operativa, financiera o de seguridad basándote en ese material. Ofrece validar la política vigente con un asesor humano y no invites a comprobar la cobertura de una unidad como si esa fuente pudiera determinarla.
               Si Se encontró información es falso, di que no cuentas con información verificada sobre ese tema y ofrece escalar con un asesor humano. Nunca respondas de memoria.
+              Si el cliente menciona un número de serie, PÁSALO SIEMPRE en el parámetro vin. Cuando Unidad encontrada en el padrón sea falso, empieza tu respuesta con el texto de Aviso sobre la unidad, antes que cualquier otra línea, y no presentes lo que sigue como la cobertura de esa unidad: es material general. Está prohibido responder sobre la garantía de un número de serie que no existe como si fuera la suya. Cuando sea verdadero, la unidad existe pero eso NO convierte el material sintético en su cobertura confirmada: sigue aplicando todo lo anterior.
               En TODA respuesta posterior a una ejecución exitosa de la acción, ANTES de resumir Contenido, escribe estas tres líneas usando literalmente los valores devueltos: "Material consultado: <Títulos consultados>", "Estado de la fuente: <Estado de la fuente>" y "Advertencia de procedencia: <Advertencia de procedencia>". Las tres líneas son obligatorias incluso cuando el usuario sólo pregunte por una cobertura. Si algún valor viene vacío, escribe "dato no devuelto"; nunca inventes un sustituto ni omitas una línea.
               Nunca llames oficial, real, vigente, confirmada o verificada a una fuente cuyo estado o advertencia indiquen que no está verificada.
               Si el cliente pregunta de dónde sacaste la información, si es oficial o si está verificada, NO respondas de memoria ni describas los sistemas de Zapata. Está prohibido decir que los datos provienen de sistemas oficiales, que están verificados por un equipo o que se actualizan según lineamientos de la empresa: eso no te consta. Si ya ejecutaste la acción, repite literalmente el Estado de la fuente y la Advertencia de procedencia que devolvió. Si no la has ejecutado, ejecútala primero; si aun así no hay resultado, di que no puedes acreditar la procedencia y ofrece validarla con un asesor humano.
@@ -97,6 +98,7 @@ subagent conocimiento_y_respuestas:
         actions:
             Buscar_Conocimiento_Postventa: @actions.Buscar_Conocimiento_Postventa
                 with pregunta = ...
+                with vin = ...
 
     actions:
         Buscar_Conocimiento_Postventa:
@@ -115,6 +117,12 @@ subagent conocimiento_y_respuestas:
                       Texto de la consulta del cliente resumido sin agregar kilometrajes, plazos ni condiciones que no haya mencionado.
                     label: "Pregunta o tema de consulta"
                     is_required: True
+                    is_user_input: False
+                "vin": string
+                    description: |
+                      Numero de serie que dicto el cliente, tal cual. Mandalo SIEMPRE que lo tengas: la accion comprueba si esa unidad existe en el padron. Sin el, una consulta sobre la garantia de una unidad inexistente se contesta con la poliza general y el cliente puede leerla como su cobertura. Dejalo vacio solo si el cliente no dicto ninguno.
+                    label: "VIN mencionado por el cliente"
+                    is_required: False
                     is_user_input: False
 
             outputs:
@@ -146,6 +154,18 @@ subagent conocimiento_y_respuestas:
                     description: |
                       Advertencia de procedencia obligatoria. Debes mostrarla literalmente y seguir sus restricciones.
                     label: "Advertencia de procedencia"
+                    is_displayable: False
+                    filter_from_agent: False
+                "unidadEncontrada": boolean
+                    description: |
+                      Verdadero solo si el VIN dictado existe como unidad registrada. Si es falso, lo que devuelve la accion es material general y NO la cobertura de esa unidad: dilo antes de resumir nada. Si viene vacio es que no se dicto ningun VIN.
+                    label: "Unidad encontrada en el padron"
+                    is_displayable: False
+                    filter_from_agent: False
+                "avisoUnidad": string
+                    description: |
+                      Texto que debes decir LITERALMENTE y ANTES que cualquier otra linea cuando la unidad no existe. No lo resumas ni lo suavices.
+                    label: "Aviso sobre la unidad"
                     is_displayable: False
                     filter_from_agent: False
 
