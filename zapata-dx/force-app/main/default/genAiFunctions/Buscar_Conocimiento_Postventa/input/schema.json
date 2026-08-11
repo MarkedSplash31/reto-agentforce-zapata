@@ -14,7 +14,7 @@
       "description" : "Numero de serie que dicto el cliente, tal cual. Mandalo SIEMPRE que lo tengas: la accion comprueba si esa unidad existe en el padron. Sin el, una consulta sobre la garantia de una unidad inexistente se contesta con la poliza general y el cliente puede leerla como su cobertura.",
       "lightning:type" : "lightning__textType",
       "lightning:isPII" : false,
-      "copilotAction:isUserInput" : true
+      "copilotAction:isUserInput" : false
     }
   },
   "lightning:type" : "lightning__objectType"
