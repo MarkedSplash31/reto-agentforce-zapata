@@ -44,8 +44,17 @@ if (process.env.SF_TOKEN_PROVIDER === 'client_credentials') {
 } else {
   faltantes.push('SF_CLIENT_SECRET — sin él el asistente no habla y todo pasa directo a una persona');
 }
+// El panel de asesor ya no exige configurar nada para verse: fuera de producción rige
+// una credencial de demo fija, la misma para cualquiera que clone el repositorio.
+// Definir APP_ADMIN_PASS sigue ganando. Se anuncia por consola —que sólo ve quien
+// levantó el servidor— y no en la pantalla de acceso, que en un despliegue quedaría
+// regalándole la entrada a cualquier visitante.
+const { CLAVE_DEMO_ASESOR } = await import('../src/servidor/visitante.ts');
 if (!process.env.APP_ADMIN_PASS || process.env.APP_ADMIN_PASS.length < 8) {
-  faltantes.push('APP_ADMIN_PASS (mínimo 8) — sin ella no se entra al panel de asesor');
+  console.log('\n  Panel de asesor — credencial de DEMO (no es un secreto):');
+  console.log(`   · usuario     ${process.env.APP_ADMIN_USER}`);
+  console.log(`   · contraseña  ${CLAVE_DEMO_ASESOR}`);
+  console.log('   Define APP_ADMIN_PASS para sustituirla. En producción es obligatoria.');
 }
 
 if (faltantes.length) {

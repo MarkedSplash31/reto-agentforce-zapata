@@ -147,13 +147,49 @@ function cookieDe(cabecera: string | undefined, nombre: string): string | null {
 // contraseña en el código ni en el repositorio; sin la variable, el acceso queda
 // cerrado y lo dice, en vez de abrirse con un valor por omisión.
 
+/**
+ * Credencial de DEMO. Existe para que quien clone el repositorio pueda entrar al panel
+ * de asesor sin configurar nada: el reto se enseña, y una demo que exige inventar una
+ * contraseña antes de poder verse no se enseña.
+ *
+ * No es un secreto y no pretende serlo: está escrita aquí y en el README a propósito.
+ * Por eso sólo aplica FUERA de producción. Con `APP_ENV=production` el acceso queda
+ * cerrado hasta que alguien defina `APP_ADMIN_PASS`, y definirla gana siempre sobre
+ * este valor en cualquier entorno.
+ */
+export const CLAVE_DEMO_ASESOR = 'demo-zapata-2026';
+
+/**
+ * Se lee del entorno igual que `security.ts`, y no importando `config.ts`, para que
+ * este módulo siga pudiendo cargarse solo: hacerlo depender de la configuración
+ * completa obligaba a tener un entorno válido nada más para leer una sesión.
+ * Sin `APP_ENV` el valor es `production`, o sea que la omisión cierra, no abre.
+ */
+function esProduccion(): boolean {
+  return (process.env.APP_ENV ?? process.env.NODE_ENV ?? 'production').trim().toLowerCase() === 'production';
+}
+
+/** La contraseña que rige ahora mismo, o null si el acceso está cerrado. */
+function claveEsperada(): string | null {
+  const definida = process.env.APP_ADMIN_PASS;
+  if (definida && definida.length >= 8) return definida;
+  if (esProduccion()) return null;
+  return CLAVE_DEMO_ASESOR;
+}
+
+/** `true` cuando la que rige es la de demo, para poder decirlo por consola. */
+export function usandoClaveDemo(): boolean {
+  const definida = process.env.APP_ADMIN_PASS;
+  return !(definida && definida.length >= 8) && !esProduccion();
+}
+
 export function accesoAdminConfigurado(): boolean {
-  return Boolean(process.env.APP_ADMIN_PASS && process.env.APP_ADMIN_PASS.length >= 8);
+  return claveEsperada() !== null;
 }
 
 export function verificarClaveAdmin(clave: unknown): boolean {
-  const esperada = process.env.APP_ADMIN_PASS;
-  if (!esperada || esperada.length < 8) return false;
+  const esperada = claveEsperada();
+  if (!esperada) return false;
   if (typeof clave !== 'string' || clave.length === 0) return false;
   // Comparación en tiempo constante sobre digest, para que la longitud tampoco filtre.
   const a = createHash('sha256').update(clave, 'utf8').digest();

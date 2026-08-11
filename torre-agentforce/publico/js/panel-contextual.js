@@ -363,6 +363,32 @@ export function crearPanel(contenedor) {
       );
     },
 
+    /**
+     * El número de serie que escribió el cliente no está registrado.
+     *
+     * Se avisa aquí porque el asistente no lo hace: ante un VIN inexistente contesta
+     * con la póliza general en vez de decir que no encontró esa unidad, y quien se
+     * equivocó de dígito puede leerlo como si fuera la cobertura de su camión.
+     */
+    sinUnidad(vin) {
+      const llave = `sin-unidad:${vin}`;
+      if (vistos.has(llave)) return;
+      vistos.add(llave);
+      agregar(
+        tarjeta(
+          'No encontramos esa unidad',
+          'Garantía',
+          `${filas([['Número de serie', vin, true]])}
+           <p class="text-amber-300 text-xs font-light leading-relaxed mt-4 border-l-2 border-amber-400 pl-3">
+             Ese número de serie no aparece en el padrón de Zapata, así que lo que leas
+             sobre garantía es la póliza general y no la cobertura de tu unidad.
+             Revísalo o pide que te pasemos con un asesor.
+           </p>`,
+          'alerta',
+        ),
+      );
+    },
+
     /** Cobertura consultada por la propia app cuando el cliente da un número de serie. */
     cobertura(c) {
       // Un mismo VIN mencionado varias veces apilaba tarjetas idénticas. Sólo se

@@ -133,7 +133,9 @@ try {
 // empieza a exigir además que haya al menos un sistema evaluado.
 try {
   const u = await (await fetch(`${BASE}/api/unidades`)).json();
-  const u105 = u.unidades.find((x) => x.Name === 'Unidad 105') ?? u.unidades[0];
+  // La unidad la elige la org: buscarla por un nombre escrito aquí rompía la
+  // comprobación en cuanto la semilla cambiaba.
+  const u105 = u.unidades[0];
   const c = await (await fetch(`${BASE}/api/cobertura/${u105.Id}`)).json();
 
   const declaraSinReglas = c.sinReglasParaElModelo === true && c.modelo.reglasActivas === 0;

@@ -850,7 +850,18 @@ let cacheEstado: { en: number; valor: EstadoAgentAPI } | null = null;
 export async function estadoAgentAPI(opciones?: {
   forzar?: boolean;
   msCache?: number;
+  /**
+   * `false` responde sólo con lo que se sabe sin tocar la org: si falta configuración,
+   * lo dice; si no falta, se declara disponible sin abrir una sesión de sonda.
+   *
+   * Existe porque la sonda ABRE Y CIERRA una sesión real, y quien va a abrir la suya
+   * inmediatamente después no necesita gastar otra: su propia apertura es la prueba.
+   * Sondear ahí duplicaba las sesiones por visita, y acumuladas hacen que la org
+   * empiece a rechazar las nuevas con 400.
+   */
+  sondear?: boolean;
 }): Promise<EstadoAgentAPI> {
+  if (opciones?.sondear === false) return requisitosSinSondear();
   const msCache = opciones?.msCache ?? MS_CACHE_ESTADO;
   if (!opciones?.forzar && cacheEstado && Date.now() - cacheEstado.en < msCache) {
     return cacheEstado.valor;
@@ -858,6 +869,46 @@ export async function estadoAgentAPI(opciones?: {
   const valor = await medirEstado();
   cacheEstado = { en: Date.now(), valor };
   return valor;
+}
+
+/** Lo que se puede afirmar sobre la Agent API sin hacerle una sola petición. */
+function requisitosSinSondear(): EstadoAgentAPI {
+  const prov = proveedorDeToken();
+  const faltaClaveSegunProveedor = prov.requisitosFaltantes().includes('SF_CLIENT_ID');
+  const faltan = requisitosConfiguracionAgentAPI(
+    prov.nombre,
+    faltaClaveSegunProveedor ? '' : (config.clientId || 'resuelta-desde-la-org'),
+    config.clientSecret,
+  );
+  const url = urlSesiones();
+  const base = {
+    proveedorToken: prov.nombre,
+    requisitosFaltantes: faltan,
+    agentId: config.agentId,
+    host: config.agentApiHost,
+    verificadoEn: new Date().toISOString(),
+    sonda: { intentada: false, ok: false, status: null, clase: null, ms: null, url, detalle: null },
+  };
+  return faltan.length
+    ? {
+        ...base,
+        disponible: false,
+        causa:
+          `No hay credenciales de External Client App: falta ${faltan.join(' y ')}. ` +
+          `Sin ellas no existe token que la puerta de enlace acepte.`,
+        pasoQueFalta: PASO_EXTERNAL_CLIENT_APP,
+        nota: 'No se sondeó: sin credenciales la sonda sólo confirmaría lo que ya se sabe.',
+      }
+    : {
+        ...base,
+        disponible: true,
+        causa: null,
+        pasoQueFalta: null,
+        nota:
+          'No se sondeó a propósito: quien pregunta va a abrir su propia sesión enseguida y ' +
+          'esa apertura es la prueba real. Gastar una sesión de sonda aquí sólo acerca a la ' +
+          'org al límite en el que empieza a rechazar las nuevas.',
+      };
 }
 
 async function medirEstado(): Promise<EstadoAgentAPI> {

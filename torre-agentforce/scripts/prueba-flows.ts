@@ -31,13 +31,31 @@ const ts = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')
 const dir = join(process.cwd(), 'evidencia', '09-flows');
 mkdirSync(dir, { recursive: true });
 
+/** Una unidad que exista de verdad en la org, elegida por ella y no por este archivo. */
+async function primerVinDeLaOrg(): Promise<string> {
+  const r = await consultar<{ SerialNumber: string }>(
+    'SELECT SerialNumber FROM Asset WHERE SerialNumber != null ORDER BY Name LIMIT 1',
+    'prueba-flows.vin',
+  );
+  const vin = r.records[0]?.SerialNumber;
+  if (!vin) {
+    throw new Error(
+      'No hay ningún Asset con número de serie en la org. Esta prueba necesita una ' +
+        'unidad real para invocar los Flows; carga una antes de correrla.',
+    );
+  }
+  return vin;
+}
+
 const CORRELATION_VARADA = `TORRE-N5-${ts}`;
 const CORRELATION_ORDEN = `TORRE-N5-${ts}-ORD`;
 const CORRELATION_LOG = `TORRE-N5-${ts}-LOG`;
 const CORRELATION_BLOQUEO = `TORRE-N5-${ts}-BLQ`;
 
-// VIN real de Unidad 101 (Asset.SerialNumber, confirmado por SOQL).
-const VIN_REAL = '3HAMMAAR8LL123456';
+// El número de serie se PIDE A LA ORG, no se escribe aquí. Un literal ataba la prueba
+// a una fila concreta de la semilla: bastaba borrarla o cargar otra flota para que
+// fallara por un dato inexistente, con un mensaje que no decía eso.
+const VIN_REAL = await primerVinDeLaOrg();
 // 17 caracteres válidos que no existen en ningún Asset: sirve para provocar el guardrail.
 const VIN_INEXISTENTE = 'XXXXXXXXXXXXXXXXX';
 

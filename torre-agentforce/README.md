@@ -25,9 +25,19 @@ caso que termina atendiendo un asesor. Es el mismo valor que viaja como
 - **Clientes: sin cuenta.** Como en cualquier sitio público. El servidor emite una
   sesión de visitante en cookie HttpOnly; el alcance de lo que puede leer o escribir
   vive en esa sesión, nunca en lo que mande el navegador.
-- **Asesores: un acceso.** `acceso.html` con el usuario y la contraseña de
-  `APP_ADMIN_USER` / `APP_ADMIN_PASS`. Sin esa variable el acceso queda cerrado y lo
-  dice, en vez de abrirse con un valor por omisión.
+- **Asesores: un acceso.** `acceso.html`. Fuera de producción rige una credencial de
+  **demo fija, la misma para cualquiera que clone el repositorio**:
+
+  | Usuario | Contraseña |
+  |---|---|
+  | `asesor` | `demo-zapata-2026` |
+
+  No es un secreto y no pretende serlo: está escrita aquí a propósito para que el reto
+  pueda verse sin configurar nada. Definir `APP_ADMIN_USER` / `APP_ADMIN_PASS` la
+  sustituye en cualquier entorno, y con `APP_ENV=production` la de demo **deja de
+  existir**: sin `APP_ADMIN_PASS` el acceso queda cerrado y lo dice. Tampoco se imprime
+  en la pantalla de acceso —eso se la regalaría a cualquier visitante de un
+  despliegue—; el servidor la anuncia por consola al arrancar.
 
 ## Páginas
 
@@ -66,8 +76,21 @@ npm run sitio
 Abre <http://localhost:3000>. `npm run sitio` avisa qué credenciales faltan y levanta
 igual: cada pieza dice en pantalla qué le falta en vez de fingir que funciona.
 
-Para que el chat del agente abra sesión hacen falta `SF_CLIENT_ID` y
-`SF_CLIENT_SECRET` de la External Client App; para el panel, `APP_ADMIN_PASS`.
+Lo que se resuelve solo, sin que configures nada:
+
+- el **panel de asesor** entra con la credencial de demo de arriba;
+- la **clave de consumidor** (`SF_CLIENT_ID`) se lee de la org por el Salesforce CLI;
+- el proveedor de token se elige según lo que haya: `client_credentials` si existe el
+  secreto, `cli` si no.
+
+Lo único que sigue siendo un paso humano es **`SF_CLIENT_SECRET`**, el secreto de la
+External Client App. Sin él el asistente no abre conversación y todo pasa directo a
+una persona —que es una degradación honesta, no un fallo—. Revelarlo se explica en
+`BLOQUEOS.md` §1; no se versiona.
+
+La conversación se abre al **cargar la página**, no al mandar el primer mensaje: para
+cuando el cliente escribe, la sesión ya está propagada. Antes se pagaban ahí la
+apertura, 2.5 s de propagación y hasta 21 s de reintentos, con la pantalla quieta.
 Van en `.env`, nunca en el repositorio ni en el chat. Ver `BLOQUEOS.md` §1.
 
 ## Requisitos
@@ -243,6 +266,7 @@ responder vive en el servidor, nunca en el cuerpo de la petición.
 | Ruta | Fuente/efecto |
 |---|---|
 | `GET /publico/sesion` | Identidad de la visita y su `correlationId`; lo crea el servidor |
+| `POST /publico/agente/abrir` | Abre la conversación al cargar la página. Esa apertura **es** la prueba de disponibilidad: no se gasta una sesión de sonda aparte |
 | `GET /publico/sucursales` | `Sucursal__c` del catálogo, dato observado del sitio público |
 | `GET /publico/disponibilidad` | `Slot_Taller__c`; sólo `OPERACIONAL_VERIFICADO` habilita reservar |
 | `POST /publico/garantia` | Evalúa cobertura por número de serie contra reglas **sintéticas**, no póliza real |

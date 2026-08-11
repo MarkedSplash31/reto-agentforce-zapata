@@ -175,6 +175,105 @@ describe('herramienta de consulta del asesor', () => {
   });
 });
 
+describe('credencial de demo del panel', () => {
+  it('en produccion no existe: sin APP_ADMIN_PASS el acceso queda cerrado', async () => {
+    const fuente = await readFile(new URL('../../src/servidor/visitante.ts', import.meta.url), 'utf8');
+    const bloque = fuente.slice(fuente.indexOf('function claveEsperada'), fuente.indexOf('export function accesoAdminConfigurado'));
+
+    // La credencial fija esta escrita en el repositorio a proposito. Lo que no puede
+    // pasar nunca es que un despliegue real quede abierto con ella.
+    assert.match(
+      bloque,
+      /if \(esProduccion\(\)\) return null;/,
+      'produccion debe cerrar el acceso en vez de caer en la credencial de demo',
+    );
+    // Y el orden importa: APP_ADMIN_PASS se evalua ANTES que el entorno, para que
+    // definirla gane en cualquier caso.
+    assert.ok(
+      bloque.indexOf('process.env.APP_ADMIN_PASS') < bloque.indexOf('esProduccion()'),
+      'una APP_ADMIN_PASS definida debe ganar siempre sobre la de demo',
+    );
+  });
+
+  it('se comporta: cierra en produccion, abre en demo, y lo definido gana', async () => {
+    const { verificarClaveAdmin, accesoAdminConfigurado, CLAVE_DEMO_ASESOR } = await import(
+      '../../src/servidor/visitante.ts'
+    );
+    const previoEnv = process.env.APP_ENV;
+    const previoPass = process.env.APP_ADMIN_PASS;
+    try {
+      delete process.env.APP_ADMIN_PASS;
+
+      process.env.APP_ENV = 'production';
+      assert.equal(accesoAdminConfigurado(), false, 'produccion sin APP_ADMIN_PASS: cerrado');
+      assert.equal(verificarClaveAdmin(CLAVE_DEMO_ASESOR), false, 'la de demo no puede abrir produccion');
+
+      process.env.APP_ENV = 'development';
+      assert.equal(accesoAdminConfigurado(), true, 'fuera de produccion la demo rige');
+      assert.equal(verificarClaveAdmin(CLAVE_DEMO_ASESOR), true);
+      assert.equal(verificarClaveAdmin('otra-cosa'), false);
+
+      process.env.APP_ADMIN_PASS = 'una-contrasena-propia';
+      assert.equal(verificarClaveAdmin('una-contrasena-propia'), true, 'lo definido debe ganar');
+      assert.equal(verificarClaveAdmin(CLAVE_DEMO_ASESOR), false, 'y la de demo deja de servir');
+    } finally {
+      if (previoEnv === undefined) delete process.env.APP_ENV;
+      else process.env.APP_ENV = previoEnv;
+      if (previoPass === undefined) delete process.env.APP_ADMIN_PASS;
+      else process.env.APP_ADMIN_PASS = previoPass;
+    }
+  });
+
+  it('no se imprime en la pantalla de acceso', async () => {
+    const html = await readFile(new URL('../../publico/acceso.html', import.meta.url), 'utf8');
+    const js = await readFile(new URL('../../publico/js/paginas/acceso.js', import.meta.url), 'utf8');
+    const { CLAVE_DEMO_ASESOR } = await import('../../src/servidor/visitante.ts');
+
+    // Documentarla en el README y anunciarla por consola le sirve a quien clona el
+    // repositorio. Ponerla en la pagina se la regalaria a cualquier visitante de un
+    // despliegue, que es una cosa muy distinta.
+    assert.ok(!html.includes(CLAVE_DEMO_ASESOR), 'acceso.html no debe llevar la credencial');
+    assert.ok(!js.includes(CLAVE_DEMO_ASESOR), 'acceso.js no debe llevar la credencial');
+  });
+});
+
+describe('coste por turno contra la org', () => {
+  it('el navegador no sondea el estado del agente antes de cada mensaje', async () => {
+    const fuente = await inicio();
+    // Ese sondeo ABRIA Y CERRABA una sesion real por mensaje. Acumuladas, son
+    // exactamente las que hacen que la org empiece a rechazar las nuevas con 400.
+    assert.doesNotMatch(
+      fuente,
+      /agente\/estado/,
+      'la pagina de cliente no debe pedir /publico/agente/estado: gasta una sesion y no decide nada',
+    );
+    assert.match(
+      fuente,
+      /fetch\('\/publico\/agente\/abrir', \{ method: 'POST' \}\)/,
+      'la disponibilidad se comprueba abriendo la conversacion, que ademas la deja caliente',
+    );
+  });
+
+  it('la apertura no gasta una sesion de sonda', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(
+      fuente.indexOf("p === '/publico/agente/abrir'"),
+      fuente.indexOf("p === '/publico/agente/mensaje'"),
+    );
+    assert.match(
+      bloque,
+      /estadoAgentAPI\(\{ sondear: false \}\)/,
+      'quien va a abrir su propia sesion no necesita otra para sondear',
+    );
+  });
+
+  it('el escalamiento se toma de la traza en vez de una segunda SOQL', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(fuente.indexOf('const emitirActividadReal'));
+    assert.match(bloque, /casoEnLaTraza \?\?/, 'la SOQL extra solo debe correr si la traza no trajo el caso');
+  });
+});
+
 describe('cierre de sesión del asesor', () => {
   it('cierra también su conversación con el asistente', async () => {
     const fuente = await rutas();

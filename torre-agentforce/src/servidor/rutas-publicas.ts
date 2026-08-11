@@ -285,6 +285,50 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     return true;
   }
 
+  // Precalienta la conversación al cargar la página, no al mandar el primer mensaje.
+  //
+  // Antes el navegador preguntaba por `/publico/agente/estado` —que ABRE Y CIERRA una
+  // sesión real sólo para sondear— y despues, al mandar el primer mensaje, se pagaba
+  // otra vez: abrir sesión, 2.5 s de propagación y, si la org contestaba 400, la
+  // escalera de 3+6+12 s. Medido contra la org: hasta ~50 s con el cliente mirando una
+  // pantalla quieta, y una sesión desperdiciada por sondeo, que es justo lo que hace
+  // que la org empiece a rechazar las nuevas.
+  //
+  // Ahora la apertura ES la comprobación de disponibilidad: se abre la sesión de la
+  // visita mientras la persona lee la pantalla y escribe, y para cuando manda su
+  // mensaje la sesión ya está propagada. No se gasta ninguna sesión de más.
+  if (p === '/publico/agente/abrir') {
+    exigirMetodo(req, 'POST');
+    const { sesion, cookie } = sesionVisitante(ctx);
+
+    if (sesion.agentSessionId) {
+      json(res, 200, { disponible: true, causa: null, bienvenida: null, reusada: true }, cookie);
+      return true;
+    }
+
+    const requisitos = await agente.estadoAgentAPI({ sondear: false });
+    if (!requisitos.disponible) {
+      // Falta configuración: decirlo aquí evita abrir una sesión que no puede existir.
+      json(res, 200, { disponible: false, causa: requisitos.causa, bienvenida: null }, cookie);
+      return true;
+    }
+
+    try {
+      const abierta = await agente.abrirSesion(sesion.correlationId!);
+      sesion.agentSessionId = abierta.sessionId;
+      const bienvenida = (abierta.mensajesIniciales ?? []).map((m) => m.texto ?? '').filter(Boolean)[0] ?? null;
+      if (bienvenida) sesion.saludado = true;
+      json(res, 200, { disponible: true, causa: null, bienvenida }, cookie);
+    } catch (e) {
+      // La apertura falló de verdad contra la org. Se responde 200 con la causa en vez
+      // de un error HTTP: la página sigue siendo útil —una persona sí puede atender— y
+      // un 5xx aquí sólo la dejaría rota al cargar.
+      const cuerpo = comoRespuestaHttp(e).cuerpo as { mensaje?: string };
+      json(res, 200, { disponible: false, causa: cuerpo.mensaje ?? null, bienvenida: null }, cookie);
+    }
+    return true;
+  }
+
   if (p === '/publico/agente/mensaje') {
     exigirMetodo(req, 'POST');
     const { sesion, cookie } = sesionVisitante(ctx);
@@ -338,13 +382,23 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         sesion.correlationId!,
         sesion.actividadVista,
       );
+      let casoEnLaTraza: { caseId: string; caseNumber: string } | null = null;
       for (const a of registros) {
         sesion.actividadVista.add(a.folio);
         emitir('Actividad', a);
+        // La acción de escalamiento deja su Case en la propia traza, ya resuelto a
+        // folio. Aprovecharlo ahorra una SOQL por turno: antes se leía la actividad y
+        // acto seguido se volvía a preguntar por el Case de la misma correlación.
+        if (a.detalle?.clase === 'caso' && a.registroId) {
+          casoEnLaTraza = { caseId: a.registroId, caseNumber: a.detalle.folio };
+        }
       }
 
       if (sesion.caseId) return;
-      const abierto = await escalamiento.escalamientoDeCorrelacion(sesion.correlationId!);
+      // Sólo si la traza no lo trajo se pregunta directamente. Pasa cuando el caso se
+      // abrió en un turno anterior a los que esta visita ya vio.
+      const abierto =
+        casoEnLaTraza ?? (await escalamiento.escalamientoDeCorrelacion(sesion.correlationId!));
       if (!abierto) return;
       // El agente decidió que esto le toca a una persona. La conversación pasa a ser
       // del asesor sin que el cliente cambie de pantalla ni repita nada.

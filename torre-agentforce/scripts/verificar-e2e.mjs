@@ -34,9 +34,6 @@ const ts = new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+Z$/, 'Z')
 const dir = join(process.cwd(), 'evidencia', '18-e2e-agente');
 mkdirSync(dir, { recursive: true });
 
-// Unidad con VIN Freightliner: es la que los talleres Zapata sí atienden. Ver
-// scripts/corregir-semilla-modelos.mjs para por qué la semilla se contradecía.
-const VIN = process.env.E2E_VIN ?? '1FUJGLDR9PL456781';
 const TALLER = 'Querétaro'; // con acento a propósito: el catálogo lo guarda sin él
 
 const pasos = [];
@@ -69,6 +66,38 @@ function soql(consulta) {
 }
 
 const escapar = (v) => String(v ?? '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+
+/**
+ * La unidad con la que se prueba se ELIGE DE LA ORG, no se escribe aquí.
+ *
+ * Antes había un VIN literal como valor por omisión. Eso ataba la prueba a una fila
+ * concreta de la semilla: si esa unidad se borraba, se reapuntaba a otro modelo o
+ * alguien cargaba una flota distinta, la verificación fallaba por un dato que ya no
+ * existía y el mensaje no decía eso. Ahora se pide a la org una unidad que los
+ * talleres de la red sí atiendan, y si no hay ninguna se dice con todas sus letras.
+ */
+function vinDePrueba() {
+  if (process.env.E2E_VIN) return process.env.E2E_VIN;
+  // El semi-join va contra Product2Id, que es una referencia. Hacerlo contra
+  // Product2.ProductCode —un texto a dos saltos— es SOQL invalido y la org lo rechaza:
+  // «The inner select field cannot have more than one level of relationships».
+  const r = soql(
+    'SELECT SerialNumber FROM Asset WHERE SerialNumber != null AND Product2Id IN ' +
+      '(SELECT Modelo__c FROM Modelo_Sucursal__c WHERE Activo__c = true) ' +
+      'ORDER BY Name LIMIT 1',
+  );
+  const vin = r?.records?.[0]?.SerialNumber;
+  if (!vin) {
+    throw new Error(
+      'No hay en la org ninguna unidad cuyo modelo atienda algún taller de la red. ' +
+        'Sin eso esta verificación no puede agendar nada. Carga una unidad válida o ' +
+        'pasa E2E_VIN con la que quieras usar.',
+    );
+  }
+  return vin;
+}
+
+const VIN = vinDePrueba();
 
 // ── El navegador de cada cliente ─────────────────────────────────────────────
 

@@ -200,7 +200,15 @@ async function intentarCobertura(texto) {
     });
     if (!res.ok) return;
     const d = await res.json();
-    if (d.encontrada && d.cobertura) panel.cobertura(d.cobertura);
+    if (d.encontrada && d.cobertura) {
+      panel.cobertura(d.cobertura);
+      return;
+    }
+    // El número de serie no está registrado. Decirlo importa: preguntado por un VIN
+    // que no existe, el asistente contesta con la póliza general —correcta, y marcada
+    // como fuente no verificada— pero sin aclarar que esa unidad no aparece. Quien
+    // tecleó un dígito de más se lleva un texto de garantía que no es el de su unidad.
+    panel.sinUnidad(posible[0]);
   } catch {
     // El apoyo visual es complementario: si no se puede, la conversación sigue y el
     // asistente responde igual. No se interrumpe al cliente por esto.
@@ -211,10 +219,15 @@ async function intentarCobertura(texto) {
 
 bloquear(true);
 try {
-  const [sesion, agente] = await Promise.all([
-    fetch('/publico/sesion').then((r) => r.json()),
-    fetch('/publico/agente/estado').then((r) => r.json()),
-  ]);
+  // Una sola ida: `/publico/agente/abrir` ABRE la conversación y, al hacerlo, prueba
+  // que el asistente está disponible. Antes se preguntaba primero por el estado —lo
+  // que gastaba una sesión de sonda— y la conversación real no se abría hasta el
+  // primer mensaje, así que el cliente pagaba entonces la propagación y los
+  // reintentos. Ahora eso ocurre mientras lee la pantalla.
+  const sesion = await (await fetch('/publico/sesion')).json();
+  const agente = sesion.tieneEscalamiento
+    ? { disponible: false, causa: null, bienvenida: null }
+    : await (await fetch('/publico/agente/abrir', { method: 'POST' })).json();
 
   if (sesion.tieneEscalamiento) {
     // El cliente ya venía hablando con una persona: se retoma donde quedó.
@@ -230,13 +243,16 @@ try {
     bloquear(false);
   } else if (agente.disponible) {
     marcarInterlocutor('agente');
-    // Saludo de cortesía de la página: la sesión con Salesforce todavía no existe —se
-    // abre con el primer mensaje— y dejar la ventana en blanco parecería una avería.
-    // Se guarda la referencia para reemplazarlo por la bienvenida real del agente.
-    saludoLocal = burbuja(
-      'agente',
-      'Hola. Soy el asistente de postventa de Zapata. Cuéntame qué pasa con tu unidad: puedo revisar su garantía, buscarte horario en el taller, levantar un reporte si quedó detenida en carretera, o pasarte con un asesor.',
-    );
+    // La bienvenida real ya llegó con la apertura. Sólo si la org no mandó ninguna se
+    // pinta el saludo de cortesía de la página, para no dejar la ventana en blanco.
+    if (agente.bienvenida) {
+      burbuja('agente', agente.bienvenida);
+    } else {
+      saludoLocal = burbuja(
+        'agente',
+        'Hola. Soy el asistente de postventa de Zapata. Cuéntame qué pasa con tu unidad: puedo revisar su garantía, buscarte horario en el taller, levantar un reporte si quedó detenida en carretera, o pasarte con un asesor.',
+      );
+    }
     bloquear(false);
   } else {
     // El asistente no está disponible. No se finge una conversación: se dice, y la
@@ -279,12 +295,10 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
       return;
     }
 
-    const estadoAgente = await (await fetch('/publico/agente/estado')).json();
-    if (!estadoAgente.disponible) {
-      await pasarConAsesor(texto);
-      return;
-    }
-
+    // Aquí NO se vuelve a preguntar si el asistente está disponible. Ese sondeo abría y
+    // cerraba una sesión real contra la org en cada mensaje, y ni siquiera decidía
+    // nada: si el asistente falla, el propio turno emite `Error` y de ahí se pasa a una
+    // persona, que es la misma salida pero sin gastar una sesión por turno.
     void intentarCobertura(texto);
 
     const res = await fetch('/publico/agente/mensaje', {

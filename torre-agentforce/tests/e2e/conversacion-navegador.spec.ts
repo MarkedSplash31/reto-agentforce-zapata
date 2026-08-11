@@ -14,8 +14,38 @@ import { expect, test } from '@playwright/test';
 
 const HABILITADO = process.env.CONFIRM_E2E_NAVEGADOR === '1';
 const ALIAS = process.env.SF_CLI_ORG_ALIAS ?? 'zapata';
-// Unidad con VIN Freightliner: es la que los talleres Zapata sí atienden.
-const VIN = process.env.E2E_VIN ?? '1FUJGLDR9PL456781';
+// La unidad la elige la ORG, no este archivo: se pide una cuyo modelo atienda algún
+// taller de la red. Un VIN literal ataba la prueba a una fila concreta de la semilla y
+// la hacía fallar por un dato inexistente en cuanto la flota cambiaba.
+/**
+ * Perezosa a propósito. Resolverla al importar el archivo lanzaba el Salesforce CLI
+ * durante la RECOLECCIÓN de Playwright —antes de saber siquiera si esta prueba está
+ * habilitada—, y cualquier fallo de esa consulta tumbaba la suite entera con una traza
+ * que no mencionaba la causa. Ahora sólo se pregunta cuando la prueba va a correr.
+ *
+ * El semi-join va contra `Product2Id`, que es una referencia: hacerlo contra
+ * `Product2.ProductCode` es SOQL inválido y la org responde «The inner select field
+ * cannot have more than one level of relationships».
+ */
+let vinMemo: string | null = null;
+function vinDePrueba(): string {
+  if (process.env.E2E_VIN) return process.env.E2E_VIN;
+  if (vinMemo) return vinMemo;
+  const r = soql(
+    'SELECT SerialNumber FROM Asset WHERE SerialNumber != null AND Product2Id IN ' +
+      '(SELECT Modelo__c FROM Modelo_Sucursal__c WHERE Activo__c = true) ' +
+      'ORDER BY Name LIMIT 1',
+  );
+  const vin = r.records[0]?.SerialNumber as string | undefined;
+  if (!vin) {
+    throw new Error(
+      'No hay en la org una unidad cuyo modelo atienda algún taller de la red. ' +
+        'Carga una válida o pasa E2E_VIN.',
+    );
+  }
+  vinMemo = vin;
+  return vin;
+}
 
 function soql(consulta: string): { totalSize: number; records: Record<string, unknown>[] } {
   const entorno = { ...process.env };
@@ -86,7 +116,7 @@ test.describe('conversación desde el navegador', () => {
     const GUION = [
       'Mi unidad se quedó parada en la carretera México-Querétaro, en el kilómetro 120.',
       'Sí, está fuera del carril de circulación y con las intermitentes encendidas.',
-      `El VIN es ${VIN}. Perdió potencia y prendió el testigo del motor.`,
+      `El VIN es ${vinDePrueba()}. Perdió potencia y prendió el testigo del motor.`,
       'Va cargada, sentido norte, cerca de la caseta de Palmillas.',
       'Sí, por favor levanta el reporte.',
       'Confirmo, adelante.',

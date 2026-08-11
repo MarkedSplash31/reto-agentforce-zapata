@@ -135,11 +135,14 @@ if (sucursales) {
   );
 }
 
-// ── 6 · evaluarCobertura — Unidad 105 ────────────────────────────────────────
-const u105 = await paso('6-evaluarCobertura-unidad105', async () => {
-  const l = await listarUnidades({ busqueda: 'Unidad 105' });
+// ── 6 · evaluarCobertura — primera unidad de la org ──────────────────────────
+// Las dos unidades que se comparan salen del padrón, no de un nombre escrito aquí:
+// un literal ataba la prueba a una fila concreta de la semilla y la hacía fallar por
+// un dato inexistente en cuanto alguien cargaba otra flota.
+const u105 = await paso('6-evaluarCobertura-primera-unidad', async () => {
+  const l = await listarUnidades({});
   const asset = l.registros[0];
-  if (!asset) throw new Error('No se encontró la Unidad 105 en la org.');
+  if (!asset) throw new Error('La org no tiene ninguna unidad registrada.');
   return evaluarCobertura(asset.Id);
 });
 if (u105) {
@@ -182,10 +185,10 @@ if (catalogo) {
 }
 
 // Cobertura de otra unidad, para ver que el veredicto por fórmula sí varía.
-const u101 = await paso('6c-evaluarCobertura-unidad101', async () => {
-  const l = await listarUnidades({ busqueda: 'Unidad 101' });
-  const asset = l.registros[0];
-  if (!asset) throw new Error('No se encontró la Unidad 101 en la org.');
+const u101 = await paso('6c-evaluarCobertura-otra-unidad', async () => {
+  const l = await listarUnidades({});
+  const asset = l.registros.find((r) => r.Id !== u105?.unidad.Id) ?? l.registros[1];
+  if (!asset) throw new Error('La org sólo tiene una unidad: no hay con qué comparar.');
   return evaluarCobertura(asset.Id);
 });
 if (u101) {
