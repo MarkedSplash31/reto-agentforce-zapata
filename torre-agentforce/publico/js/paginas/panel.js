@@ -249,4 +249,79 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
   }
 });
 
+// ── herramienta del asesor: consultar al asistente ──────────────────────────
+//
+// El asesor hereda la capacidad del agente en vez de tener que buscar los datos por
+// su cuenta en Salesforce. La consulta viaja por una conversación propia del asesor:
+// el cliente no la ve, y nada de lo que se responda aquí entra al expediente hasta
+// que el asesor lo mande explícitamente.
+
+const consulta = document.getElementById('consulta');
+const botonConsulta = document.getElementById('preguntar');
+const salidaConsulta = document.getElementById('respuesta-consulta');
+
+document.getElementById('form-consulta').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const pregunta = consulta.value.trim();
+  if (!pregunta) return;
+  if (!casoActual) {
+    salidaConsulta.innerHTML =
+      '<p class="text-[11px] font-light text-amber-300">Elige primero la conversación que estás atendiendo.</p>';
+    return;
+  }
+
+  botonConsulta.disabled = true;
+  consulta.disabled = true;
+  salidaConsulta.innerHTML = cargando('la respuesta del asistente');
+
+  try {
+    const res = await fetch(`/publico/panel/caso/${encodeURIComponent(casoActual)}/consultar`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ pregunta }),
+    });
+    if (res.status === 401) {
+      location.replace('acceso.html');
+      return;
+    }
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.mensaje || `El servidor respondió ${res.status}`);
+
+    const traza = (d.actividad ?? [])
+      .map(
+        (a) =>
+          `<li class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(
+            (a.accion ?? 'acción').replace(/_/g, ' '),
+          )} · ${escapar(a.resultado ?? '—')} · ${escapar(a.folio)}</li>`,
+      )
+      .join('');
+
+    salidaConsulta.innerHTML = `
+      <div class="border border-white/10 bg-[#0b0c10] p-4">
+        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Respuesta del asistente · sólo para ti</p>
+        <p id="texto-consulta" class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>
+        ${traza ? `<ul class="mt-3 space-y-1 border-t border-white/5 pt-3">${traza}</ul>` : ''}
+        <button id="usar-consulta" type="button"
+          class="mt-4 border border-white/10 px-5 py-2 text-[10px] uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">
+          Usar en mi respuesta
+        </button>
+      </div>`;
+    // textContent, no innerHTML: la respuesta viene de un modelo y no se interpreta.
+    document.getElementById('texto-consulta').textContent =
+      d.respuesta || '(el asistente no devolvió texto)';
+
+    document.getElementById('usar-consulta').addEventListener('click', () => {
+      // No se manda solo: el asesor es quien responde y decide qué le llega al cliente.
+      entrada.value = d.respuesta || '';
+      entrada.focus();
+    });
+    consulta.value = '';
+  } catch (e) {
+    salidaConsulta.innerHTML = bloqueError(e, 'No se pudo consultar al asistente');
+  } finally {
+    botonConsulta.disabled = false;
+    consulta.disabled = false;
+  }
+});
+
 await cargarBandeja();

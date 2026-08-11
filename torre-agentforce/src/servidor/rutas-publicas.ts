@@ -19,6 +19,7 @@ import * as datos from './datos.ts';
 import * as flows from './flows.ts';
 import * as escalamiento from './escalamiento.ts';
 import * as agente from './agente.ts';
+import * as actividad from './actividad.ts';
 import {
   crearSesion,
   leerSesion,
@@ -132,7 +133,22 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
 
   if (p === '/publico/salir') {
     exigirMetodo(req, 'POST');
+    // Si quien sale traía una conversación con el asistente —el asesor la abre al usar
+    // su herramienta de consulta— hay que cerrarla en la org. Las sesiones de Agent API
+    // no caducan de inmediato y, acumuladas, la org empieza a rechazar las nuevas con
+    // 400: es el mismo fallo que ya había costado caro en la conversación del cliente.
+    const saliente = leerSesion(ctx.cookies);
+    const sesionAgente = saliente?.agentSessionId ?? null;
     cerrarSesion(ctx.cookies);
+    if (sesionAgente) {
+      try {
+        await agente.cerrarSesion(sesionAgente, 'UserRequest');
+      } catch {
+        // Salir nunca falla por esto: la sesión local ya se destruyó y la de la org
+        // caduca sola. Se descarta del registro para no dejarla contada como viva.
+        agente.descartarSesion(sesionAgente);
+      }
+    }
     json(res, 200, { ok: true }, cookieBorrada(ctx.seguro));
     return true;
   }
@@ -293,13 +309,52 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
       // su acción de escalamiento escriben todos bajo el mismo hilo en Salesforce.
       const abierta = await agente.abrirSesion(sesion.correlationId!);
       sesion.agentSessionId = abierta.sessionId;
+      // El saludo se manda UNA vez por visita. Cuando la primera sesión nace
+      // inservible se descarta y se abre otra, y esa segunda trae otra bienvenida
+      // idéntica: sin esta guarda el cliente veía dos saludos seguidos —tres con el
+      // que la propia página pinta— antes de leer una sola respuesta.
+      if (sesion.saludado) return;
       for (const m of abierta.mensajesIniciales ?? []) {
         // Evento propio, no `Inform`. El saludo de apertura NO es la respuesta al
         // turno que el cliente acaba de mandar, y darles el mismo nombre hacía
         // imposible distinguirlos desde fuera: cualquier comprobación sobre «lo que
         // contestó el agente» podía estar leyendo en realidad la bienvenida.
         emitir('Bienvenida', { texto: m.texto ?? '', tipo: 'Bienvenida' });
+        sesion.saludado = true;
       }
+    };
+
+    /**
+     * Lo que el agente hizo de verdad en este turno, releído de Salesforce.
+     *
+     * La Agent API no lo dice: `message.result` llega vacío por contrato, así que
+     * tanto el apoyo visual como el cambio a asesor estaban colgados de un arreglo
+     * que nunca traía nada. La fuente buena es `Log_Agente__c`, que las acciones
+     * escriben con esta misma correlación. Si el agente escaló, aquí se entera el
+     * servidor —no el navegador leyendo texto— y la ventana cambia de interlocutor.
+     */
+    const emitirActividadReal = async (): Promise<void> => {
+      const registros = await actividad.actividadDeCorrelacion(
+        sesion.correlationId!,
+        sesion.actividadVista,
+      );
+      for (const a of registros) {
+        sesion.actividadVista.add(a.folio);
+        emitir('Actividad', a);
+      }
+
+      if (sesion.caseId) return;
+      const abierto = await escalamiento.escalamientoDeCorrelacion(sesion.correlationId!);
+      if (!abierto) return;
+      // El agente decidió que esto le toca a una persona. La conversación pasa a ser
+      // del asesor sin que el cliente cambie de pantalla ni repita nada.
+      sesion.caseId = abierto.caseId;
+      emitir('Escalado', {
+        caseId: abierto.caseId,
+        caseNumber: abierto.caseNumber,
+        correlationId: sesion.correlationId,
+        origen: 'agente',
+      });
     };
 
     try {
@@ -337,6 +392,21 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         for await (const ev of agente.enviarMensajeStream(sesion.agentSessionId!, texto)) {
           emitir(ev.tipo, ev);
         }
+      }
+      // Después del turno, no antes: las acciones se registran mientras el agente
+      // responde, así que preguntarle a la org antes de que el flujo termine leería
+      // una foto vieja.
+      try {
+        await emitirActividadReal();
+      } catch (e) {
+        // Que no se pueda releer la traza no invalida la respuesta que el cliente ya
+        // leyó. Se avisa en el log del servidor y la conversación sigue.
+        console.warn(
+          JSON.stringify({
+            event: 'actividad_no_releida',
+            motivo: e instanceof Error ? e.message : String(e),
+          }),
+        );
       }
       emitir('Fin', { correlationId: sesion.correlationId });
     } catch (e) {
@@ -501,6 +571,72 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         clearInterval(latido);
         cancelar();
       });
+      return true;
+    }
+
+    // ── el asesor le pregunta al asistente ──────────────────────────────────
+    //
+    // Un asesor que atiende un escalamiento necesita los mismos datos que el agente
+    // sabe consultar —cobertura por VIN, franjas del taller, la base de conocimiento—
+    // y hasta ahora no tenía forma de pedirlos sin salirse del panel.
+    //
+    // La consulta es PRIVADA: corre en una sesión de Agent API propia del asesor, con
+    // su propia correlación, y no escribe nada en el expediente del cliente. El
+    // cliente no ve esta pregunta ni esta respuesta; sólo verá lo que el asesor
+    // decida escribirle. Correlación separada a propósito: si el asistente decidiera
+    // escalar durante la consulta, abriría un caso del asesor, nunca tocaría el del
+    // cliente ni lo reasignaría.
+    if (sufijo === 'consultar') {
+      exigirMetodo(req, 'POST');
+      const sesionAsesor = exigirSesion(ctx.cookies, 'admin');
+      const b = await cuerpo<{ pregunta?: string }>(req);
+      const pregunta = (b.pregunta ?? '').trim();
+      if (!pregunta) {
+        throw new HttpRequestError(400, 'PREGUNTA_VACIA', 'Escribe qué quieres consultarle al asistente.');
+      }
+
+      if (!sesionAsesor.correlationId) sesionAsesor.correlationId = randomUUID();
+
+      const abrirConsulta = async (): Promise<string> => {
+        if (sesionAsesor.agentSessionId) return sesionAsesor.agentSessionId;
+        const abierta = await agente.abrirSesion(sesionAsesor.correlationId!);
+        sesionAsesor.agentSessionId = abierta.sessionId;
+        return abierta.sessionId;
+      };
+
+      let respuesta: string;
+      try {
+        respuesta = (await agente.enviarMensajeSync(await abrirConsulta(), pregunta)).texto;
+      } catch (e) {
+        // Misma cura que en la conversación del cliente: Salesforce entrega de vez en
+        // cuando una sesión que nunca acepta un mensaje. Se descarta y se abre otra
+        // una sola vez, en lugar de devolverle un error al asesor que tiene enfrente
+        // a un cliente esperando.
+        const reabrible =
+          e instanceof agente.ErrorAgentAPI &&
+          e.clase === 'peticion_invalida' &&
+          !agente.sesionTuvoTurnoExitoso(sesionAsesor.agentSessionId!);
+        if (!reabrible) throw e;
+        agente.descartarSesion(sesionAsesor.agentSessionId!);
+        sesionAsesor.agentSessionId = null;
+        respuesta = (await agente.enviarMensajeSync(await abrirConsulta(), pregunta)).texto;
+      }
+
+      // Lo que el asistente ejecutó para contestar, releído de la org igual que en la
+      // conversación del cliente. Al asesor le importa saber si la respuesta salió de
+      // una consulta real o de la base de conocimiento sintética.
+      let ejecutado: actividad.ActividadAgente[] = [];
+      try {
+        ejecutado = await actividad.actividadDeCorrelacion(
+          sesionAsesor.correlationId,
+          sesionAsesor.actividadVista,
+        );
+        for (const a of ejecutado) sesionAsesor.actividadVista.add(a.folio);
+      } catch {
+        // La traza es informativa; su ausencia no invalida la respuesta.
+      }
+
+      json(res, 200, { respuesta, actividad: ejecutado });
       return true;
     }
 

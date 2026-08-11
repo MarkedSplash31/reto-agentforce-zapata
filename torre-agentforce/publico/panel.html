@@ -42,7 +42,7 @@
         </div>
       </div>
 
-      <div class="lg:col-span-2">
+      <div class="lg:col-span-2 space-y-6">
         <div class="border border-white/5 bg-[#0d0e12] flex flex-col min-h-[520px]">
           <div id="cabecera" class="border-b border-white/5 p-4"></div>
           <div id="hilo" role="log" aria-live="polite" aria-relevant="additions"
@@ -58,6 +58,37 @@
               </button>
             </form>
           </div>
+        </div>
+
+        <!--
+          Consulta privada al asistente. El asesor le pregunta lo mismo que le
+          preguntaría un cliente —cobertura de un VIN, horarios de un taller, qué dice
+          la póliza— sin salir del panel y sin que el cliente lo vea. Lo que el cliente
+          recibe es sólo lo que el asesor decida mandarle con "Usar en mi respuesta".
+        -->
+        <div class="border border-white/5 bg-[#0d0e12] p-6">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Herramienta del asesor</p>
+            <span class="text-[10px] uppercase tracking-widest text-gray-600">Privado</span>
+          </div>
+          <h2 class="font-serif-luxury text-xl text-white tracking-wide font-light mb-2">Consultar al asistente</h2>
+          <p class="text-gray-500 text-[11px] font-light leading-relaxed mb-4">
+            Pregúntale lo que necesites para responderle al cliente. El cliente no ve
+            esta consulta: llega al mismo asistente, en una conversación aparte que es tuya.
+          </p>
+
+          <form id="form-consulta" class="flex flex-col sm:flex-row gap-3">
+            <label for="consulta" class="sr-only">Consulta para el asistente</label>
+            <input id="consulta" autocomplete="off"
+              placeholder="Ej. ¿Qué cubre la garantía del VIN 1FUJGLDR9PL456781?"
+              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 disabled:opacity-40">
+            <button id="preguntar" type="submit"
+              class="border border-white/20 text-white px-8 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Preguntar
+            </button>
+          </form>
+
+          <div id="respuesta-consulta" class="mt-4" aria-live="polite"></div>
         </div>
       </div>
 

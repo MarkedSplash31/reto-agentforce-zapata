@@ -245,6 +245,8 @@ function pintarCobertura(c) {
 export function crearPanel(contenedor) {
   contenedor.innerHTML = VACIO;
   let vacio = true;
+  /** Llaves ya pintadas, para que un mismo hecho no genere dos tarjetas iguales. */
+  const vistos = new Set();
 
   function agregar(html) {
     if (vacio) {
@@ -283,8 +285,91 @@ export function crearPanel(contenedor) {
       }
     },
 
+    /**
+     * Una acción que el agente ejecutó de verdad, releída de `Log_Agente__c` por el
+     * servidor. Es la fuente buena: la Agent API entrega `message.result` vacío, así
+     * que `desdeEvento` —que se conserva por si algún día lo llena— nunca pintó nada.
+     */
+    actividad(a) {
+      if (!a || vistos.has(a.folio)) return;
+      vistos.add(a.folio);
+
+      const fallo = a.resultado && a.resultado !== 'SUCCESS';
+      const d = a.detalle;
+
+      if (d?.clase === 'orden') {
+        agregar(
+          tarjeta(
+            'Tu cita quedó agendada',
+            'Taller',
+            filas([
+              ['Folio', d.folio, true],
+              ['Unidad', d.vin, true],
+              ['Taller', d.sucursal, true],
+              ['Inicio', d.inicio ? fecha(d.inicio) : null],
+              ['Estado', d.estado],
+            ]),
+            'ok',
+          ),
+        );
+        return;
+      }
+      if (d?.clase === 'varada') {
+        agregar(
+          tarjeta(
+            'Reporte de unidad varada',
+            'Carretera',
+            filas([
+              ['Folio', d.folio, true],
+              ['Carretera', d.carretera],
+              ['Kilómetro', d.kilometro === null ? null : numero(d.kilometro)],
+              ['Prioridad', d.prioridad],
+            ]),
+            'alerta',
+          ),
+        );
+        return;
+      }
+      if (d?.clase === 'caso') {
+        agregar(
+          tarjeta(
+            'Un asesor tiene tu caso',
+            'Escalamiento',
+            filas([
+              ['Folio', d.folio, true],
+              ['Estado', d.estado],
+              ['Asunto', d.asunto],
+            ]),
+            'ok',
+          ),
+        );
+        return;
+      }
+
+      // Acción sin registro relacionado —consultar disponibilidad, buscar en la base
+      // de conocimiento—. Se enseña igual: que el agente consultó algo es información,
+      // y ocultarlo haría parecer que no hizo nada.
+      agregar(
+        tarjeta(
+          (a.accion ?? 'Acción del asistente').replace(/_/g, ' '),
+          fallo ? 'No se pudo completar' : 'El asistente ejecutó',
+          filas([
+            ['Subagente', a.subagente],
+            ['Resultado', a.resultado],
+            ['Traza', a.folio, true],
+          ]),
+          fallo ? 'alerta' : 'neutro',
+        ),
+      );
+    },
+
     /** Cobertura consultada por la propia app cuando el cliente da un número de serie. */
     cobertura(c) {
+      // Un mismo VIN mencionado varias veces apilaba tarjetas idénticas. Sólo se
+      // pinta la primera vez por unidad.
+      const llave = `cobertura:${c?.unidad?.SerialNumber ?? c?.unidad?.Id ?? 'sin-unidad'}`;
+      if (vistos.has(llave)) return;
+      vistos.add(llave);
       agregar(pintarCobertura(c));
     },
 
@@ -295,6 +380,7 @@ export function crearPanel(contenedor) {
     limpiar() {
       contenedor.innerHTML = VACIO;
       vacio = true;
+      vistos.clear();
     },
   };
 }

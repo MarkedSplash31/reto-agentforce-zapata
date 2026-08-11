@@ -17,8 +17,6 @@ import { crearPanel } from '../panel-contextual.js';
 const panel = crearPanel(document.getElementById('panel'));
 const raiz = document.getElementById('conversacion');
 
-/** Acciones del planner que significan "esto ya es cosa de una persona". */
-const ACCION_ESCALA = /Escalamiento|Escalar/i;
 /** Un número de serie que el cliente escribe: 11 o más alfanuméricos seguidos. */
 const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
 
@@ -61,6 +59,13 @@ const turnos = [];
 let conAsesor = false;
 let fuenteAsesor = null;
 const comentariosVistos = new Set();
+/**
+ * Nodo del saludo que pinta la propia página para no dejar la ventana vacía mientras
+ * Salesforce abre la sesión. Cuando llega la bienvenida real del agente se sustituye
+ * su texto en vez de añadir otra burbuja: si no, el cliente leía dos saludos casi
+ * idénticos y el segundo parecía que el agente no lo había escuchado.
+ */
+let saludoLocal = null;
 
 function burbuja(quien, texto) {
   const mio = quien === 'cliente';
@@ -139,6 +144,23 @@ async function pasarConAsesor(motivo, avisar = true) {
   }
 }
 
+/**
+ * El agente escaló por su cuenta y el SERVIDOR lo confirmó releyendo el Case de esta
+ * correlación en Salesforce. No hace falta abrir nada: la conversación ya es de una
+ * persona y sólo queda cambiar el interlocutor de la misma ventana.
+ */
+function adoptarAsesor(caseNumber) {
+  if (conAsesor) return;
+  marcarInterlocutor('asesor');
+  nota('Te pasamos con un asesor de postventa. Sigue escribiendo aquí mismo.', 'ok');
+  panel.aviso(
+    'Te estamos pasando con una persona',
+    `Tu conversación quedó registrada${caseNumber ? ` con el folio ${caseNumber}` : ''}. Un asesor la recibe completa.`,
+    'ok',
+  );
+  escucharAsesor();
+}
+
 function escucharAsesor() {
   if (fuenteAsesor) return;
   fuenteAsesor = new EventSource('/publico/asesor/stream');
@@ -208,7 +230,10 @@ try {
     bloquear(false);
   } else if (agente.disponible) {
     marcarInterlocutor('agente');
-    burbuja(
+    // Saludo de cortesía de la página: la sesión con Salesforce todavía no existe —se
+    // abre con el primer mensaje— y dejar la ventana en blanco parecería una avería.
+    // Se guarda la referencia para reemplazarlo por la bienvenida real del agente.
+    saludoLocal = burbuja(
       'agente',
       'Hola. Soy el asistente de postventa de Zapata. Cuéntame qué pasa con tu unidad: puedo revisar su garantía, buscarte horario en el taller, levantar un reporte si quedó detenida en carretera, o pasarte con un asesor.',
     );
@@ -271,7 +296,7 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
 
     let parrafo = null;
     let acumulado = '';
-    let escaló = false;
+    let escaladoEn = null;
 
     const lector = res.body.getReader();
     const dec = new TextDecoder();
@@ -297,16 +322,30 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
 
         // El apoyo visual sale de lo que el agente realmente invocó.
         panel.desdeEvento(d);
-        for (const r of d.resultados ?? []) {
-          const nombre = typeof r === 'string' ? r : (r?.function ?? r?.name ?? r?.action ?? '');
-          if (ACCION_ESCALA.test(String(nombre))) escaló = true;
-        }
 
-        if (tipo === 'Bienvenida') {
+        if (tipo === 'Actividad') {
+          // Lo que el agente ejecutó de verdad, releído por el servidor desde
+          // Log_Agente__c. Es la única fuente: la Agent API no devuelve las acciones.
+          panel.actividad(d);
+        } else if (tipo === 'Escalado') {
+          // No se cambia de interlocutor a mitad del texto: se anota y se aplica al
+          // cerrar el turno, para que el cliente lea completa la última respuesta del
+          // asistente antes de que la ventana pase a una persona.
+          escaladoEn = d;
+        } else if (tipo === 'Bienvenida') {
           // El saludo de apertura se pinta, pero NO se acumula como respuesta del
           // turno: si se acumulara, acabaría copiado en la transcripción que viaja
           // al asesor como si el agente lo hubiera dicho contestando.
-          if (d.texto) burbuja('agente', d.texto);
+          if (d.texto) {
+            if (saludoLocal) {
+              // Ya hay un saludo en pantalla —el que puso la página para no dejarla
+              // vacía—. Se sustituye por el del agente en vez de apilar otro.
+              saludoLocal.textContent = d.texto;
+              saludoLocal = null;
+            } else {
+              burbuja('agente', d.texto);
+            }
+          }
         } else if (tipo === 'TextChunk') {
           if (!parrafo) parrafo = burbuja('agente', '');
           acumulado += d.texto ?? '';
@@ -326,7 +365,7 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
     if (acumulado) turnos.push({ autor: 'agente', texto: acumulado });
 
     // El agente decidió que esto le toca a una persona: la ventana cambia sola.
-    if (escaló) await pasarConAsesor(acumulado || texto, false);
+    if (escaladoEn) adoptarAsesor(escaladoEn.caseNumber);
   } catch (e) {
     nota(`Se interrumpió la conexión: ${e.message}`, 'error');
   } finally {

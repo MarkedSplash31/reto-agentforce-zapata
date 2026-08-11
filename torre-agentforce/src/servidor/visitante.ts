@@ -33,6 +33,19 @@ export interface SesionWeb {
   /** Sesión de Agent API abierta por este visitante, si la hay. */
   agentSessionId: string | null;
   secuenciaAgente: number;
+  /**
+   * Folios de `Log_Agente__c` ya enviados al navegador. La actividad del agente se
+   * relee de Salesforce en cada turno (ver `actividad.ts`), así que sin esta memoria
+   * el panel repetiría la misma tarjeta en cada mensaje.
+   */
+  actividadVista: Set<string>;
+  /**
+   * Si ya se le mostró el saludo de apertura. Cuando Salesforce entrega una sesión
+   * inservible se descarta y se abre otra, y la nueva vuelve a traer su bienvenida:
+   * sin esta bandera el cliente veía el mismo saludo dos veces seguidas antes de
+   * cualquier respuesta.
+   */
+  saludado: boolean;
 }
 
 const sesiones = new Map<string, SesionWeb>();
@@ -59,6 +72,8 @@ export function crearSesion(rol: RolWeb): SesionWeb {
     correlationId: null,
     agentSessionId: null,
     secuenciaAgente: 0,
+    actividadVista: new Set<string>(),
+    saludado: false,
   };
   sesiones.set(sesion.id, sesion);
   return sesion;
