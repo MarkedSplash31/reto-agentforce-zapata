@@ -15,6 +15,11 @@ const PREDETERMINADOS = {
   APP_AUTH_MODE: 'disabled',
   PORT: '3000',
   APP_ADMIN_USER: 'asesor',
+  // Mismo valor por omisión que `config.ts`. Hace falta también aquí porque este
+  // arranque comprueba la sesión del CLI ANTES de que la configuración se cargue, y
+  // sin él el aviso salía diciendo «la org "undefined"» y proponía
+  // `sf org login web --alias undefined`, que no es una instrucción, es una pista falsa.
+  SF_CLI_ORG_ALIAS: 'zapata',
 };
 
 for (const [clave, valor] of Object.entries(PREDETERMINADOS)) {
