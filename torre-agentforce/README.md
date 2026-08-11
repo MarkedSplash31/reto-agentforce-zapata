@@ -31,15 +31,29 @@ caso que termina atendiendo un asesor. Es el mismo valor que viaja como
 
 ## Páginas
 
+Son tres. La conversación **es** la aplicación: agendar, reportar una varada,
+consultar garantía y pedir una persona se resuelven hablando, no navegando a un
+formulario por trámite. Las páginas-formulario que hubo (`taller.html`,
+`carretera.html`, `garantia.html`, `asesor.html`) se retiraron y
+`tests/e2e/sitio-cliente.spec.ts` comprueba que no vuelvan.
+
 | Ruta | Para quién | Qué resuelve |
 |---|---|---|
-| `/index.html` | cliente | Inicio con el agente y los accesos a cada servicio |
-| `/taller.html` | cliente | Agendar cita sobre la disponibilidad real de la red |
-| `/carretera.html` | cliente | Reportar una unidad detenida; la seguridad va primero |
-| `/garantia.html` | cliente | Consultar cobertura por número de serie |
-| `/asesor.html` | cliente | Chat en vivo con una persona |
+| `/index.html` | cliente | La conversación con el agente, con apoyo visual al lado. Si el agente escala, la MISMA ventana pasa a un asesor sin cambiar de pantalla |
 | `/acceso.html` | asesor | Entrada al panel |
-| `/panel.html` | asesor | Conversaciones escaladas y respuesta en vivo |
+| `/panel.html` | asesor | Conversaciones escaladas, respuesta en vivo y consulta privada al asistente |
+
+### El asesor hereda al agente
+
+Un asesor que atiende un escalamiento necesita los mismos datos que el agente sabe
+consultar. En `/panel.html` tiene **Consultar al asistente**: le pregunta lo que sea
+—cobertura de un VIN, franjas de un taller, qué dice la póliza— y recibe la respuesta
+del mismo Agente Postventa.
+
+Esa consulta es privada y corre bajo una correlación propia del asesor: el cliente no
+la ve, no entra al expediente, y si el asistente decidiera escalar durante ella
+abriría un caso del asesor, nunca tocaría el del cliente. Lo que el cliente recibe es
+sólo lo que el asesor decida mandarle con **Usar en mi respuesta**.
 
 ## Levantarlo
 
@@ -222,17 +236,28 @@ pública posterior y un único `Log_Agente__c` apuntando al mismo `Case`.
 
 ## Rutas
 
+Superficie pública del sitio de clientes. No lleva login: la identidad es una sesión
+de visitante que emite el servidor, y el `caseId` que esa sesión puede leer y
+responder vive en el servidor, nunca en el cuerpo de la petición.
+
 | Ruta | Fuente/efecto |
 |---|---|
-| `/` | Conteos consultados en vivo; las filas tienen origen mixto |
-| `/conversacion.html` | ECA activa; lifecycle Agent API pendiente de secretos locales y verificación |
-| `/unidades.html` | `Asset` y `Lectura_Odometro__c`, semilla sintética |
-| `/agenda.html` | Slots generados desde horario web; sólo `OPERACIONAL_VERIFICADO` habilita reservar/reprogramar (hoy 0) |
-| `/ordenes.html` | `WorkOrder` seed/prueba y altas reales de los Flows |
-| `/cobertura.html` | Comparación de reglas sintéticas; no póliza real |
-| `/traza.html` | `Log_Agente__c` y registros correlacionados en Salesforce |
-| `/arquitectura.html` | Grafo v10, GenAiFunctions y backends Flow/Apex derivados de la org; gate Case/CaseComment/Log |
-| `/escalamiento.html` | Case de cola, comentarios bidireccionales y SSE releyendo Salesforce; identidad individual vía OIDC, sin Messaging |
+| `GET /publico/sesion` | Identidad de la visita y su `correlationId`; lo crea el servidor |
+| `GET /publico/sucursales` | `Sucursal__c` del catálogo, dato observado del sitio público |
+| `GET /publico/disponibilidad` | `Slot_Taller__c`; sólo `OPERACIONAL_VERIFICADO` habilita reservar |
+| `POST /publico/garantia` | Evalúa cobertura por número de serie contra reglas **sintéticas**, no póliza real |
+| `POST /publico/agente/mensaje` | Turno con el Agente Postventa por SSE. Al cerrar el turno relee `Log_Agente__c` y emite `Actividad`, y `Escalado` si la correlación ya tiene `Case` |
+| `POST /publico/agente/cerrar` | Cierra la sesión de Agent API. Sin esto se acumulan y la org empieza a rechazar las nuevas |
+| `POST /publico/taller/agendar` | Alta real de `WorkOrder` por Flow |
+| `POST /publico/carretera/reportar` | Alta real de `Unidad_Varada__c` por Flow |
+| `POST /publico/asesor/abrir` | Abre el `Case` en la cola, o adopta el que el agente ya abrió con esa correlación |
+| `GET /publico/asesor/conversacion` | Sólo `CaseComment` publicados. Las notas internas de Apex no cruzan a esta superficie |
+| `POST /publico/asesor/responder` | Comentario público como `cliente`; el `caseId` sale de la sesión |
+| `GET /publico/asesor/stream` | SSE releyendo el expediente desde Salesforce |
+| `POST /publico/acceso`, `POST /publico/salir` | Sesión del asesor. Al salir se cierra también su conversación con el asistente |
+| `GET /publico/panel/bandeja` | Casos escalados. Exige rol `admin` |
+| `GET/POST /publico/panel/caso/:id[/responder\|/stream]` | Hilo del asesor, respuesta como `asesor` y vivo. Exige rol `admin` |
+| `POST /publico/panel/caso/:id/consultar` | Consulta privada del asesor al asistente, con correlación propia. No escribe en el expediente. Exige rol `admin` |
 
 `/salud` es liveness público. `/api/admin/salud` prueba credencial Salesforce, REST,
 Agent API y cola; exige rol `admin` y su monitor debe inspeccionar `ok`.
