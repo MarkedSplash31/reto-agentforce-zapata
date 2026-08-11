@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Aplica_Todos_Modelos__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Para politicas transversales de seguridad o proceso que no dependen del modelo. Si es falso, el articulo debe indicar su modelo.</description>
+    <label>Aplica a todos los modelos</label>
+    <type>Checkbox</type>
+</CustomField>

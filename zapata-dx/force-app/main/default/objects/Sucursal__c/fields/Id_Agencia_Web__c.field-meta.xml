@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Id_Agencia_Web__c</fullName>
+    <description>Identificador real de la agencia en zapata.com.mx (96 a 104 para Freightliner). Es la llave para integrar con su formulario de citas cuando se conecte de verdad.</description>
+    <externalId>false</externalId>
+    <label>Id de agencia en el sitio</label>
+    <precision>6</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

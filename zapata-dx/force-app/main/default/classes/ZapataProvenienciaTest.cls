@@ -176,23 +176,65 @@ private class ZapataProvenienciaTest {
         Assert.areEqual('MODELO_NO_ATENDIDO', respuestas[2].motivoBloqueo);
     }
 
+    /**
+     * Lo que la regla bloquea hoy, y lo que dejo de bloquear.
+     *
+     * Nacio exigiendo OPERACIONAL_VERIFICADO y con eso dejaba fuera a ocho de las nueve
+     * sucursales: su horario esta publicado en zapata.com.mx, lo que nadie ha verificado
+     * es el cupo por franja. El 11-ago-2026 se acoto a lo pertinente —bloquear solo si no
+     * se sabe de donde salio el horario— y esta prueba seguia afirmando la regla vieja:
+     * fallaba sin defecto alguno. Ahora fija las dos mitades, que es lo que hace que la
+     * relajacion no se convierta en ausencia de control.
+     */
     @IsTest
-    static void validacionImpideMoverFechaConSlotNoVerificado() {
+    static void reprogramarSobreCapacidadAsumidaSiSePermite() {
         WorkOrder orden = [
             SELECT Id, StartDate, EndDate, Slot_Taller__c,
                    Slot_Taller__r.Procedencia__c
             FROM WorkOrder
             WHERE Slot_Taller__c != null
+              AND Slot_Taller__r.Procedencia__c != null
               AND Slot_Taller__r.Procedencia__c != 'OPERACIONAL_VERIFICADO'
             LIMIT 1
         ];
         orden.StartDate = orden.StartDate.addDays(1);
 
+        // Cupo por confirmar no es lo mismo que horario sin procedencia: al cliente se le
+        // dice que la franja queda sujeta a confirmacion del taller, y se agenda.
+        update orden;
+        Assert.areEqual(
+            orden.StartDate,
+            [SELECT StartDate FROM WorkOrder WHERE Id = :orden.Id].StartDate,
+            'Con procedencia registrada la reprogramacion debe pasar'
+        );
+    }
+
+    @IsTest
+    static void validacionImpideMoverFechaConSlotSinProcedencia() {
+        WorkOrder orden = [
+            SELECT Id, StartDate, EndDate, Slot_Taller__c
+            FROM WorkOrder
+            WHERE Slot_Taller__c != null
+            LIMIT 1
+        ];
+
+        // Se borra la procedencia de la franja SOLO dentro de esta transaccion: es la
+        // condicion que la regla debe seguir bloqueando. Salesforce lo revierte al salir.
+        Slot_Taller__c franja = [
+            SELECT Id, Procedencia__c FROM Slot_Taller__c WHERE Id = :orden.Slot_Taller__c
+        ];
+        franja.Procedencia__c = null;
+        update franja;
+
+        orden.StartDate = orden.StartDate.addDays(1);
         try {
             update orden;
-            Assert.fail('La regla debio impedir reprogramar sobre capacidad asumida');
+            Assert.fail('Sin procedencia registrada la regla debio impedir reprogramar');
         } catch (DmlException e) {
-            Assert.isTrue(e.getMessage().contains('SLOT_NO_VERIFICADO'));
+            Assert.isTrue(
+                e.getMessage().contains('SLOT_SIN_PROCEDENCIA'),
+                'Debe fallar por procedencia ausente: ' + e.getMessage()
+            );
         }
     }
 }

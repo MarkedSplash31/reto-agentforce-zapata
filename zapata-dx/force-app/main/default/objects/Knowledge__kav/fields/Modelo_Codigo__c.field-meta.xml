@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Modelo_Codigo__c</fullName>
+    <description>ProductCode del modelo al que aplica el manual. Se usa texto y no lookup porque Knowledge no admite relaciones a Product2. El Flow resuelve el modelo por este codigo.</description>
+    <externalId>false</externalId>
+    <label>Codigo de modelo</label>
+    <length>30</length>
+    <required>false</required>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

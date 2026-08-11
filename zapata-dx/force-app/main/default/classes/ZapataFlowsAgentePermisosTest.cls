@@ -16,6 +16,8 @@
 private class ZapataFlowsAgentePermisosTest {
 
     private static final String VIN_VERIFICADO = '3HAMMAAR8LL123456';
+    /** Unidad 102. La prueba le fija ella misma el estado que necesita, no lo asume. */
+    private static final String VIN_SIN_VERIFICAR = '3HAMMAAR8LL123457';
 
     private static User usuarioDelAgente() {
         return [SELECT Id, Username FROM User
@@ -115,9 +117,23 @@ private class ZapataFlowsAgentePermisosTest {
         Flow.Interview.Crear_Orden_Servicio f;
         Integer antes = [SELECT COUNT() FROM WorkOrder];
 
+        // La prueba no puede dar por hecho el valor del seed. Nacio cuando ninguna
+        // unidad estaba verificada y se apoyaba en que la Unidad 102 siguiera asi; el
+        // 11-ago-2026, al habilitar el agendamiento en las nueve sucursales, el seed
+        // quedo con todas verificadas y la compuerta dejo de dispararse: la prueba
+        // fallaba sin que existiera defecto, y peor, habria dejado de vigilar el gate
+        // sin avisar. Ahora fija la condicion que quiere probar dentro de la propia
+        // transaccion —igual que su hermana hace al reves—, y Salesforce la revierte.
+        Asset unidadSoloParaTest = [
+            SELECT Id, Unidad_Verificada__c FROM Asset
+            WHERE SerialNumber = :VIN_SIN_VERIFICAR LIMIT 1
+        ];
+        unidadSoloParaTest.Unidad_Verificada__c = false;
+        update unidadSoloParaTest;
+
         System.runAs(usuarioDelAgente()) {
             f = new Flow.Interview.Crear_Orden_Servicio(new Map<String, Object>{
-                'varVIN' => '3HAMMAAR8LL123457', // Unidad 102: Unidad_Verificada__c = false
+                'varVIN' => VIN_SIN_VERIFICAR,
                 'varSucursalClave' => 'FL-QRO',
                 'varSintoma' => 'Intento sobre unidad sin verificar',
                 'varIdempotencyKey' => corr + '-WO', 'varCorrelationId' => corr});

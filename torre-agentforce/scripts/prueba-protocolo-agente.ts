@@ -20,9 +20,27 @@
 
 import { createServer, type IncomingMessage, type ServerResponse } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
+
+// El servidor simulado tiene que hablar como el real. `abrirSesion` exige desde el
+// 11-ago-2026 que el sessionId tenga forma de UUID: sin esa guarda, un identificador
+// deformado no fallaba aqui sino mucho mas lejos, como un `400 Illegal Path Character`
+// de Jetty que costo tres teorias equivocadas. Los identificadores de este verificador
+// eran legibles ('ses-1') y por eso dejaron de pasar la puerta. Se conserva el nombre
+// legible en la constante y el valor toma forma de UUID, para que un fallo siga
+// diciendo de que sesion habla.
+const SES_UNO = '00000000-0000-4000-8000-000000000001'; // ses-1
+const SES_401 = '00000000-0000-4000-8000-000000000002'; // ses-401
+const SES_CIERRE_CODIGO = '00000000-0000-4000-8000-000000000003'; // ses-cierre-codigo
+const SES_CIERRE_RACE = '00000000-0000-4000-8000-000000000004'; // ses-cierre-race
+const SES_EVIL = '00000000-0000-4000-8000-000000000005'; // ses-evil
+const SES_LINKS_REALES = '00000000-0000-4000-8000-000000000006'; // ses-links-reales
+const SES_INEXISTENTE = '00000000-0000-4000-8000-000000000007'; // ses-que-no-existe
+const SES_SALUD = '00000000-0000-4000-8000-000000000008'; // ses-salud
+const SES_SALUD_SIN_CIERRE = '00000000-0000-4000-8000-000000000009'; // ses-salud-sin-cierre
+
 
 const TOKEN_SINTETICO = 'TOKEN-LOOPBACK-NO-ES-DE-SALESFORCE-8f3a1c';
 
@@ -187,9 +205,22 @@ function json(res: ServerResponse, status: number, cuerpo: unknown, tipo = 'appl
   res.end(typeof cuerpo === 'string' ? cuerpo : JSON.stringify(cuerpo));
 }
 
+/**
+ * Un id de sesión con forma de UUID derivado del nombre del caso.
+ *
+ * El servidor simulado no puede inventar un identificador libre: `abrirSesion` exige
+ * forma de UUID (ver el bloque de constantes de arriba). Se deriva del sufijo en vez de
+ * sortearlo para que dos corridas del verificador produzcan el mismo id y un fallo se
+ * pueda reproducir tal cual.
+ */
+function idDeSesion(sufijo: string): string {
+  const h = createHash('sha1').update(sufijo).digest('hex');
+  return `${h.slice(0, 8)}-${h.slice(8, 12)}-4${h.slice(13, 16)}-8${h.slice(17, 20)}-${h.slice(20, 32)}`;
+}
+
 // Abre una sesión válida y devuelve su id; se usa como preámbulo de varios casos.
 async function abrirSesionValida(sufijo: string): Promise<string> {
-  manejador = (_req, res) => json(res, 200, cuerpoSesion(`ses-${sufijo}`));
+  manejador = (_req, res) => json(res, 200, cuerpoSesion(idDeSesion(sufijo)));
   const s = await agente.abrirSesion(randomUUID());
   return s.sessionId;
 }
@@ -206,7 +237,7 @@ caso('1. ciclo completo del contrato §3-§6');
 {
   manejador = (req, res) => {
     const url = req.url ?? '';
-    if (req.method === 'POST' && url.endsWith('/sessions')) return json(res, 200, cuerpoSesion('ses-1'));
+    if (req.method === 'POST' && url.endsWith('/sessions')) return json(res, 200, cuerpoSesion(SES_UNO));
     if (req.method === 'POST' && url.endsWith('/messages/stream')) {
       sse(res);
       res.write(': latido\n\n');
@@ -238,7 +269,7 @@ caso('1. ciclo completo del contrato §3-§6');
   };
 
   const sesion = await agente.abrirSesion(randomUUID());
-  afirmar('abrirSesion devuelve el sessionId del servidor', sesion.sessionId === 'ses-1', sesion.sessionId);
+  afirmar('abrirSesion devuelve el sessionId del servidor', sesion.sessionId === SES_UNO, sesion.sessionId);
   afirmar('abrirSesion expone los _links del contrato', Object.keys(sesion.enlaces).sort().join(',') === 'end,messages,messagesStream', Object.keys(sesion.enlaces));
   afirmar('el mensaje de bienvenida se mapea', sesion.mensajesIniciales.length === 1 && sesion.mensajesIniciales[0]?.tipo === 'Inform', sesion.mensajesIniciales.map((m) => m.tipo));
   afirmar('el DTO de sesión no expone la respuesta cruda', !Object.hasOwn(sesion, 'crudo'), Object.keys(sesion));
@@ -284,9 +315,16 @@ caso('1. ciclo completo del contrato §3-§6');
   afirmar('el DTO de cierre no expone la respuesta cruda', !Object.hasOwn(cerrada, 'crudo'), Object.keys(cerrada));
 
   const envios = peticiones.filter((p) => p.ruta.includes('/messages'));
+  // Antes esto exigía lo contrario: que el primer turno esperara ~1 s a que la sesión
+  // «propagara». Ese retraso se puso creyendo que los 400 intermitentes venían de una
+  // sesión todavía no visible en la puerta. El 11-ago-2026 se midió la causa real —la
+  // app corrompía el propio sessionId al redactarlo para el log y pedía una URL con
+  // corchetes dentro, que Jetty rechaza— y la espera quedó en cero, porque sólo añadía
+  // demora al mismo identificador roto. Lo que se fija ahora es justamente eso: que no
+  // vuelva a colarse una espera artificial delante del primer turno del cliente.
   afirmar(
-    'la primera operación espera la propagación de la sesión antes de contactar Agent API',
-    (envios[0]?.recibidaEn ?? 0) - abiertaAlClienteEn >= 900,
+    'la primera operación no espera propagación: sale de inmediato',
+    (envios[0]?.recibidaEn ?? 0) - abiertaAlClienteEn < 500,
     (envios[0]?.recibidaEn ?? 0) - abiertaAlClienteEn,
   );
   const secuencias = envios.map(
@@ -308,7 +346,7 @@ caso('1. ciclo completo del contrato §3-§6');
   const del = peticiones.find((p) => p.metodo === 'DELETE');
   afirmar('el DELETE lleva x-session-end-reason (obligatorio §6)', del?.razonFin === 'UserRequest', del?.razonFin);
   afirmar('todas las peticiones a la Agent API llevan el token en Authorization', peticiones.filter((p) => p.ruta.includes('/einstein/')).every((p) => p.tokenEsperado), peticiones.filter((p) => p.ruta.includes('/einstein/')).map((p) => p.llevaBearer));
-  afirmar('la sesión cerrada deja de estar registrada', !agente.sesionesActivas().some((s) => s.sessionId === 'ses-1'), agente.sesionesActivas().map((s) => s.sessionId));
+  afirmar('la sesión cerrada deja de estar registrada', !agente.sesionesActivas().some((s) => s.sessionId === SES_UNO), agente.sesionesActivas().map((s) => s.sessionId));
 }
 
 // ─── Enlaces observados en la colección oficial ───────────────────────────────────────────────────────────
@@ -320,7 +358,7 @@ caso('1b. _links real no confunde el endpoint streaming con el síncrono');
     const url = req.url ?? '';
     if (req.method === 'POST' && url.endsWith('/agents/0XxgK0000022RhJSAU/sessions')) {
       return json(res, 200, {
-        sessionId: 'ses-links-reales',
+        sessionId: SES_LINKS_REALES,
         _links: {
           // Así responde la colección oficial: `messages` apunta a streaming y
           // no existe una clave `messagesStream` separada.
@@ -494,10 +532,10 @@ caso('6. 401 provoca renovación de token y un único reintento');
   manejador = (_req, res) => {
     intentos += 1;
     if (intentos === 1) return json(res, 401, [{ errorCode: 'INVALID_SESSION_ID' }]);
-    return json(res, 200, cuerpoSesion('ses-401'));
+    return json(res, 200, cuerpoSesion(SES_401));
   };
   const s = await agente.abrirSesion(randomUUID());
-  afirmar('tras un 401 se renueva el token y se reintenta una vez', s.sessionId === 'ses-401', { intentos, vecesToken });
+  afirmar('tras un 401 se renueva el token y se reintenta una vez', s.sessionId === SES_401, { intentos, vecesToken });
   await agente.cerrarSesion(s.sessionId, 'UserRequest').catch(() => undefined);
 
   // Y un 401 persistente NO se reintenta en bucle: se reporta como credencial.
@@ -559,7 +597,7 @@ caso('9. la respuesta trae _links hacia otro host');
 {
   manejador = (req, res) => {
     const url = req.url ?? '';
-    if (url.endsWith('/sessions')) return json(res, 200, cuerpoSesion('ses-evil', 'https://host-ajeno.invalid'));
+    if (url.endsWith('/sessions')) return json(res, 200, cuerpoSesion(SES_EVIL, 'https://host-ajeno.invalid'));
     if (url.endsWith('/messages/stream')) {
       sse(res);
       res.write('event: TextChunk\ndata: {"message":{"type":"TextChunk","id":"c1","message":"ok"}}\n\n');
@@ -684,7 +722,7 @@ caso('13b. un 400 de cierre no se reintenta ni se disfraza');
 {
   let deletes = 0;
   manejador = (req, res) => {
-    if ((req.url ?? '').endsWith('/sessions')) return json(res, 200, cuerpoSesion('ses-cierre-race'));
+    if ((req.url ?? '').endsWith('/sessions')) return json(res, 200, cuerpoSesion(SES_CIERRE_RACE));
     if (req.method === 'DELETE') {
       deletes += 1;
       if (deletes === 1) {
@@ -714,7 +752,7 @@ caso('13b. un 400 de cierre no se reintenta ni se disfraza');
 caso('13c. diagnóstico de cierre conserva sólo código y huella del requestId');
 {
   manejador = (req, res) => {
-    if ((req.url ?? '').endsWith('/sessions')) return json(res, 200, cuerpoSesion('ses-cierre-codigo'));
+    if ((req.url ?? '').endsWith('/sessions')) return json(res, 200, cuerpoSesion(SES_CIERRE_CODIGO));
     if (req.method === 'DELETE') {
       res.writeHead(400, {
         'Content-Type': 'application/json',
@@ -756,9 +794,9 @@ caso('13c. diagnóstico de cierre conserva sólo código y huella del requestId'
 caso('14. sesión desconocida');
 {
   manejador = (_req, res) => json(res, 200, { messages: [] });
-  const r1 = await capturar(() => agente.enviarMensajeSync('ses-que-no-existe', 'x'));
+  const r1 = await capturar(() => agente.enviarMensajeSync(SES_INEXISTENTE, 'x'));
   afirmar('enviarMensajeSync sobre una sesión ajena → sesion_desconocida', r1 instanceof ErrorAgentAPI && r1.clase === 'sesion_desconocida', claseDe(r1));
-  const r2 = await capturar(() => agente.cerrarSesion('ses-que-no-existe'));
+  const r2 = await capturar(() => agente.cerrarSesion(SES_INEXISTENTE));
   afirmar('cerrarSesion sobre una sesión ajena → sesion_desconocida', r2 instanceof ErrorAgentAPI && r2.clase === 'sesion_desconocida', claseDe(r2));
   afirmar('y no se contactó al servidor por una sesión inventada', peticiones.filter((p) => p.ruta.includes('/einstein/')).length === 0, peticiones.map((p) => p.ruta));
 }
@@ -772,7 +810,7 @@ caso('15. estadoAgentAPI hace sonda real y reporta el status medido');
   manejador = (req, res) => {
     if ((req.url ?? '').endsWith('/sessions')) {
       res.writeHead(201, { 'Content-Type': 'application/json' });
-      res.end(JSON.stringify(cuerpoSesion('ses-salud')));
+      res.end(JSON.stringify(cuerpoSesion(SES_SALUD)));
       return;
     }
     if (req.method === 'DELETE') return json(res, 200, { messages: [{ type: 'SessionEnded' }] });
@@ -782,13 +820,13 @@ caso('15. estadoAgentAPI hace sonda real y reporta el status medido');
   afirmar('la sonda reporta disponible', est.disponible, est.causa);
   afirmar('el status de la sonda es el MEDIDO, no un 200 supuesto', est.sonda.status === 201, est.sonda.status);
   afirmar('la sonda abre y cierra de verdad (hubo DELETE)', peticiones.some((p) => p.metodo === 'DELETE'), peticiones.map((p) => `${p.metodo} ${p.ruta}`));
-  afirmar('la sonda no deja sesiones colgando en el registro', !agente.sesionesActivas().some((s) => s.sessionId === 'ses-salud'), agente.sesionesActivas().map((s) => s.sessionId));
+  afirmar('la sonda no deja sesiones colgando en el registro', !agente.sesionesActivas().some((s) => s.sessionId === SES_SALUD), agente.sesionesActivas().map((s) => s.sessionId));
 
   const est2 = await agente.estadoAgentAPI();
   afirmar('la segunda lectura viene de caché con el mismo verificadoEn', est2.verificadoEn === est.verificadoEn, [est.verificadoEn, est2.verificadoEn]);
 
   manejador = (req, res) => {
-    if ((req.url ?? '').endsWith('/sessions')) return json(res, 201, cuerpoSesion('ses-salud-sin-cierre'));
+    if ((req.url ?? '').endsWith('/sessions')) return json(res, 201, cuerpoSesion(SES_SALUD_SIN_CIERRE));
     if (req.method === 'DELETE') return json(res, 200, { messages: [{ type: 'Inform', message: 'no cerrada' }] });
     return json(res, 500, { error: 'ruta no prevista' });
   };

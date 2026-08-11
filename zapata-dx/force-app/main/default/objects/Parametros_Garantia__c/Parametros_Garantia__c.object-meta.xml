@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customSettingsType>Hierarchy</customSettingsType>
+    <description>Umbrales generales de garantia. Existe para que la formula de tamizaje NO tenga numeros quemados: se editan aqui sin volver a desplegar. Los limites finos por modelo y sistema viven en Regla_Cobertura__c; esto es solo el periodo general.</description>
+    <enableFeeds>false</enableFeeds>
+    <label>Parametros de garantia</label>
+    <visibility>Public</visibility>
+</CustomObject>

@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Anticipacion_Minima_Horas__c</fullName>
+    <description>Zapata pide agendar con al menos 24 horas de anticipacion. Consultar_Disponibilidad no debe ofrecer franjas por debajo de este umbral.</description>
+    <externalId>false</externalId>
+    <label>Anticipacion minima (horas)</label>
+    <precision>3</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

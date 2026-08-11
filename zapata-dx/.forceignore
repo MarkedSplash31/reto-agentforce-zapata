@@ -12,3 +12,8 @@ package.xml
 **/__tests__/**
 
 node_modules/
+
+# Salida de "sf agent publish": se regenera al publicar y no es fuente. Sin esto,
+# un deploy del paquete intenta reinstalar todas las versiones publicadas y falla.
+force-app/main/default/genAiPlannerBundles/
+force-app/main/default/bots/

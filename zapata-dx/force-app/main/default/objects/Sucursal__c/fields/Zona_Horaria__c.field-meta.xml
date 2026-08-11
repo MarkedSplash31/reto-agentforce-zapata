@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Zona_Horaria__c</fullName>
+    <description>Zona horaria IANA usada para calcular las franjas locales.</description>
+    <label>Zona horaria</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>America/Mexico_City</fullName>
+                <default>true</default>
+                <label>America/Mexico_City</label>
+            </value>
+            <value>
+                <fullName>America/Monterrey</fullName>
+                <default>false</default>
+                <label>America/Monterrey</label>
+            </value>
+            <value>
+                <fullName>America/Tijuana</fullName>
+                <default>false</default>
+                <label>America/Tijuana</label>
+            </value>
+            <value>
+                <fullName>America/Cancun</fullName>
+                <default>false</default>
+                <label>America/Cancun</label>
+            </value>
+            <value>
+                <fullName>America/Hermosillo</fullName>
+                <default>false</default>
+                <label>America/Hermosillo</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

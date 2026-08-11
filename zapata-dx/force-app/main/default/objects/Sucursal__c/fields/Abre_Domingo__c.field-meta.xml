@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Abre_Domingo__c</fullName>
+    <defaultValue>false</defaultValue>
+    <description>Ninguna agencia abre domingo hoy. Se deja parametrizable en vez de quemar la regla en el codigo.</description>
+    <label>Abre domingo</label>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>
