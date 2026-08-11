@@ -18,6 +18,9 @@ public with sharing class BuscarConocimientoPostventa {
     private static final Integer MAX_ARTICULOS = 3;
     private static final Integer MAX_CARACTERES = 4000;
     private static final String VERSION_SINTETICA = 'v1.0-sintetica-no-verificada';
+    // Un literal aparte: escribir la secuencia de salto dentro de una cadena es facil
+    // de romper al editar el archivo con herramientas, y Apex no admite saltos reales.
+    private static final String SALTO = '\n\n';
     private static final String AVISO_SINTETICO =
         '[FUENTE SINTETICA NO VERIFICADA] Material de apoyo del reto; ' +
         'no debe presentarse como oficial ni confirmada. Verifica la politica vigente ' +
@@ -86,7 +89,7 @@ public with sharing class BuscarConocimientoPostventa {
             // digito podia leer el resultado como la cobertura de su camion. El material
             // es correcto y va marcado como no verificado, pero callar que la unidad no
             // existe convierte una respuesta cierta en una respuesta enganosa.
-            resolverUnidad(s.vin, r);
+            resolverUnidad(vinEfectivo(s), r);
 
             String termino = limpiar(s.pregunta);
 
@@ -127,7 +130,8 @@ public with sharing class BuscarConocimientoPostventa {
 
             // ---------- Armado de la respuesta ----------
             if (encontrados.isEmpty()) {
-                r.contenido = AVISO_SINTETICO + '\n\n' +
+                r.contenido = (String.isBlank(r.avisoUnidad) ? '' : r.avisoUnidad + SALTO) +
+                              AVISO_SINTETICO + '\n\n' +
                               'No se encontro material de apoyo sobre ese tema. ' +
                               'Informa al cliente que no tienes informacion verificada y ofrece escalar a un asesor humano.';
                 resultados.add(r);
@@ -152,7 +156,13 @@ public with sharing class BuscarConocimientoPostventa {
                 texto = texto.substring(0, MAX_CARACTERES) + '...';
             }
 
-            r.contenido  = texto;
+            // El aviso de unidad inexistente va DENTRO del contenido, no solo en su campo.
+            // La instruccion del topic obliga al agente a responder unicamente con el campo
+            // Contenido y a abrir con las tres lineas de procedencia; pedirle ademas que
+            // antepusiera otro campo era darle dos ordenes contradictorias, y obedecia la
+            // primera: el aviso se perdia y el cliente leia la poliza general como si fuera
+            // su cobertura. Aqui deja de depender de a cual haga caso.
+            r.contenido  = String.isBlank(r.avisoUnidad) ? texto : (r.avisoUnidad + SALTO + texto);
             r.titulos    = String.join(nombres, ', ');
             r.encontrado = true;
             resultados.add(r);
@@ -170,6 +180,32 @@ public with sharing class BuscarConocimientoPostventa {
     }
 
     /** Quita caracteres que rompen SOSL y normaliza espacios. */
+    /**
+     * El VIN que se va a comprobar. Primero el parametro; si el planner no lo mando, se
+     * busca en el texto de la consulta.
+     *
+     * El respaldo no sobra: aunque la instruccion pide pasar el VIN siempre y el
+     * esquema lo declara, el planner no siempre lo llena, y de eso depende que el
+     * cliente sepa si la unidad existe. Extraerlo aqui vuelve el aviso determinista en
+     * vez de dejarlo a criterio del modelo.
+     *
+     * El patron es el de un numero de serie: 11 a 17 alfanumericos sin I, O ni Q, que
+     * el estandar de VIN excluye para no confundirlas con 1 y 0.
+     */
+    private static String vinEfectivo(Solicitud s) {
+        if (String.isNotBlank(s.vin)) return s.vin.trim();
+        if (String.isBlank(s.pregunta)) return null;
+        // Sin la secuencia de limite de palabra: dentro de una cadena de Apex se lee
+        // como un backspace, no como un limite, y el patron dejaba de encontrar nada.
+        Matcher m = Pattern.compile('(?i)[A-HJ-NPR-Z0-9]{11,17}').matcher(s.pregunta);
+        while (m.find()) {
+            String cand = m.group();
+            // Una palabra corriente no lleva digitos; un numero de serie si.
+            if (Pattern.compile('[0-9]').matcher(cand).find()) return cand;
+        }
+        return null;
+    }
+
     /**
      * Comprueba el VIN contra el padron de unidades. No bloquea la busqueda: el
      * conocimiento general sigue sirviendo. Lo que hace es obligar a que la respuesta
