@@ -4,15 +4,14 @@ import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 const RAIZ_PROYECTO = resolve(fileURLToPath(new URL('..', import.meta.url)));
-const AUDITOR = resolve(
-  RAIZ_PROYECTO,
-  '..',
-  '..',
-  'skills',
-  'zapata-design',
-  'scripts',
-  'auditar-sistema.mjs',
-);
+// El auditor se resuelve DENTRO del repositorio. Antes se buscaba en la skill
+// `zapata-design`, dos niveles arriba: una ruta que sólo existe en el espacio de
+// trabajo de quien la escribió, así que este comando fallaba con un ENOENT crudo en
+// cualquier clon. `ZAPATA_DESIGN_AUDITOR` permite apuntar a la copia canónica de la
+// skill cuando se está trabajando sobre las reglas mismas.
+const AUDITOR = process.env.ZAPATA_DESIGN_AUDITOR?.trim()
+  ? resolve(process.env.ZAPATA_DESIGN_AUDITOR.trim())
+  : resolve(RAIZ_PROYECTO, 'scripts', 'auditar-sistema.mjs');
 
 // La aplicación es una conversación, no un catálogo de formularios: una sola página
 // de cliente y dos internas para el asesor.
@@ -63,7 +62,14 @@ function ejecutar(comando, argumentos, opciones) {
   });
 }
 
-await access(AUDITOR);
+try {
+  await access(AUDITOR);
+} catch {
+  throw new Error(
+    `No se encontró el auditor de diseño en ${AUDITOR}. Viene con el repositorio en ` +
+      'scripts/auditar-sistema.mjs; si definiste ZAPATA_DESIGN_AUDITOR, revisa esa ruta.',
+  );
+}
 
 const baseExterna = process.env.BASE_URL?.trim().replace(/\/+$/, '');
 const puerto = puertoLocal();
