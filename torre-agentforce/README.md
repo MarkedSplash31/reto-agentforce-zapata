@@ -83,10 +83,22 @@ Lo que se resuelve solo, sin que configures nada:
 - el proveedor de token se elige según lo que haya: `client_credentials` si existe el
   secreto, `cli` si no.
 
-Lo único que sigue siendo un paso humano es **`SF_CLIENT_SECRET`**, el secreto de la
-External Client App. Sin él el asistente no abre conversación y todo pasa directo a
-una persona —que es una degradación honesta, no un fallo—. Revelarlo se explica en
-`BLOQUEOS.md` §1; no se versiona.
+**No hace falta ningún secreto para verlo funcionar.** Basta tener el Salesforce CLI
+autenticado contra la org:
+
+```bash
+sf org login web --alias zapata
+```
+
+Con eso el proveedor `cli` alcanza la Agent API por el JWT de
+`/agentforce/bootstrap/nameduser` —lo mismo que hace `sf agent preview` por dentro— y
+el agente contesta. Comprobado clonando el repositorio en limpio, sin `.env`. Si el
+CLI no tiene sesión, el arranque lo dice y te da el comando exacto.
+
+`SF_CLIENT_SECRET` sólo es indispensable donde **no hay CLI**: el contenedor de
+producción no lo lleva. Ahí el proveedor es `client_credentials` y el par consumidor
+se inyecta desde el gestor de secretos. Revelarlo se explica en `BLOQUEOS.md` §1; no
+se versiona.
 
 La conversación se abre al **cargar la página**, no al mandar el primer mensaje: para
 cuando el cliente escribe, la sesión ya está propagada. Antes se pagaban ahí la

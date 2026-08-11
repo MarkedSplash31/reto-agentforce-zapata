@@ -42,7 +42,31 @@ if (process.env.SF_TOKEN_PROVIDER === 'client_credentials') {
   if (!process.env.SF_CLIENT_SECRET) faltantes.push('SF_CLIENT_SECRET — sin él el asistente no abre sesión');
   if (!process.env.SF_CLIENT_ID) faltantes.push('SF_CLIENT_ID — no se pudo resolver desde la org');
 } else {
-  faltantes.push('SF_CLIENT_SECRET — sin él el asistente no habla y todo pasa directo a una persona');
+  // Antes aquí se afirmaba que sin `SF_CLIENT_SECRET` «el asistente no habla y todo
+  // pasa directo a una persona». Es FALSO, y comprobado el 11-ago-2026 clonando el
+  // repositorio en limpio: sin ningún secreto, con el proveedor `cli`, el agente abrió
+  // sesión y contestó. La Agent API se alcanza con el JWT de
+  // `/agentforce/bootstrap/nameduser`, que sale de cualquier sesión válida de la org —
+  // es lo mismo que hace `sf agent preview` por dentro.
+  //
+  // Lo que sí hace falta con este proveedor es tener el CLI autenticado. Si no lo
+  // está, el fallo aparece al primer mensaje y no al arrancar, así que se comprueba
+  // aquí: un aviso ahora vale más que un error dentro de la conversación.
+  const alias = process.env.SF_CLI_ORG_ALIAS;
+  try {
+    const { execFileSync } = await import('node:child_process');
+    execFileSync('sf', ['org', 'display', '-o', alias, '--json'], {
+      encoding: 'utf8',
+      shell: true,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    });
+    console.log(`\n  Proveedor CLI: la org «${alias}» responde. El asistente funciona sin secreto.`);
+  } catch {
+    faltantes.push(
+      `Salesforce CLI sin sesión para la org «${alias}» — el asistente no podrá abrir ` +
+        `conversación. Corre: sf org login web --alias ${alias}`,
+    );
+  }
 }
 // El panel de asesor ya no exige configurar nada para verse: fuera de producción rige
 // una credencial de demo fija, la misma para cualquiera que clone el repositorio.

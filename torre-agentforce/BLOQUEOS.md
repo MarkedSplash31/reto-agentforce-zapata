@@ -329,6 +329,19 @@ Para que nadie repita el camino:
 
 1. **Token del CLI (`PlatformCLI`)** → `HTTP 404` con cuerpo vacío en la Agent API.
    Reprobado el 6 de agosto, ya con la ECA creada: el gateway sigue sin enrutarlo.
+
+   > **Corregido el 11 de agosto de 2026: esta conclusión era falsa.** Clonando el
+   > repositorio en limpio, **sin `.env` y sin ningún secreto**, con
+   > `SF_TOKEN_PROVIDER=cli` el agente abrió sesión y contestó en español a varias
+   > preguntas seguidas. La Agent API se alcanza con el JWT de
+   > `/agentforce/bootstrap/nameduser`, que se obtiene de cualquier sesión válida de la
+   > org: es lo mismo que hace `sf agent preview` por dentro. El 404 de agosto venía de
+   > mandar el token por una ruta que no correspondía, no del token.
+   >
+   > Consecuencia práctica: **para ver el reto funcionando no hace falta el par
+   > consumidor.** Basta `sf org login web --alias zapata`. El secreto sigue siendo
+   > indispensable donde no hay CLI —el contenedor de producción no lo lleva—, y ahí el
+   > proveedor es `client_credentials`.
 2. **Metadata de la ECA** → `ExtlClntAppGlobalOauthSettings` trae `consumerKey` pero
    **no** `consumerSecret`. Salesforce no lo exporta.
 3. **Tooling API** → `ConnectedApplication` devuelve 0 filas y su describe no expone
