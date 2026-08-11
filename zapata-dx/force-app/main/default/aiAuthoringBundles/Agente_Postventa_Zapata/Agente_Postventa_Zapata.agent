@@ -123,7 +123,7 @@ subagent conocimiento_y_respuestas:
                       Numero de serie que dicto el cliente, tal cual. Mandalo SIEMPRE que lo tengas: la accion comprueba si esa unidad existe en el padron. Sin el, una consulta sobre la garantia de una unidad inexistente se contesta con la poliza general y el cliente puede leerla como su cobertura. Dejalo vacio solo si el cliente no dicto ninguno.
                     label: "VIN mencionado por el cliente"
                     is_required: False
-                    is_user_input: False
+                    is_user_input: True
 
             outputs:
                 "contenido": string
