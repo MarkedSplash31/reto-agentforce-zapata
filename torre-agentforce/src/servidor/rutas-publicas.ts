@@ -81,8 +81,33 @@ function exigirMetodo(req: IncomingMessage, metodo: string): void {
   }
 }
 
-/** Un número de serie tal como lo teclea un cliente: 11 a 17 alfanuméricos. */
-const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
+/**
+ * Un número de serie tal como lo teclea un cliente: 11 a 17 alfanuméricos, sin I, O
+ * ni Q, que el estándar de VIN excluye para no confundirlas con 1 y 0.
+ *
+ * Se busca cada candidato, no sólo el primero: la letra que lo descarta —que lleve al
+ * menos un dígito— sólo se puede aplicar candidato por candidato.
+ */
+const POSIBLES_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/gi;
+
+/**
+ * El número de serie que el cliente dictó, o `null` si no dictó ninguno.
+ *
+ * El dígito obligatorio no es un adorno. Sin él, «Guadalajara» —once letras, ninguna
+ * I, O ni Q— pasa por número de serie, la app lo busca en el padrón, no lo encuentra y
+ * el agente le contesta a quien preguntó por el taller de Guadalajara que su unidad no
+ * existe. Es una de las nueve sucursales, así que el falso positivo caía justo en la
+ * pregunta más común. Un nombre propio no lleva dígitos; un número de serie sí.
+ *
+ * Es la misma regla que ya aplicaba `BuscarConocimientoPostventa.vinEfectivo` en Apex;
+ * aquí faltaba.
+ */
+export function vinMencionado(texto: string): string | null {
+  for (const [candidato] of texto.matchAll(POSIBLES_VIN)) {
+    if (/[0-9]/.test(candidato)) return candidato;
+  }
+  return null;
+}
 
 /**
  * Antepone al mensaje del cliente lo que la ORG dice sobre el número de serie que
@@ -93,9 +118,8 @@ const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
  * sola palabra, y si no existe se dice exactamente eso.
  */
 async function conAvisoDeUnidad(texto: string): Promise<string> {
-  const posible = POSIBLE_VIN.exec(texto);
-  if (!posible) return texto;
-  const vin = posible[0];
+  const vin = vinMencionado(texto);
+  if (!vin) return texto;
   try {
     const encontradas = await datos.listarUnidades({ busqueda: vin });
     if (encontradas.registros.length > 0) return texto;
