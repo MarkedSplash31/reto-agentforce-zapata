@@ -64,16 +64,24 @@ test.describe('sitio de postventa para clientes', () => {
     });
   }
 
-  test('la conversación es la aplicación: hay hilo, entrada y panel de apoyo', async ({ page }) => {
+  test('la portada es una sola caja de entrada, con el espacio de trabajo detrás', async ({ page }) => {
     await page.goto('/', { waitUntil: 'networkidle' });
     await page.waitForTimeout(1800);
 
-    // La ventana de conversación, no un catálogo de formularios.
-    await expect(page.locator('#hilo')).toBeVisible();
+    // Un único punto de entrada: la caja, y nada de catálogo de formularios.
+    await expect(page.locator('#app')).toHaveAttribute('data-estado', 'entrada');
+    await expect(page.locator('#compositor')).toHaveCount(1);
+    await expect(page.locator('#portada #compositor')).toHaveCount(1);
     await expect(page.locator('#entrada')).toBeVisible();
-    await expect(page.locator('#panel')).toBeVisible();
 
-    // El hilo arranca con un turno del asistente, no vacío.
+    // El espacio de trabajo es la MISMA pantalla, todavía sin enseñar: si algún día
+    // vuelve a ser otra página, esto falla.
+    await expect(page.locator('#espacio')).toBeHidden();
+    await expect(page.locator('#hilo')).toBeAttached();
+    await expect(page.locator('#panel')).toBeAttached();
+
+    // La conversación arranca con un turno del asistente, aunque no se vea aún.
+    await expect(page.locator('#hilo article')).not.toHaveCount(0);
     const texto = await textoVisible(page);
     expect(texto).toMatch(/asistente/i);
 
@@ -81,6 +89,30 @@ test.describe('sitio de postventa para clientes', () => {
     const sucursales = await page.locator('#sucursales > *').count();
     expect(sucursales, 'no se listó ningún taller').toBeGreaterThan(0);
     await expect(page.locator('#sucursales')).not.toContainText('No se pudo');
+  });
+
+  test('el primer mensaje muda la caja al espacio de trabajo, sin cambiar de página', async ({ page }) => {
+    // El turno no llega a la organización: lo que se fija aquí es la transición de la
+    // interfaz, que ocurre antes de la red. Sin esta ruta abortada, comprobar el
+    // cambio de estado costaría una conversación real por ejecución.
+    await page.route('**/publico/agente/mensaje', (route) => route.abort());
+
+    await page.goto('/', { waitUntil: 'networkidle' });
+    await expect(page.locator('#entrada')).toBeEnabled({ timeout: 30_000 });
+
+    await page.locator('#entrada').fill('Quiero revisar la garantía de mi unidad.');
+    await page.locator('#enviar').click();
+
+    // La portada se convierte en el espacio de trabajo y la caja se muda al muelle:
+    // es el mismo nodo, no un segundo compositor.
+    await expect(page.locator('#app')).not.toHaveAttribute('data-estado', 'entrada');
+    await expect(page.locator('#portada')).toBeHidden();
+    await expect(page.locator('#espacio')).toBeVisible();
+    await expect(page.locator('#muelle #compositor')).toHaveCount(1);
+    await expect(page.locator('#compositor')).toHaveCount(1);
+
+    // Y el turno del cliente queda en el hilo, que es el contexto de lo que se hace.
+    await expect(page.locator('#hilo article[data-de="cliente"]')).toHaveCount(1);
   });
 
   test('no quedan páginas-formulario por trámite', async ({ request }) => {

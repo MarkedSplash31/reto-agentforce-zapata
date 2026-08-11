@@ -49,7 +49,7 @@ formulario por trámite. Las páginas-formulario que hubo (`taller.html`,
 
 | Ruta | Para quién | Qué resuelve |
 |---|---|---|
-| `/index.html` | cliente | La conversación con el agente, con apoyo visual al lado. Si el agente escala, la MISMA ventana pasa a un asesor sin cambiar de pantalla |
+| `/index.html` | cliente | Una caja para escribir qué necesita la unidad. Al primer mensaje esa misma caja se muda al pie y la pantalla se convierte en el espacio de trabajo: la conversación a un lado, y lo que el agente consulta o registra ocupando el escenario. Si el agente escala, la MISMA ventana pasa a un asesor sin cambiar de pantalla |
 | `/acceso.html` | asesor | Entrada al panel |
 | `/panel.html` | asesor | Conversaciones escaladas, respuesta en vivo y consulta privada al asistente |
 

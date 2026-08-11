@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Postventa · Zapata</title>
-<meta name="description" content="Atención de postventa de Corporación Zapata. Habla con el asistente para revisar tu garantía, agendar servicio de taller o pedir asistencia en carretera.">
+<meta name="description" content="Atención de postventa de Corporación Zapata. Escribe qué necesita tu unidad: el asistente revisa tu garantía, agenda servicio de taller, levanta un reporte en carretera o te pasa con un asesor.">
 <link rel="stylesheet" href="/css/tailwind.css">
 <link rel="stylesheet" href="css/sistema.css">
 </head>
@@ -12,31 +12,107 @@
 
 <div id="nav"></div>
 
-<main class="pt-20">
+<!--
+  Dos estados de la MISMA pantalla, no dos pantallas:
 
-  <section class="max-w-7xl mx-auto px-6 pt-16 pb-10">
-    <span class="text-xs uppercase tracking-[0.5em] text-[rgba(251,191,36,0.8)] block mb-5 font-medium">Postventa</span>
-    <h1 class="font-serif-luxury text-4xl md:text-5xl text-white font-light tracking-wide leading-none mb-6">
-      ¿QUÉ NECESITA TU UNIDAD?
-    </h1>
-    <p class="text-gray-300 text-base font-light tracking-[0.1em] leading-relaxed max-w-3xl">
-      Cuéntale al asistente qué pasa. Él revisa tu garantía, busca horario en el taller,
-      levanta un reporte si quedaste detenido en carretera, y te pasa con una persona
-      cuando hace falta.
-    </p>
-  </section>
+    data-estado="entrada"     una caja para escribir y nada más.
+    data-estado="conversando" el espacio de trabajo, todavía sin nada que enseñar.
+    data-estado="trabajo"     el espacio con lo que el asistente consultó o registró.
 
-  <!-- La conversación es la aplicación. El panel de la derecha muestra lo que el
-       asistente va haciendo; no es un formulario aparte. -->
-  <section class="max-w-7xl mx-auto px-6 pb-24">
-    <div class="grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
-      <div class="lg:col-span-3" id="conversacion"></div>
-      <aside class="lg:col-span-2" aria-label="Apoyo visual de la conversación">
-        <div id="panel" aria-live="polite"></div>
-      </aside>
+  El compositor es un solo nodo del DOM: al mandar el primer mensaje se muda de la
+  portada al muelle del espacio de trabajo. No hay dos formularios ni dos conversaciones.
+-->
+<main id="app" data-estado="entrada" class="pt-20">
+
+  <!-- ══ portada: el punto de entrada ═══════════════════════════════════════ -->
+  <section id="portada" class="min-h-[calc(100vh-5rem)] flex items-center">
+    <div class="max-w-5xl mx-auto px-6 w-full text-center">
+      <span class="text-xs uppercase tracking-[0.5em] text-[rgba(251,191,36,0.8)] block mb-4 font-medium">Postventa Zapata</span>
+      <h1 class="font-serif-luxury text-4xl md:text-6xl text-white font-light tracking-wide leading-none mb-5">
+        ¿QUÉ NECESITA TU UNIDAD?
+      </h1>
+      <p class="text-gray-300 text-sm md:text-base font-light tracking-[0.1em] leading-relaxed max-w-2xl mx-auto mb-10">
+        Cuéntale al asistente qué pasa. Revisa tu garantía, busca horario en el taller,
+        levanta un reporte si quedaste detenido en carretera y te pasa con una persona
+        cuando hace falta.
+      </p>
+
+      <!-- Aquí vive el compositor mientras la conversación no ha empezado. -->
+      <div id="muelle-portada">
+        <form id="compositor" novalidate>
+          <div id="aviso" aria-live="polite"></div>
+          <div class="flex flex-col sm:flex-row gap-3">
+            <label for="entrada" class="sr-only">Escribe qué necesita tu unidad</label>
+            <input id="entrada" autocomplete="off" placeholder="Cuéntanos qué pasa con tu unidad"
+              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-4 py-3.5 text-sm focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none placeholder:text-gray-700 disabled:opacity-40">
+            <button id="enviar" type="submit"
+              class="bg-white text-black px-8 py-3.5 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
+              Enviar
+            </button>
+          </div>
+          <p id="pie" class="text-[10px] text-gray-600 font-light mt-3 leading-relaxed"></p>
+        </form>
+      </div>
+
+      <!--
+        Atajos, no funciones nuevas: cada uno escribe una frase en la misma caja y el
+        usuario decide si la manda. Los cuatro corresponden a capacidades que el agente
+        ya tiene —cobertura, orden de servicio, reporte de unidad varada y escalamiento—.
+      -->
+      <div id="atajos" class="flex flex-wrap justify-center gap-2 mt-5" aria-label="Para empezar">
+        <button type="button" data-atajo="Quiero saber qué cubre la garantía de mi unidad. Su número de serie es "
+          class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+          Garantía de mi unidad
+        </button>
+        <button type="button" data-atajo="Necesito agendar un servicio en el taller."
+          class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+          Agendar taller
+        </button>
+        <button type="button" data-atajo="Mi unidad se quedó parada en la carretera y necesito asistencia."
+          class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+          Quedé detenido en carretera
+        </button>
+        <button type="button" data-atajo="Quiero hablar con un asesor de postventa."
+          class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+          Hablar con un asesor
+        </button>
+      </div>
     </div>
   </section>
 
+  <!-- ══ espacio de trabajo ═════════════════════════════════════════════════
+       La conversación dirige; lo que el asistente consulta o registra ocupa el
+       escenario. Mientras no haya nada que enseñar, el escenario no existe y la
+       conversación se queda con todo el ancho.                                  -->
+  <section id="espacio" class="max-w-7xl mx-auto px-6 pt-10 pb-10 min-h-[calc(100vh-5rem)] flex flex-col gap-6">
+
+    <div id="tablero" class="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
+
+      <aside id="riel" class="lg:col-span-2 border border-white/5 bg-[#0d0e12] flex flex-col min-w-0"
+             aria-label="Conversación con postventa">
+        <div class="border-b border-white/5 px-5 py-4 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-3 min-w-0">
+            <span id="punto" class="w-1.5 h-1.5 rounded-full bg-gray-600 shrink-0"></span>
+            <p id="interlocutor" class="text-[10px] uppercase tracking-[0.3em] text-gray-400 truncate">Asistente de postventa</p>
+          </div>
+          <div id="estado" class="shrink-0"></div>
+        </div>
+        <div id="hilo" role="log" aria-live="polite" aria-relevant="additions"
+             class="flex-1 p-5 space-y-5 overflow-y-auto"></div>
+      </aside>
+
+      <div id="escenario" class="lg:col-span-3 min-w-0">
+        <div id="panel" aria-live="polite" aria-label="Lo que el asistente consulta y registra"></div>
+      </div>
+
+    </div>
+
+    <!-- Aquí se muda el compositor cuando empieza la conversación. -->
+    <div id="muelle" class="sticky bottom-0"></div>
+
+  </section>
+
+  <!-- ══ la red de talleres, dato real del catálogo ═════════════════════════ -->
   <section id="red" class="bg-[#0d0e12] border-t border-white/5 py-24 scroll-mt-24">
     <div class="max-w-7xl mx-auto px-6">
       <div id="enc-red"></div>

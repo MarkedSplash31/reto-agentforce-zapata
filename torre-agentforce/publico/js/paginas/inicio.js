@@ -1,9 +1,17 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   La conversación ES la aplicación.
+   Una sola pantalla en dos momentos.
 
-   Una sola ventana, como la del agente en Salesforce, pero en Zapata y con apoyo
-   visual: lo que el asistente consulta o crea se dibuja al lado, tomado de las
-   salidas reales de sus acciones.
+   PORTADA. Una caja para escribir y nada más. Quien llega no tiene que entender
+   un menú: dice qué le pasa a su unidad.
+
+   ESPACIO DE TRABAJO. Al mandar el primer mensaje, la MISMA caja se muda al pie
+   de la pantalla y el resto se abre alrededor: la conversación queda a un lado
+   como el mecanismo con el que se dirige lo que ocurre, y lo que el asistente
+   consulta o registra —cobertura, horarios, la orden, el reporte de carretera,
+   el caso con un asesor— toma el escenario, que es donde hace falta espacio.
+
+   No hay dos conversaciones ni dos formularios: es un solo nodo del DOM que
+   cambia de sitio. El flujo funcional es exactamente el que ya existía.
 
    El escalamiento se decide entre el agente y la persona, no con un botón que el
    cliente aprieta a ciegas: cuando el agente invoca su acción de escalamiento, o
@@ -14,39 +22,9 @@
 import { encabezado, bloqueError, cargando, vacio, escapar, chip } from '../sistema.js';
 import { crearPanel } from '../panel-contextual.js';
 
-const panel = crearPanel(document.getElementById('panel'));
-const raiz = document.getElementById('conversacion');
-
-/** Un número de serie que el cliente escribe: 11 o más alfanuméricos seguidos. */
-const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
-
-raiz.innerHTML = `
-  <div class="border border-white/10 bg-[#0d0e12] flex flex-col min-h-[560px]">
-    <div class="border-b border-white/5 px-5 py-4 flex items-center justify-between gap-3">
-      <div class="flex items-center gap-3 min-w-0">
-        <span id="punto" class="w-1.5 h-1.5 rounded-full bg-gray-600 shrink-0"></span>
-        <p id="interlocutor" class="text-[10px] uppercase tracking-[0.3em] text-gray-400 truncate">Asistente de postventa</p>
-      </div>
-      <div id="estado" class="shrink-0"></div>
-    </div>
-
-    <div id="hilo" role="log" aria-live="polite" aria-relevant="additions"
-         class="flex-1 p-5 space-y-4 overflow-y-auto max-h-[420px]"></div>
-
-    <div class="border-t border-white/5 p-4">
-      <form id="form" class="flex flex-col sm:flex-row gap-3">
-        <label for="entrada" class="sr-only">Escribe tu mensaje</label>
-        <input id="entrada" autocomplete="off" placeholder="Cuéntanos qué pasa con tu unidad"
-          class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 disabled:opacity-40">
-        <button id="enviar" type="submit"
-          class="bg-white text-black px-8 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
-          Enviar
-        </button>
-      </form>
-      <p id="pie" class="text-[10px] text-gray-600 font-light mt-3 leading-relaxed"></p>
-    </div>
-  </div>`;
-
+const app = document.getElementById('app');
+const compositor = document.getElementById('compositor');
+const muelle = document.getElementById('muelle');
 const hilo = document.getElementById('hilo');
 const entrada = document.getElementById('entrada');
 const boton = document.getElementById('enviar');
@@ -54,11 +32,19 @@ const estado = document.getElementById('estado');
 const punto = document.getElementById('punto');
 const interlocutor = document.getElementById('interlocutor');
 const pie = document.getElementById('pie');
+const aviso = document.getElementById('aviso');
+
+/** Un número de serie que el cliente escribe: 11 o más alfanuméricos seguidos. */
+const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
 
 const turnos = [];
 let conAsesor = false;
 let fuenteAsesor = null;
 const comentariosVistos = new Set();
+/** Lo que la org dijo si el asistente no está disponible. Se conserva para no
+ *  volver a pintar «En línea» al terminar un turno que en realidad no tuvo agente. */
+let asistenteDisponible = false;
+let causaNoDisponible = null;
 /**
  * Nodo del saludo que pinta la propia página para no dejar la ventana vacía mientras
  * Salesforce abre la sesión. Cuando llega la bienvenida real del agente se sustituye
@@ -67,16 +53,57 @@ const comentariosVistos = new Set();
  */
 let saludoLocal = null;
 
-function burbuja(quien, texto) {
-  const mio = quien === 'cliente';
-  const fila = document.createElement('div');
-  fila.className = mio ? 'flex justify-end' : 'flex justify-start';
-  const etiqueta = mio ? 'Tú' : quien === 'asesor' ? 'Asesor de postventa' : 'Asistente';
+// ── estados de la pantalla ──────────────────────────────────────────────────
+
+/**
+ * La portada se convierte en el espacio de trabajo: el compositor se muda al
+ * muelle y el resto aparece a su alrededor. Se llama al mandar el primer mensaje,
+ * antes de que la red conteste, para que el cambio de contexto se entienda ya.
+ */
+function entrarAlEspacio({ animar = true } = {}) {
+  if (app.dataset.estado !== 'entrada') return;
+  const mudar = () => {
+    muelle.appendChild(compositor);
+    app.dataset.estado = panel.tieneContenido() ? 'trabajo' : 'conversando';
+    // La portada medía una pantalla entera: si quien escribía venía de mirar la red
+    // de talleres, sin esto el espacio de trabajo aparecería ya desplazado.
+    window.scrollTo(0, 0);
+  };
+  // View Transitions anima la mudanza del compositor sin que haya que calcular
+  // nada. Donde no exista —o donde se pidió menos movimiento— el cambio ocurre
+  // igual, sin animación: la transición ayuda a entenderlo, no es el contenido.
+  // Al cargar la página con una conversación ya abierta no se anima nada: no hubo
+  // portada que evolucionara, y animarla parecería un salto sin causa.
+  if (animar && document.startViewTransition && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    document.startViewTransition(mudar);
+  } else {
+    mudar();
+  }
+}
+
+/** El asistente puso algo en la mesa: el escenario deja de estar vacío. */
+function abrirEscenario() {
+  if (app.dataset.estado === 'conversando') app.dataset.estado = 'trabajo';
+}
+
+const panel = crearPanel(document.getElementById('panel'), { alPintar: abrirEscenario });
+
+// ── la conversación ─────────────────────────────────────────────────────────
+
+/**
+ * Un turno del hilo. Sin burbujas encaradas: la conversación es el contexto de lo
+ * que se está haciendo, y una sucesión de globos la convertía en el protagonista
+ * de la pantalla. Devuelve el párrafo para poder seguir escribiendo en él mientras
+ * el texto llega por partes.
+ */
+function turno(quien, texto) {
+  const etiqueta = quien === 'cliente' ? 'Tú' : quien === 'asesor' ? 'Asesor de postventa' : 'Asistente';
+  const fila = document.createElement('article');
+  fila.className = 'turno';
+  fila.dataset.de = quien;
   fila.innerHTML = `
-    <div class="max-w-[85%] border ${mio ? 'border-white/20 bg-white/5' : quien === 'asesor' ? 'border-amber-400/30 bg-amber-400/[0.04]' : 'border-white/5 bg-[#0b0c10]'} p-4">
-      <p class="text-[10px] uppercase tracking-widest ${quien === 'asesor' ? 'text-amber-400/80' : 'text-gray-500'} mb-2">${escapar(etiqueta)}</p>
-      <p class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>
-    </div>`;
+    <p class="text-[10px] uppercase tracking-[0.3em] ${quien === 'asesor' ? 'text-amber-400/80' : 'text-gray-500'} mb-2">${escapar(etiqueta)}</p>
+    <p class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>`;
   fila.querySelector('p:last-child').textContent = texto;
   hilo.appendChild(fila);
   hilo.scrollTop = hilo.scrollHeight;
@@ -86,7 +113,7 @@ function burbuja(quien, texto) {
 function nota(texto, tono = 'neutro') {
   const p = document.createElement('p');
   const color = tono === 'error' ? 'text-red-300' : tono === 'ok' ? 'text-emerald-300' : 'text-gray-500';
-  p.className = `text-[11px] font-light text-center py-2 ${color}`;
+  p.className = `nota text-[11px] font-light ${color}`;
   p.textContent = texto;
   hilo.appendChild(p);
   hilo.scrollTop = hilo.scrollHeight;
@@ -109,9 +136,27 @@ function marcarInterlocutor(quien) {
     interlocutor.textContent = 'Asistente de postventa';
     punto.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0';
     estado.innerHTML = chip('En línea', 'ok');
-    pie.innerHTML =
+    pie.textContent =
       'Lo que resuelvas aquí queda asentado en el sistema de Zapata. Si prefieres una persona, pídelo y te paso con un asesor.';
   }
+}
+
+/** El asistente no está. No se finge una conversación: se dice, y la caja sigue
+ *  sirviendo porque una persona sí puede atender. */
+function marcarNoDisponible(causa) {
+  asistenteDisponible = false;
+  causaNoDisponible = causa ?? causaNoDisponible;
+  interlocutor.textContent = 'Asistente no disponible';
+  punto.className = 'w-1.5 h-1.5 rounded-full bg-red-400 shrink-0';
+  estado.innerHTML = chip('No disponible', 'error');
+  pie.textContent = 'Escribe lo que necesitas y tu mensaje pasa directo a una persona.';
+}
+
+/** Devuelve la cabecera al estado que de verdad corresponde al terminar un turno. */
+function restaurarEstado() {
+  if (conAsesor) marcarInterlocutor('asesor');
+  else if (asistenteDisponible) marcarInterlocutor('agente');
+  else marcarNoDisponible();
 }
 
 // ── paso a una persona ──────────────────────────────────────────────────────
@@ -178,7 +223,7 @@ function escucharAsesor() {
     if (c.publicado === false) return;
     const deAsesor = /^ASESOR:/i.test(c.cuerpo || '');
     if (!deAsesor) return;
-    burbuja('asesor', (c.cuerpo || '').replace(/^ASESOR:\s*/i, ''));
+    turno('asesor', (c.cuerpo || '').replace(/^ASESOR:\s*/i, ''));
   });
   fuenteAsesor.addEventListener('error', () => {
     // Un hilo congelado sin aviso deja al cliente esperando sin saberlo.
@@ -215,9 +260,22 @@ async function intentarCobertura(texto) {
   }
 }
 
+// ── atajos de la portada ────────────────────────────────────────────────────
+// No son funciones nuevas: escriben una frase en la misma caja y el usuario decide
+// si la manda. Cada una corresponde a algo que el agente ya sabe hacer.
+
+for (const atajo of document.querySelectorAll('[data-atajo]')) {
+  atajo.addEventListener('click', () => {
+    entrada.value = atajo.dataset.atajo;
+    entrada.focus();
+    entrada.setSelectionRange(entrada.value.length, entrada.value.length);
+  });
+}
+
 // ── arranque ────────────────────────────────────────────────────────────────
 
 bloquear(true);
+pie.textContent = 'Abriendo la conversación con el asistente.';
 try {
   // Una sola ida: `/publico/agente/abrir` ABRE la conversación y, al hacerlo, prueba
   // que el asistente está disponible. Antes se preguntaba primero por el estado —lo
@@ -230,56 +288,73 @@ try {
     : await (await fetch('/publico/agente/abrir', { method: 'POST' })).json();
 
   if (sesion.tieneEscalamiento) {
-    // El cliente ya venía hablando con una persona: se retoma donde quedó.
+    // El cliente ya venía hablando con una persona: se retoma donde quedó, y con
+    // conversación viva la pantalla arranca ya en el espacio de trabajo.
     marcarInterlocutor('asesor');
     const conv = await (await fetch('/publico/asesor/conversacion')).json();
     for (const c of conv.comentarios ?? []) {
       comentariosVistos.add(c.id);
       if (c.publicado === false) continue;
       const deAsesor = /^ASESOR:/i.test(c.cuerpo || '');
-      burbuja(deAsesor ? 'asesor' : 'cliente', (c.cuerpo || '').replace(/^(ASESOR|CLIENTE):\s*/i, ''));
+      turno(deAsesor ? 'asesor' : 'cliente', (c.cuerpo || '').replace(/^(ASESOR|CLIENTE):\s*/i, ''));
     }
+    entrarAlEspacio({ animar: false });
     escucharAsesor();
     bloquear(false);
   } else if (agente.disponible) {
+    asistenteDisponible = true;
     marcarInterlocutor('agente');
     // La bienvenida real ya llegó con la apertura. Sólo si la org no mandó ninguna se
     // pinta el saludo de cortesía de la página, para no dejar la ventana en blanco.
     if (agente.bienvenida) {
-      burbuja('agente', agente.bienvenida);
+      turno('agente', agente.bienvenida);
     } else {
-      saludoLocal = burbuja(
+      saludoLocal = turno(
         'agente',
         'Hola. Soy el asistente de postventa de Zapata. Cuéntame qué pasa con tu unidad: puedo revisar su garantía, buscarte horario en el taller, levantar un reporte si quedó detenida en carretera, o pasarte con un asesor.',
       );
     }
     bloquear(false);
   } else {
-    // El asistente no está disponible. No se finge una conversación: se dice, y la
-    // ventana sigue sirviendo porque una persona sí puede atender.
-    punto.className = 'w-1.5 h-1.5 rounded-full bg-red-400 shrink-0';
-    estado.innerHTML = chip('No disponible', 'error');
-    nota(`El asistente no está disponible: ${agente.causa ?? 'no se pudo abrir la conversación'}`, 'error');
-    burbuja(
+    // El asistente no está disponible. No se finge una conversación: se dice en la
+    // propia caja, antes de que el cliente escriba, y la pantalla sigue sirviendo
+    // porque una persona sí puede atender.
+    marcarNoDisponible(agente.causa ?? 'no se pudo abrir la conversación');
+    aviso.innerHTML = `
+      <div class="border border-amber-400/30 bg-amber-400/5 p-4" role="status">
+        <p class="text-[10px] uppercase tracking-[0.3em] text-amber-400/80 mb-2">El asistente no está disponible</p>
+        <p class="text-gray-300 text-xs font-light leading-relaxed">
+          ${escapar(causaNoDisponible)}. Escribe lo que necesitas: tu mensaje pasa directo a un asesor de postventa.
+        </p>
+      </div>`;
+    turno(
       'agente',
       'En este momento no puedo atenderte yo, pero sí puedo pasarte con un asesor de postventa. Cuéntame qué necesitas y lo escalo.',
     );
-    interlocutor.textContent = 'Asistente no disponible';
-    pie.textContent = 'Escribe lo que necesitas y tu mensaje pasa directo a una persona.';
     bloquear(false);
   }
 } catch (e) {
-  raiz.innerHTML = bloqueError(e, 'No se pudo abrir la conversación');
+  aviso.innerHTML = bloqueError(e, 'No se pudo abrir la conversación');
+  pie.textContent = '';
 }
 
-document.getElementById('form').addEventListener('submit', async (ev) => {
+compositor.addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const texto = entrada.value.trim();
   if (!texto) return;
   entrada.value = '';
-  burbuja('cliente', texto);
+
+  // El cambio de contexto ocurre YA, con lo que el cliente acaba de escribir, no
+  // cuando la red conteste: la pantalla tiene que explicar de inmediato que la
+  // portada se convirtió en el sitio donde se trabaja.
+  entrarAlEspacio();
+  turno('cliente', texto);
   turnos.push({ autor: 'cliente', texto });
   bloquear(true);
+  if (!conAsesor) {
+    estado.innerHTML = chip('Trabajando', 'bloqueo');
+    pie.textContent = 'El asistente está trabajando en tu petición.';
+  }
 
   try {
     // Ya está con una persona: el mensaje va al asesor, no al asistente.
@@ -357,17 +432,17 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
               saludoLocal.textContent = d.texto;
               saludoLocal = null;
             } else {
-              burbuja('agente', d.texto);
+              turno('agente', d.texto);
             }
           }
         } else if (tipo === 'TextChunk') {
-          if (!parrafo) parrafo = burbuja('agente', '');
+          if (!parrafo) parrafo = turno('agente', '');
           acumulado += d.texto ?? '';
           parrafo.textContent = acumulado;
           hilo.scrollTop = hilo.scrollHeight;
         } else if (tipo === 'Inform' && !parrafo && d.texto) {
           acumulado = d.texto;
-          burbuja('agente', d.texto);
+          turno('agente', d.texto);
         } else if (tipo === 'Error') {
           nota(`El asistente falló: ${d.mensaje ?? 'error del servicio'}`, 'error');
           await pasarConAsesor(texto);
@@ -384,6 +459,7 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
     nota(`Se interrumpió la conexión: ${e.message}`, 'error');
   } finally {
     bloquear(false);
+    restaurarEstado();
     entrada.focus();
   }
 });

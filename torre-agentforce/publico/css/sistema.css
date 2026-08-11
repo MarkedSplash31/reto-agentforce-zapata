@@ -189,6 +189,94 @@ dialog::backdrop { background: rgba(0,0,0,.82); }
 #btn-burger.abierto .linea-med { opacity: 0; transform: scaleX(0); }
 #btn-burger.abierto .linea-inf { transform: translateY(-7px) rotate(-45deg); }
 
+/* ── los dos estados de la aplicación ─────────────────────────────────────
+   La portada y el espacio de trabajo son la MISMA pantalla en dos momentos.
+   El estado vive en `#app[data-estado]` y todo lo que cambia se resuelve aquí,
+   no repartiendo y quitando clases desde JavaScript: así el layout es legible
+   de un vistazo y el compositor puede mudarse sin arrastrar estilos consigo.  */
+
+#app[data-estado='entrada'] #espacio { display: none; }
+#app:not([data-estado='entrada']) #portada { display: none; }
+
+/* Mientras el asistente no ha consultado ni registrado nada, no hay escenario
+   que enseñar: la conversación se queda con el ancho entero. Un panel vacío con
+   un texto que promete tarjetas es justo el placeholder que sobra. */
+#app[data-estado='conversando'] #escenario { display: none; }
+#app[data-estado='conversando'] #tablero {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  max-width: 46rem;
+  margin-inline: auto;
+}
+/* Sin escenario, la conversación ocupa el alto disponible en vez de dejar un hueco
+   negro entre ella y el compositor. */
+#app[data-estado='conversando'] #riel { flex: 1; }
+#app[data-estado='conversando'] #hilo { min-height: 42vh; }
+/* Y el compositor se alinea con la columna de la conversación: es la misma pieza. */
+#app[data-estado='conversando'] #compositor > * {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+/* ── compositor: un solo nodo, dos posiciones ─────────────────────────────
+   En la portada es la caja protagonista. Al mandar el primer mensaje se muda al
+   muelle del espacio de trabajo y se convierte en la barra desde la que se sigue
+   dirigiendo la conversación. El movimiento lo anima el navegador con
+   View Transitions cuando existe; sin él, el cambio es instantáneo y correcto. */
+#compositor { view-transition-name: compositor; }
+#aviso:not(:empty) { margin-bottom: 16px; }
+
+#app[data-estado='entrada'] #compositor {
+  max-width: 44rem;
+  margin-inline: auto;
+  padding: 20px;
+  border: 1px solid var(--z-l10);
+  background: var(--z-surface);
+  text-align: left;
+}
+
+#app:not([data-estado='entrada']) #compositor {
+  margin-inline: calc(-1 * var(--z-gutter));
+  padding: 16px var(--z-gutter);
+  border-top: 1px solid var(--z-l10);
+  background: rgba(11, 12, 16, .94);
+  backdrop-filter: blur(8px);
+}
+
+#muelle { padding-bottom: 4px; }
+
+::view-transition-group(compositor) {
+  animation-duration: var(--z-t-imagen);
+  animation-timing-function: var(--z-ease);
+}
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation-duration: var(--z-t-base);
+  animation-timing-function: var(--z-ease);
+}
+
+/* ── conversación compacta ────────────────────────────────────────────────
+   Turnos separados por una línea, no burbujas encaradas: el hilo es el contexto
+   de lo que se está haciendo, no el contenido principal de la pantalla.        */
+#hilo { max-height: min(46vh, 420px); }
+#hilo .turno,
+#hilo .nota { border-left: 1px solid transparent; padding-left: 14px; }
+#hilo .turno[data-de='cliente'] { border-left-color: var(--z-l20); }
+#hilo .turno[data-de='agente']  { border-left-color: var(--z-l05); }
+#hilo .turno[data-de='asesor']  { border-left-color: var(--z-ambar-40); }
+
+@media (min-width: 1024px) {
+  /* Con escenario, la conversación se queda quieta a la vista mientras el
+     usuario trabaja con lo que el asistente puso en la mesa. */
+  #app[data-estado='trabajo'] #riel {
+    position: sticky;
+    top: calc(var(--z-nav) + 24px);
+    max-height: calc(100vh - var(--z-nav) - 200px);
+  }
+  #hilo { max-height: none; }
+}
+
 /* ── barra de scroll, en la paleta del sistema ── */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--z-canvas); }

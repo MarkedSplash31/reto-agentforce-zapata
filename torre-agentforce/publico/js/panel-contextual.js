@@ -1,27 +1,22 @@
 /* ══════════════════════════════════════════════════════════════════════════
-   Panel de apoyo visual de la conversación.
+   El escenario del espacio de trabajo.
 
-   No es un formulario ni un menú: es la ventana que muestra lo que el agente está
+   No es un formulario ni un menú: es donde toma cuerpo lo que el agente está
    haciendo AHORA. Se pinta con las salidas reales de las acciones que el planner
    invocó en el turno —lo que la Agent API devuelve en `message.result`— y con nada
    más.
 
+   Mientras no haya nada que enseñar no se pinta un vacío que prometa tarjetas: el
+   escenario simplemente no existe y la conversación se queda con la pantalla. El
+   primer dato real es el que lo abre, y de eso avisa `alPintar`.
+
    Si llega un resultado cuya forma no reconocemos, se muestra tal cual en vez de
    descartarlo: es preferible enseñar un dato crudo del agente que fingir que no
-   pasó nada. Lo que jamás se hace es rellenar el panel con datos que el agente no
-   haya devuelto.
+   pasó nada. Lo que jamás se hace es rellenar el escenario con datos que el agente
+   no haya devuelto.
    ══════════════════════════════════════════════════════════════════════════ */
 
 import { escapar, chip, fecha, numero } from './sistema.js';
-
-const VACIO = `
-  <div class="border border-white/5 bg-[#0b0c10] p-6">
-    <p class="text-[10px] uppercase tracking-[0.3em] text-gray-600 mb-2">Apoyo visual</p>
-    <p class="text-gray-500 text-xs font-light leading-relaxed">
-      Aquí aparece lo que el asistente vaya consultando: la cobertura de tu unidad,
-      los horarios que encuentre en el taller o el reporte que levante por ti.
-    </p>
-  </div>`;
 
 /** Normaliza el resultado de una acción, que puede venir anidado o como texto JSON. */
 function comoObjeto(valor) {
@@ -98,13 +93,19 @@ function pintarDisponibilidad(d) {
       const inicio = f.inicio ?? f.Inicio__c ?? f.start;
       const libres = f.libres ?? f.Cupos_Libres__c;
       return `
-      <li class="flex items-center justify-between gap-4 border-b border-white/5 pb-2 last:border-0">
+      <li class="flex items-center justify-between gap-4 border-b border-white/5 py-2">
         <span class="text-[11px] font-mono tracking-wide text-gray-300">${escapar(fecha(inicio))}</span>
         <span class="text-[10px] uppercase tracking-widest text-gray-500">${libres != null ? escapar(String(libres)) + ' lugares' : ''}</span>
       </li>`;
     })
     .join('');
-  return tarjeta('Horarios que encontró', 'Agenda', `<ul class="space-y-2">${lista}</ul>`);
+  // En el escenario hay ancho de sobra: las franjas se leen mejor en dos columnas
+  // que en una lista larga que obliga a bajar para comparar horarios.
+  return tarjeta(
+    'Horarios que encontró',
+    'Agenda',
+    `<ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8">${lista}</ul>`,
+  );
 }
 
 function pintarCita(d) {
@@ -242,24 +243,28 @@ function pintarCobertura(c) {
 
 // ── Superficie pública del módulo ───────────────────────────────────────────
 
-export function crearPanel(contenedor) {
-  contenedor.innerHTML = VACIO;
+export function crearPanel(contenedor, { alPintar } = {}) {
+  contenedor.innerHTML = '';
   let vacio = true;
   /** Llaves ya pintadas, para que un mismo hecho no genere dos tarjetas iguales. */
   const vistos = new Set();
 
   function agregar(html) {
-    if (vacio) {
-      contenedor.innerHTML = '';
-      vacio = false;
-    }
+    vacio = false;
     const caja = document.createElement('div');
     caja.className = 'mb-6 last:mb-0';
     caja.innerHTML = html;
+    // Lo último que hizo el asistente va arriba: es lo que el cliente está mirando.
     contenedor.prepend(caja);
+    alPintar?.();
   }
 
   return {
+    /** Si el escenario tiene algo que enseñar. Decide el reparto de la pantalla. */
+    tieneContenido() {
+      return !vacio;
+    },
+
     /** Recibe un evento del agente y pinta lo que sus acciones hayan devuelto. */
     desdeEvento(evento) {
       for (const bruto of evento?.resultados ?? []) {
@@ -401,12 +406,6 @@ export function crearPanel(contenedor) {
 
     aviso(titulo, texto, tono = 'neutro') {
       agregar(tarjeta(titulo, 'Asistente', `<p class="text-gray-300 text-xs font-light leading-relaxed">${escapar(texto)}</p>`, tono));
-    },
-
-    limpiar() {
-      contenedor.innerHTML = VACIO;
-      vacio = true;
-      vistos.clear();
     },
   };
 }
