@@ -118,6 +118,25 @@ export function comoRespuestaHttp(e: unknown): { status: number; cuerpo: unknown
     const s = e.detalle.status;
     const operacion = e.detalle.operacion ?? '';
 
+    // La org agoto su cuota diaria de llamadas a la API. No es una caida del
+    // servicio ni un defecto de la aplicacion, y confundirlo con uno cuesta horas
+    // de busqueda: hasta ahora salia como 502 «no fue posible completar la
+    // operacion con el servicio externo» y, si el tope llegaba mientras se pedia
+    // el token, como 503 «credencial no valida» —que ademas es falso y manda a
+    // revisar secretos que estan bien—. Va ANTES que la rama de `auth.` por eso.
+    if (e.detalle.codigoSalesforce === 'REQUEST_LIMIT_EXCEEDED') {
+      return {
+        status: 503,
+        cuerpo: {
+          error: true,
+          codigo: 'CUOTA_API_AGOTADA',
+          mensaje:
+            'La organizacion de Salesforce agoto su cuota diaria de llamadas a la API. No es un fallo de esta aplicacion ni de tu peticion: se libera sola conforme avanza la ventana de 24 horas.',
+          errorId,
+        },
+      };
+    }
+
     // Un fallo de la capa de autenticación NUNCA es culpa de quien llama: la
     // aplicación no pudo identificarse ante Salesforce. Antes se devolvía 400
     // INVALID_REQUEST porque el endpoint de token responde 400 cuando la credencial

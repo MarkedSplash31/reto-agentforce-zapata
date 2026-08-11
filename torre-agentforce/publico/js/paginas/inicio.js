@@ -291,8 +291,14 @@ try {
     // El cliente ya venía hablando con una persona: se retoma donde quedó, y con
     // conversación viva la pantalla arranca ya en el espacio de trabajo.
     marcarInterlocutor('asesor');
-    const conv = await (await fetch('/publico/asesor/conversacion')).json();
-    for (const c of conv.comentarios ?? []) {
+    const resConv = await fetch('/publico/asesor/conversacion');
+    const conv = await resConv.json().catch(() => null);
+    if (!resConv.ok || !conv) {
+      // No se pinta un hilo vacío como si no hubiera pasado nada: el cliente
+      // creería que su conversación se perdió. Se dice, y se le deja escribir.
+      nota(`No pudimos recuperar los mensajes anteriores: ${conv?.mensaje ?? `el servidor respondió ${resConv.status}`}`, 'error');
+    }
+    for (const c of conv?.comentarios ?? []) {
       comentariosVistos.add(c.id);
       if (c.publicado === false) continue;
       const deAsesor = /^ASESOR:/i.test(c.cuerpo || '');
@@ -469,7 +475,17 @@ compositor.addEventListener('submit', async (ev) => {
 const red = document.getElementById('sucursales');
 red.innerHTML = cargando('la red de talleres');
 try {
-  const d = await (await fetch('/publico/sucursales')).json();
+  // Sin comprobar `res.ok` la página decía «No hay talleres publicados en este
+  // momento» cuando en realidad la consulta había fallado: el cuerpo de error no
+  // trae `sucursales`, así que el conteo salía 0 y la pantalla afirmaba que Zapata
+  // no tiene red. Un catálogo vacío y una consulta caída tienen que verse distinto.
+  const res = await fetch('/publico/sucursales');
+  const d = await res.json();
+  if (!res.ok) {
+    const fallo = new Error(d?.mensaje || `El servidor respondió ${res.status}`);
+    fallo.detalle = { operacion: 'catálogo de talleres', status: res.status };
+    throw fallo;
+  }
 
   // El encabezado se escribe DESPUÉS de conocer la respuesta. Antes decía «Nueve
   // talleres» escrito a mano: un número que la página afirmaba sin haberlo contado y
