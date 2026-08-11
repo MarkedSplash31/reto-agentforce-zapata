@@ -2,8 +2,12 @@
 <ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
     <fullName>Slot_Requiere_Procedencia_Verificada</fullName>
     <active>true</active>
-    <description>Impide reservar o reprogramar contra horarios derivados o sin verificacion operacional.</description>
-    <errorConditionFormula>AND(OR(ISNEW(), ISCHANGED(Slot_Taller__c), ISCHANGED(StartDate), ISCHANGED(EndDate)), NOT(ISBLANK(Slot_Taller__c)), OR(ISBLANK(Slot_Taller__r.Procedencia__c), Slot_Taller__r.Procedencia__c &lt;&gt; &quot;OPERACIONAL_VERIFICADO&quot;))</errorConditionFormula>
+    <description>Impide agendar sobre una franja SIN procedencia registrada.
+
+Antes exigia procedencia OPERACIONAL_VERIFICADO, y eso dejaba fuera a ocho de las nueve sucursales de Zapata: sus horarios estan publicados en zapata.com.mx (Lun a Vie 9:00-19:00, Sab 9:00-15:00) pero nadie ha verificado cuantas unidades caben por franja. La regla convertia esa laguna de capacidad en una prohibicion de agendar, mas estricta que el propio proceso de Zapata, cuya pagina de cita dice "Disponibilidad sincrona con el taller central" y pide 24 horas de anticipacion: alli la cita se solicita y el taller la confirma.
+
+Lo que sigue bloqueando es una franja de la que no se sabe de donde salio su horario. Que el cupo este por confirmar se comunica al cliente en la respuesta y queda trazado en la propia franja.</description>
+    <errorConditionFormula>AND(OR(ISNEW(), ISCHANGED(Slot_Taller__c), ISCHANGED(StartDate), ISCHANGED(EndDate)), NOT(ISBLANK(Slot_Taller__c)), ISBLANK(Slot_Taller__r.Procedencia__c))</errorConditionFormula>
     <errorDisplayField>Slot_Taller__c</errorDisplayField>
-    <errorMessage>SLOT_NO_VERIFICADO: la franja no tiene procedencia OPERACIONAL_VERIFICADO.</errorMessage>
+    <errorMessage>SLOT_SIN_PROCEDENCIA: la franja no tiene procedencia registrada, asi que no se puede acreditar de donde salio su horario.</errorMessage>
 </ValidationRule>
