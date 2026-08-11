@@ -33,6 +33,13 @@ import {
   type SesionWeb,
 } from './visitante.ts';
 
+/**
+ * Cuánto puede esperar una conversación precalentada antes de darla por vieja. 90 s
+ * cubre de sobra lo que tarda alguien en leer la pantalla y escribir su primer
+ * mensaje, y queda muy por debajo de lo que aguanta una sesión de Agent API sin uso.
+ */
+const MS_SESION_PRECALENTADA_CADUCA = 90_000;
+
 interface Contexto {
   req: IncomingMessage;
   res: ServerResponse;
@@ -77,7 +84,14 @@ function exigirMetodo(req: IncomingMessage, metodo: string): void {
 /** Garantiza sesión de visitante, creándola si es la primera visita. */
 function sesionVisitante(ctx: Contexto): { sesion: SesionWeb; cookie?: string } {
   const actual = leerSesion(ctx.cookies);
-  if (actual) return { sesion: actual };
+  if (actual) {
+    // La sesión del asesor nace SIN correlación —la crea `/publico/acceso`, que no es
+    // una visita— y sin esto la home del cliente reventaba para él: pedir la apertura
+    // de conversación llamaba a `abrirSesion(null)` y el asistente aparecía como no
+    // disponible. Le pasaba a cualquier asesor que tocara «Postventa» en la barra.
+    if (!actual.correlationId) actual.correlationId = randomUUID();
+    return { sesion: actual };
+  }
   const nueva = crearSesion('visitante');
   // UUID puro, sin prefijo: la Agent API exige que `externalSessionKey` lo sea, y
   // este mismo valor viaja como $Context.RoutableId y termina en Correlation_Id__c.
@@ -412,6 +426,17 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     };
 
     try {
+      // Una sesión precalentada que lleva rato esperando puede haber caducado del lado
+      // de Salesforce. Cambiarla ANTES de mandar cuesta una apertura; mandarle el turno
+      // y fallar cuesta el turno del cliente y, si el reintento tampoco prende, la
+      // conversación entera. Sólo aplica a sesiones que nunca cursaron un turno.
+      if (
+        sesion.agentSessionId &&
+        agente.sesionEnvejecidaSinUso(sesion.agentSessionId, MS_SESION_PRECALENTADA_CADUCA)
+      ) {
+        agente.descartarSesion(sesion.agentSessionId);
+        sesion.agentSessionId = null;
+      }
       await abrirSiHaceFalta();
       let emitido = 0;
       try {

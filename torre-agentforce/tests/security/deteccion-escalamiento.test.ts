@@ -237,6 +237,46 @@ describe('credencial de demo del panel', () => {
   });
 });
 
+describe('la home del cliente vista por un asesor', () => {
+  it('le asigna correlación aunque su sesión no naciera de una visita', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(
+      fuente.indexOf('function sesionVisitante'),
+      fuente.indexOf('function vista'),
+    );
+
+    // `/publico/acceso` crea la sesión del asesor sin correlación, porque entrar al
+    // panel no es una visita. Si el asesor abría luego «Postventa» en la barra, la
+    // apertura de conversación llamaba a `abrirSesion(null)` y el asistente se
+    // reportaba como no disponible: roto sólo para quien atiende.
+    assert.match(
+      bloque,
+      /if \(!actual\.correlationId\) actual\.correlationId = randomUUID\(\);/,
+      'toda sesión que vaya a conversar necesita correlación, venga de donde venga',
+    );
+  });
+});
+
+describe('nada de negocio escrito a mano en la página', () => {
+  it('el conteo de talleres se calcula desde la respuesta de la org', async () => {
+    const fuente = await inicio();
+    assert.doesNotMatch(fuente, /Nueve talleres/, 'un conteo literal deja de ser cierto solo');
+    assert.match(fuente, /const cuantos = d\.sucursales\?\.length \?\? 0;/);
+  });
+
+  it('no queda ningún teléfono literal en el frontend', async () => {
+    const sistema = await readFile(new URL('../../publico/js/sistema.js', import.meta.url), 'utf8');
+    const paginaInicio = await inicio();
+    // El que había —(55) 2122-0370— es real y sale del sitio público de Zapata, pero no
+    // existe en la org: la app lo afirmaba por su cuenta. Los teléfonos que se ven son
+    // los de `Sucursal__c.Telefono__c`, interpolados por tarjeta.
+    for (const [nombre, texto] of [['sistema.js', sistema], ['inicio.js', paginaInicio]] as const) {
+      assert.doesNotMatch(texto, /tel:\+?\d{8,}/, `${nombre} no debe llevar un teléfono literal`);
+    }
+    assert.match(paginaInicio, /href="tel:\$\{/, 'los de las tarjetas salen del catálogo');
+  });
+});
+
 describe('coste por turno contra la org', () => {
   it('el navegador no sondea el estado del agente antes de cada mensaje', async () => {
     const fuente = await inicio();
@@ -264,6 +304,25 @@ describe('coste por turno contra la org', () => {
       bloque,
       /estadoAgentAPI\(\{ sondear: false \}\)/,
       'quien va a abrir su propia sesion no necesita otra para sondear',
+    );
+  });
+
+  it('una conversacion precalentada que envejecio se cambia antes de usarla', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(
+      fuente.indexOf("p === '/publico/agente/mensaje'"),
+      fuente.indexOf("p === '/publico/agente/cerrar'"),
+    );
+    // Precalentar deja la sesion abierta entre la carga de la pagina y el primer
+    // mensaje. Observado: ~2 minutos despues, 400 al primer turno.
+    assert.match(bloque, /sesionEnvejecidaSinUso\(sesion\.agentSessionId, MS_SESION_PRECALENTADA_CADUCA\)/);
+
+    const agenteFuente = await readFile(new URL('../../src/servidor/agente.ts', import.meta.url), 'utf8');
+    const helper = agenteFuente.slice(agenteFuente.indexOf('export function sesionEnvejecidaSinUso'));
+    assert.match(
+      helper.slice(0, 400),
+      /if \(!sesion \|\| sesion\.tuvoTurnoExitoso\) return false;/,
+      'una sesion que ya converso no se descarta jamas: perderia el hilo en curso',
     );
   });
 

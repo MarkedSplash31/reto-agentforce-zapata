@@ -280,6 +280,25 @@ export function sesionTuvoTurnoExitoso(sessionId: string): boolean {
 }
 
 /**
+ * `true` si la sesión lleva abierta más de `msMax` sin haber cursado un solo turno.
+ *
+ * Existe por un efecto secundario de precalentar la conversación al cargar la página:
+ * entre la apertura y el primer mensaje puede pasar el tiempo que el cliente tarde en
+ * leer y escribir. Observado en el navegador el 11-ago-2026: una sesión precalentada y
+ * usada ~2 minutos después devolvió 400 al primer turno, y el reintento sobre una
+ * sesión nueva también falló, así que el cliente vio «El asistente falló» —degradó a
+ * una persona, que es lo correcto, pero por una causa evitable—.
+ *
+ * Una sesión que ya cursó un turno NO cuenta como envejecida por mucho que pase: ahí
+ * descartarla perdería el hilo de una conversación viva, que es peor que el problema.
+ */
+export function sesionEnvejecidaSinUso(sessionId: string, msMax: number): boolean {
+  const sesion = sesiones.get(sessionId);
+  if (!sesion || sesion.tuvoTurnoExitoso) return false;
+  return Date.now() - Date.parse(sesion.abiertaEn) > msMax;
+}
+
+/**
  * Olvida una sesión que la puerta de enlace ya no atiende. No intenta cerrarla: si
  * Salesforce rechaza sus mensajes, también rechazará el DELETE, y ese error taparía
  * el motivo real. La sesión caduca sola del lado de Salesforce.
