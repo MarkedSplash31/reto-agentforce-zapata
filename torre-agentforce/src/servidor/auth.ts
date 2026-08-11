@@ -363,12 +363,33 @@ export function _reiniciarProveedor(): void {
 
 let jwtEnCache: { valor: string; expiraEn: number } | null = null;
 
+/**
+ * El token del proveedor, tal cual, para la Agent API.
+ *
+ * Vale para los DOS proveedores. Que sirva con `client_credentials` ya estaba
+ * documentado; que sirva también con el token del CLI se midió el 11-ago-2026: 45
+ * turnos seguidos contra la Agent API mandando este token directo, sin un solo fallo.
+ *
+ * Importa porque el rodeo por `/agentforce/bootstrap/nameduser` —que era el camino por
+ * omisión con el proveedor `cli`— resultó ser el origen de los 400 intermitentes: con
+ * él, ~1 de cada 7 turnos moría con un rechazo de la puerta en ~370 ms, cuando un turno
+ * bueno tarda entre 2 y 5 s. O sea, la puerta descartaba la petición sin procesarla.
+ */
+export async function tokenDirectoAgentAPI(forzar = false): Promise<string> {
+  const prov = proveedorDeToken();
+  const token = forzar ? await prov.renovar() : await prov.obtener();
+  return token.valor;
+}
+
+/**
+ * El JWT de `/agentforce/bootstrap/nameduser`. Se conserva como RESPALDO: sólo se
+ * intenta cuando la puerta rechaza el token directo por credencial (401/403). No es el
+ * camino por omisión desde que se midió su intermitencia.
+ */
 export async function tokenParaAgentAPI(forzar = false): Promise<string> {
   const prov = proveedorDeToken();
-  // Camino 1: la credencial de la app cliente ya sirve para la Agent API. No hay
-  // nada que canjear, así que tampoco hay nada que cachear aquí: el propio
-  // proveedor custodia su token y su expiración. Un 401 llega aquí con `forzar`,
-  // y entonces se pide uno nuevo en vez de devolver el mismo que acaban de rechazar.
+  // Con client_credentials no hay nada que canjear: el propio proveedor custodia su
+  // token y su expiración.
   if (prov.nombre === 'client_credentials') {
     const token = forzar ? await prov.renovar() : await prov.obtener();
     return token.valor;

@@ -20,7 +20,13 @@ import { createHash, randomUUID } from 'node:crypto';
 import { config } from './config.ts';
 import { ErrorSalesforce, type DetalleSalesforce } from './errores.ts';
 import { isAllowedUpstreamUrl } from './security.ts';
-import { proveedorDeToken, seguroParaLog, tokenParaAgentAPI, _olvidarJwtAgente } from './auth.ts';
+import {
+  proveedorDeToken,
+  seguroParaLog,
+  tokenDirectoAgentAPI,
+  tokenParaAgentAPI,
+  _olvidarJwtAgente,
+} from './auth.ts';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Constantes del contrato
@@ -31,17 +37,24 @@ const MS_TIMEOUT = config.security.agentApiTimeoutMs;
 const MS_INACTIVIDAD_STREAM = 60_000;
 const MS_CACHE_ESTADO = 60_000;
 const RAZON_INACTIVIDAD = 'agent-api:inactividad';
-// Salesforce puede rechazar con 400 la PRIMERA operación de una sesión recién creada:
-// el id existe pero aún no se propagó. Un segundo resultó insuficiente en la práctica
-// —el turno moría con "Illegal Path Character" pese a que la ruta era válida—, así que
-// se espera más y además se reintenta una vez. Ver `reintentarPrimerTurno`.
-const MS_PROPAGACION_SESION = 2_500;
-// Esperas del reintento del PRIMER turno, en milisegundos. Suman ~21 s en el peor
-// caso, que es lo que costó ver funcionar una sesión que empezó devolviendo 400.
-// Insistir sobre la misma sesión es más barato y más rápido que abrir otra: abrir
-// una nueva reinicia su propia ventana de propagación y encima deja la anterior
-// colgando en la org.
-const ESPERAS_PROPAGACION = [3_000, 6_000, 12_000] as const;
+// La «propagación de sesión» no existía. Este comentario decía que Salesforce rechaza
+// con 400 la primera operación de una sesión recién creada, y citaba como prueba que
+// «el turno moría con Illegal Path Character pese a que la ruta era válida». La ruta NO
+// era válida: `exigirJson` parseaba el cuerpo REDACTADO de la respuesta, así que el
+// sessionId venía con `[REDACTED_PHONE]` incrustado cada vez que su timestamp UUIDv7
+// se parecía a un teléfono. Jetty rechazaba esa URL antes de enrutarla.
+//
+// Corregido el origen, se midieron 35 turnos seguidos SIN ninguna espera: 35/35. Se
+// deja en cero. La constante se conserva porque el mecanismo de espera sigue siendo el
+// sitio correcto si alguna vez aparece una propagación de verdad.
+const MS_PROPAGACION_SESION = 0;
+// Red de seguridad del PRIMER turno. Eran 3+6+12 s —21 s en el peor caso— para
+// sobrevivir a un 400 que en realidad producía la propia app corrompiendo el
+// sessionId; los tres reintentos usaban el mismo id roto, así que fallaban los tres y
+// lo único que aportaban era la espera. Con la causa arreglada se midió 35/35 sin
+// ninguno. Se conservan dos cortos por prudencia ante un 400 transitorio real: 4 s de
+// techo en vez de 21.
+const ESPERAS_PROPAGACION = [1_000, 3_000] as const;
 
 const PASO_EXTERNAL_CLIENT_APP =
   'La External Client App Torre Agentforce Zapata ya existe. Un humano debe revelar ' +
@@ -328,6 +341,32 @@ function urlSesiones(): string {
 }
 
 /** Último recurso: sólo se usa cuando la respuesta no trajo el `_link` correspondiente. */
+/**
+ * Forma de UUID sin exigir versión. `esUUID` sólo admite las versiones 1 a 5 y sirve
+ * para lo que genera esta app con `randomUUID()`, que es v4. Los sessionId que devuelve
+ * la Agent API son **UUIDv7** —empiezan por un timestamp— y esa comprobación los
+ * rechaza todos. Lo que hace falta validar aquí no es la versión sino que el valor sea
+ * seguro para meterlo en la ruta de una URL.
+ */
+function tieneFormaDeUuid(valor: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(valor);
+}
+
+/** Describe una URL de sesión sin revelar el identificador. Sólo para diagnóstico. */
+function formaDeUrlDeSesion(url: string): Record<string, unknown> {
+  const i = url.indexOf('/sessions/');
+  if (i < 0) return { patron: 'sin /sessions/', largo: url.length };
+  const resto = url.slice(i + '/sessions/'.length);
+  const id = resto.split('/')[0] ?? '';
+  return {
+    largoId: id.length,
+    esUuid: tieneFormaDeUuid(id),
+    codepointsFueraDeHex: [...id].filter((c) => !/[0-9a-fA-F-]/.test(c)).map((c) => c.codePointAt(0)!),
+    sufijo: resto.slice(id.length),
+    origen: url.startsWith(config.agentApiHost) ? 'host-esperado' : 'OTRO-HOST',
+  };
+}
+
 function urlCanonicaSesion(sessionId: string, sufijo: string): string {
   return `${config.agentApiHost}${RUTA_BASE}/sessions/${encodeURIComponent(sessionId)}${sufijo}`;
 }
@@ -449,18 +488,27 @@ async function llamar(url: string, op: OpcionesLlamada): Promise<RespuestaCruda>
     );
   }
   const prov = proveedorDeToken();
-  // La Agent API no acepta el token de sesión de la org: exige el JWT que emite
-  // /agentforce/bootstrap/nameduser. Ver auth.ts para el porqué del intercambio.
-  let jwt = await tokenParaAgentAPI();
-  let res = await intento(url, op, jwt);
 
-  // 401 → puede ser caducidad. Se renueva UNA vez y se reintenta UNA vez.
-  // Si vuelve 401, no es caducidad: es la credencial, y así se reporta.
-  if (res.status === 401) {
-    await res.text(); // drenar el cuerpo del intento fallido
+  // El token del proveedor va DIRECTO. El comentario que había aquí decía que la Agent
+  // API exige el JWT de `/agentforce/bootstrap/nameduser`, y no es cierto: medido el
+  // 11-ago-2026, 45 turnos seguidos con el token directo —proveedor `cli`— sin un solo
+  // fallo, mientras la misma app pasando por el bootstrap perdía ~1 de cada 7 con un
+  // 400. Ese era el origen de la intermitencia que se venía tapando con reintentos.
+  let res = await intento(url, op, await tokenDirectoAgentAPI());
+
+  // 401/403 → dos causas posibles, y se distinguen en orden. Primero caducidad: se
+  // renueva el token directo y se reintenta UNA vez.
+  if (res.status === 401 || res.status === 403) {
+    await res.text();
+    res = await intento(url, op, await tokenDirectoAgentAPI(true));
+  }
+
+  // Si aun renovado lo rechaza, entonces sí puede ser que esta credencial necesite el
+  // canje por JWT. Se intenta UNA vez, como respaldo y no como camino por omisión.
+  if ((res.status === 401 || res.status === 403) && prov.nombre !== 'client_credentials') {
+    await res.text();
     _olvidarJwtAgente();
-    jwt = await tokenParaAgentAPI(true);
-    res = await intento(url, op, jwt);
+    res = await intento(url, op, await tokenParaAgentAPI(true));
   }
 
   return { res, origenToken: prov.nombre };
@@ -476,13 +524,17 @@ function lanzarPorRespuesta(args: {
 }): never {
   const { res, operacion, url, origenToken } = args;
   const status = res.status;
-  const redactado = seguroParaLog(args.cuerpo);
-  const vacio = redactado.trim() === '';
+  // Se CLASIFICA sobre el cuerpo original y se REDACTA sólo lo que se va a registrar.
+  // Antes se hacían las dos cosas sobre el redactado, y por eso `codigoSalesforce`
+  // llegaba vacío justo cuando más falta hacía: el redactor podía tocar el JSON y
+  // dejar el errorCode ilegible. Mismo defecto de fondo que el de `exigirJson`.
+  const original = args.cuerpo;
+  const vacio = original.trim() === '';
 
   let codigo: string | undefined;
   let esJson = false;
   if (!vacio) {
-    const json = intentarJson(redactado);
+    const json = intentarJson(original);
     if (json !== undefined) {
       esJson = true;
       codigo = extraerCodigoError(json);
@@ -499,6 +551,24 @@ function lanzarPorRespuesta(args: {
     codigoSalesforce: codigo,
     requestIdHash: huellaRequestId(res),
   };
+
+  // Escotilla de diagnóstico, apagada por omisión. Sin ella un 400 de la puerta es
+  // indiagnosticable: el cuerpo se descarta por privacidad y el error queda descrito
+  // como «no encaja con el contrato», que es la app admitiendo que no sabe por qué.
+  // Se enciende a mano, en local, para una sesión de diagnóstico concreta.
+  if (process.env.AGENT_API_VOLCAR_ERRORES === '1') {
+    console.error(
+      JSON.stringify({
+        event: 'agent_api_error_crudo',
+        operacion,
+        status,
+        contentType: res.headers.get('content-type'),
+        // La FORMA de la URL, nunca su valor: el sessionId no se imprime.
+        formaUrl: formaDeUrlDeSesion(url),
+        cuerpo: seguroParaLog(original).slice(0, 1200),
+      }),
+    );
+  }
 
   if (status === 404 && vacio) {
     throw new ErrorAgentAPI(
@@ -617,6 +687,25 @@ export async function abrirSesion(externalSessionKey: string): Promise<SesionAbi
 
   const crudo = exigirJson(texto, operacion, res.status, url);
   const sessionId = comoTexto(comoObjeto(crudo)?.['sessionId']);
+
+  // El contrato dice que el sessionId es un UUID, y todo lo que viene después lo mete
+  // en la ruta de cada petición. Comprobarlo AQUÍ convierte una corrupción silenciosa
+  // en un fallo que se explica solo. Sin esta guarda, un identificador deformado se
+  // manifestaba mucho más lejos, como un `400 Illegal Path Character` de Jetty que la
+  // app clasificaba como «la petición no encaja con el contrato» y achacaba a la
+  // propagación de la sesión. Costó tres teorías equivocadas encontrarlo.
+  if (sessionId && !tieneFormaDeUuid(sessionId)) {
+    throw new ErrorAgentAPI(
+      `${operacion} devolvió un sessionId que no es un UUID (${sessionId.length} caracteres). ` +
+        `No se va a construir una ruta con él: la puerta lo rechazaría con un 400 opaco. ` +
+        `Si el identificador llegó deformado, el culpable está entre la respuesta y este punto.`,
+      { operacion, status: res.status, url, cuerpo: null },
+      'respuesta_ilegible',
+      'Revisar que nada transforme el cuerpo de la respuesta antes de parsearlo; la ' +
+        'redacción para logs no debe tocar el flujo de datos.',
+    );
+  }
+
   if (!sessionId) {
     throw new ErrorAgentAPI(
       `${operacion} respondió ${res.status} pero sin sessionId. La respuesta no encaja con el ` +
@@ -1300,13 +1389,33 @@ function intentarJson(texto: string): unknown {
   }
 }
 
+/**
+ * Parsea la respuesta REAL. La redacción es para lo que se registra, no para lo que se
+ * usa.
+ *
+ * Aquí estaba la causa de los 400 «intermitentes» que se venían tapando con reintentos
+ * y con la teoría de la propagación. Esta función redactaba el cuerpo y **parseaba el
+ * resultado redactado**, así que el `sessionId` que devolvía era el del JSON ya
+ * manipulado. Los sessionId de la Agent API son UUIDv7: empiezan por un timestamp en
+ * milisegundos, y cada cierto rato esa tira de dígitos se parece lo bastante a un
+ * teléfono como para que el redactor la sustituya por `[REDACTED_PHONE]`.
+ *
+ * A partir de ahí la app pedía `/sessions/019ff1b5-c69f-[REDACTED_PHONE]…/messages`, y
+ * Jetty —antes de que la petición llegara a la Agent API— contestaba
+ * `400 Illegal Path Character` en ~370 ms, cuando un turno bueno tarda entre 2 y 5 s.
+ * Medido el 11-ago-2026: el sessionId llegaba con 43 caracteres en vez de 36 y con los
+ * corchetes dentro. Los reintentos repetían el mismo id roto, así que fallaban los
+ * tres; sólo descartar la sesión y abrir otra —con un UUID que no disparara al
+ * redactor— salía adelante. De ahí el ~1 de cada 7.
+ *
+ * Lo que se registra sí se redacta: eso no cambia.
+ */
 function exigirJson(texto: string, operacion: string, status: number, url: string): unknown {
-  const redactado = seguroParaLog(texto);
-  const json = intentarJson(redactado);
+  const json = intentarJson(texto);
   if (json === undefined) {
     throw new ErrorAgentAPI(
       `${operacion} respondió ${status} con algo que no es JSON.`,
-      { operacion, status, url, cuerpo: redactado.slice(0, 2000) },
+      { operacion, status, url, cuerpo: seguroParaLog(texto).slice(0, 2000) },
       'respuesta_ilegible',
       'Contrastar la respuesta con docs/CONTRATO-AGENT-API.md.',
     );

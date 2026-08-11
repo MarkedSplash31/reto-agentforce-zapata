@@ -277,6 +277,60 @@ describe('nada de negocio escrito a mano en la página', () => {
   });
 });
 
+describe('la redaccion no puede entrar al flujo de datos', () => {
+  it('exigirJson parsea el cuerpo ORIGINAL, no el redactado', async () => {
+    const fuente = await readFile(new URL('../../src/servidor/agente.ts', import.meta.url), 'utf8');
+    const inicio = fuente.indexOf('function exigirJson');
+    const bloque = fuente.slice(inicio, inicio + 900);
+
+    // Esta era la causa de los 400 «intermitentes». `exigirJson` redactaba la respuesta
+    // y parseaba el resultado, asi que el sessionId salia con `[REDACTED_PHONE]` dentro
+    // cada vez que su timestamp UUIDv7 se parecia a un telefono. La app pedia entonces
+    // /sessions/<id-roto>/messages y Jetty contestaba 400 Illegal Path Character antes
+    // de enrutar. ~1 de cada 7 turnos. Medido y corregido el 11-ago-2026.
+    assert.match(bloque, /const json = intentarJson\(texto\);/, 'se parsea el texto tal cual llego');
+    assert.doesNotMatch(
+      bloque,
+      /intentarJson\(\s*(redactado|seguroParaLog)/,
+      'parsear lo redactado corrompe los identificadores que vienen en la respuesta',
+    );
+  });
+
+  it('la clasificacion de errores tambien mira el cuerpo original', async () => {
+    const fuente = await readFile(new URL('../../src/servidor/agente.ts', import.meta.url), 'utf8');
+    const bloque = fuente.slice(
+      fuente.indexOf('function lanzarPorRespuesta'),
+      fuente.indexOf('const detalle: DetalleAgentAPI'),
+    );
+    // Mismo defecto: clasificar sobre el redactado dejaba `codigoSalesforce` vacio justo
+    // cuando mas falta hacia para diagnosticar.
+    assert.match(bloque, /intentarJson\(original\)/);
+  });
+
+  it('un sessionId deformado se rechaza al recibirlo, no al usarlo', async () => {
+    const fuente = await readFile(new URL('../../src/servidor/agente.ts', import.meta.url), 'utf8');
+    assert.match(
+      fuente,
+      /if \(sessionId && !tieneFormaDeUuid\(sessionId\)\)/,
+      'sin esta guarda, una corrupcion vuelve a manifestarse como un 400 opaco muy lejos de su origen',
+    );
+    // Y la comprobacion debe admitir UUIDv7: los sessionId de la Agent API empiezan por
+    // un timestamp, y `esUUID` —que solo acepta v1..v5— los rechazaba todos.
+    const forma = fuente.slice(fuente.indexOf('function tieneFormaDeUuid'));
+    assert.doesNotMatch(forma.slice(0, 300), /\[1-5\]/, 'no puede exigir version 1..5');
+  });
+
+  it('las esperas de propagacion ya no cargan con el peso de aquel diagnostico', async () => {
+    const fuente = await readFile(new URL('../../src/servidor/agente.ts', import.meta.url), 'utf8');
+    assert.match(fuente, /const MS_PROPAGACION_SESION = 0;/, '35/35 turnos medidos sin espera');
+    assert.match(
+      fuente,
+      /const ESPERAS_PROPAGACION = \[1_000, 3_000\] as const;/,
+      'red de seguridad de 4 s, no la escalera de 21 s que solo repetia un id roto',
+    );
+  });
+});
+
 describe('coste por turno contra la org', () => {
   it('el navegador no sondea el estado del agente antes de cada mensaje', async () => {
     const fuente = await inicio();
