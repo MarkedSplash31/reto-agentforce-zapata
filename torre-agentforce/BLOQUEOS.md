@@ -389,3 +389,72 @@ Lo verde está releído de Salesforce, no supuesto:
 
 Es decir: **la cadena de la web app a Zapata Postventa está probada.** Lo único sin
 ejercitar es la puerta conversacional.
+
+---
+
+## 9. La cuota diaria de API de la org — se libera sola, pero hay que reconocerla
+
+**Estado: activo el 11 de agosto de 2026.** No es un defecto del código y no se
+arregla desde el repositorio: la Developer Edition tiene un tope de llamadas a la
+API REST por ventana de 24 horas, y esta org lo agotó.
+
+### Cómo se ve
+
+`sf org display -o zapata` lo dice en `connectedStatus`:
+
+```
+"connectedStatus": "TotalRequests Limit exceeded."
+```
+
+Cualquier consulta responde igual:
+
+```
+REQUEST_LIMIT_EXCEEDED: TotalRequests Limit exceeded.
+```
+
+En la web app se traduce a **HTTP 503 `CUOTA_API_AGOTADA`** y la portada lo pinta
+con su causa. Antes salía como 502 «no fue posible completar la operación con el
+servicio externo» —o, si el tope llegaba pidiendo el token, como 503 «credencial
+no válida», que mandaba a revisar secretos que estaban bien—.
+
+### Qué deja de funcionar y qué no
+
+La cuota es de la **API REST**. La Agent API entra por otra puerta y no la consume:
+
+| Sigue funcionando | Devuelve 503 mientras dure |
+|---|---|
+| La conversación con el asistente | La red de talleres (`/publico/sucursales`) |
+| Agendar, reprogramar, reportar varada | La cobertura por VIN (`/publico/garantia`) |
+| El escalamiento a un asesor | La disponibilidad (`/publico/disponibilidad`) |
+
+Comprobado con la org en su tope: la cita **00000070** se creó desde la web app
+—mantenimiento, viernes 14 de agosto, Querétaro— mientras el catálogo de talleres
+respondía 503.
+
+### Efecto en las pruebas
+
+Con la cuota agotada, dos aserciones de `tests/e2e/sitio-cliente.spec.ts` fallan
+**correctamente**: la red de talleres no carga, y eso es justo lo que comprueban.
+No hay que tocarlas; es la señal de que la org no está respondiendo, no un defecto
+que corregir.
+
+### Qué la consume
+
+Cada carga de la portada abre una sesión real del agente —decisión deliberada,
+documentada en `rutas-publicas.ts`, para no cobrarle al cliente la propagación en
+su primer mensaje— y `verificar:e2e`, `verificar:diseno` y la suite de Playwright
+consultan la org de verdad. Recargar la página muchas veces mientras se trabaja en
+el frontend cuesta cuota.
+
+Ninguna comprobación de la interfaz es gratis del todo: cargar `/` abre una sesión
+del agente, así que `verificar:diseno` y las pruebas de Playwright también cuestan.
+Lo que sí evita gasto de más son las dos pruebas de layout de
+`sitio-cliente.spec.ts`, que abortan la ruta del turno a propósito para no consumir
+una conversación por corrida, y trabajar sobre una pestaña ya abierta en vez de
+recargar.
+
+`npm run verificar:diseno` corre en cualquier clon: el auditor viene dentro del
+repositorio, en `scripts/auditar-sistema.mjs`. Antes se buscaba en la skill
+`zapata-design`, fuera del repositorio, y el comando sólo funcionaba en la máquina
+donde esa skill existe. Necesita los navegadores de Playwright una vez:
+`npm run test:e2e:install`.

@@ -124,6 +124,11 @@ export function comoRespuestaHttp(e: unknown): { status: number; cuerpo: unknown
     // operacion con el servicio externo» y, si el tope llegaba mientras se pedia
     // el token, como 503 «credencial no valida» —que ademas es falso y manda a
     // revisar secretos que estan bien—. Va ANTES que la rama de `auth.` por eso.
+    //
+    // El texto no nombra al proveedor: esta respuesta la lee un cliente en la
+    // portada, y el sitio publico no le enseña de que sistema sale su informacion
+    // —`sitio-cliente.spec.ts` lo comprueba—. Quien opera el sitio lo identifica
+    // igual por el codigo, que ademas queda en el log del servidor.
     if (e.detalle.codigoSalesforce === 'REQUEST_LIMIT_EXCEEDED') {
       return {
         status: 503,
@@ -131,7 +136,7 @@ export function comoRespuestaHttp(e: unknown): { status: number; cuerpo: unknown
           error: true,
           codigo: 'CUOTA_API_AGOTADA',
           mensaje:
-            'La organizacion de Salesforce agoto su cuota diaria de llamadas a la API. No es un fallo de esta aplicacion ni de tu peticion: se libera sola conforme avanza la ventana de 24 horas.',
+            'El sistema de Zapata agoto su cuota diaria de consultas. No es un fallo de esta aplicacion ni de tu peticion: se restablece solo conforme avanza la ventana de 24 horas.',
           errorId,
         },
       };
