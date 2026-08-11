@@ -15,6 +15,11 @@
 // La aplicación es una sola conversación: no hay una página por trámite, porque el
 // asistente enruta según lo que el cliente cuenta. La navegación sólo lleva al sitio
 // y a la entrada interna de los asesores.
+// El botón de la barra ya no marca un teléfono escrito aquí. El que había —(55)
+// 2122-0370, tomado del sitio público de Zapata— no existe en la org, y la etiqueta
+// «Asistencia 24/7» además prometía algo que los datos desmienten: las sucursales del
+// catálogo declaran horario de lunes a viernes. Ahora lleva a la red de talleres,
+// donde cada teléfono es el que Salesforce tiene registrado para esa sucursal.
 const RUTAS = [
   { href: 'index.html', txt: 'Postventa' },
   { href: 'https://zapata.com.mx', txt: 'zapata.com.mx' },
@@ -147,8 +152,8 @@ function montarNav(activa) {
         <button type="button" data-abrir-acceso class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-300 hover:border-white/30 hover:text-white transition-colors">
           ${escapar(etiquetaAcceso)}
         </button>
-        <a href="tel:+525521220370" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
-          Asistencia 24/7
+        <a href="index.html#red" class="border border-white/20 bg-white/5 px-5 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 rounded-none">
+          Talleres y telefonos
         </a>
       </div>
 
@@ -166,8 +171,8 @@ function montarNav(activa) {
       <button type="button" data-abrir-acceso class="block w-full mt-6 text-center border border-white/10 px-5 py-3 text-xs uppercase tracking-widest text-gray-300 hover:border-white/30 hover:text-white transition-colors">
         ${escapar(etiquetaAcceso)}
       </button>
-      <a href="tel:+525521220370" class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
-        Asistencia 24/7
+      <a href="index.html#red" class="block mt-6 text-center border border-white/20 bg-white/5 px-5 py-3 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300">
+        Talleres y telefonos
       </a>
     </div>
 
@@ -313,7 +318,7 @@ function montarFooter() {
       </div>
       ${col('Postventa', [
         ['Hablar con el asistente', 'index.html'],
-        ['Asistencia 24/7', 'tel:+525521220370'],
+        ['Talleres y telefonos', 'index.html#red'],
       ])}
       ${col('Interno', [
         ['Acceso de asesores', 'acceso.html'],

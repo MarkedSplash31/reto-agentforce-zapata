@@ -390,16 +390,23 @@ document.getElementById('form').addEventListener('submit', async (ev) => {
 
 // ── la red de talleres, dato real del catálogo ──────────────────────────────
 
-document.getElementById('enc-red').innerHTML = encabezado(
-  'Localidades',
-  'La red que atiende tu unidad',
-  'Nueve talleres con su horario y la anticipación con la que aparta citas cada uno.',
-);
-
 const red = document.getElementById('sucursales');
 red.innerHTML = cargando('la red de talleres');
 try {
   const d = await (await fetch('/publico/sucursales')).json();
+
+  // El encabezado se escribe DESPUÉS de conocer la respuesta. Antes decía «Nueve
+  // talleres» escrito a mano: un número que la página afirmaba sin haberlo contado y
+  // que dejaba de ser cierto en cuanto la org sumara o diera de baja una sucursal.
+  const cuantos = d.sucursales?.length ?? 0;
+  document.getElementById('enc-red').innerHTML = encabezado(
+    'Localidades',
+    'La red que atiende tu unidad',
+    cuantos
+      ? `${cuantos} ${cuantos === 1 ? 'taller' : 'talleres'} con su horario y la anticipación con la que aparta citas cada uno.`
+      : 'Todavía no hay talleres publicados en el catálogo.',
+  );
+
   red.innerHTML = d.sucursales?.length
     ? d.sucursales
         .map(
@@ -432,5 +439,11 @@ try {
         .join('')
     : `<div class="sm:col-span-2 lg:col-span-3">${vacio('No hay talleres publicados en este momento.')}</div>`;
 } catch (e) {
+  // Si el catálogo no se pudo leer, el encabezado tampoco puede afirmar cuántos hay.
+  document.getElementById('enc-red').innerHTML = encabezado(
+    'Localidades',
+    'La red que atiende tu unidad',
+    'No se pudo leer el catálogo de talleres.',
+  );
   red.innerHTML = `<div class="sm:col-span-2 lg:col-span-3">${bloqueError(e, 'No se pudo cargar la red de talleres')}</div>`;
 }
