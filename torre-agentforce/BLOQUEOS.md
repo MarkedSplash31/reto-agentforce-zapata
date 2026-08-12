@@ -510,8 +510,31 @@ traza reporta una consulta de disponibilidad, y el material de apoyo cuando repo
 una de conocimiento. Hasta que la org las registre, ese código queda inerte y las
 dos capacidades se abren sólo cuando el cliente las pide.
 
-### Mientras tanto
+### El síntoma está resuelto; la traza sigue incompleta
 
-Las tres capacidades están disponibles sin depender del agente, desde la portada y
-desde el espacio de trabajo: agenda del taller, qué cubre cada modelo y material de
-apoyo. El cliente no tiene que negociar por chat lo que la plataforma resuelve.
+**La lista dictada ya no ocurre.** El servidor comprueba contra el catálogo real si
+el cliente nombró un taller —`sucursalMencionada`, mismo criterio que el que detecta
+un número de serie: un HECHO contra la org, no una intención adivinada— y emite un
+evento `Capacidad`. La pantalla abre la agenda de ESE taller, cargada, con sus
+franjas y sus tipos de servicio.
+
+Verificado tecleando en el sitio contra la org: a «Quiero agendar un servicio en el
+taller de Querétaro para mi unidad», el agente pide el VIN en la conversación y el
+calendario de Querétaro aparece con 31 franjas y cinco tipos de servicio, sin que el
+cliente lo pida. `tests/sucursal-mencionada.test.ts` fija los límites de la
+detección, incluidos los dos falsos positivos que encontró: «Leonardo» no nombra el
+taller de León, y `FL-GDLRM` no puede resolverse como `FL-GDL`, que es prefijo suyo
+y designa otro taller.
+
+Las tres capacidades siguen además a un clic desde la portada y desde el espacio de
+trabajo, sin depender del agente.
+
+**Lo que sigue abierto es la auditoría, no la experiencia.** El expediente que ve el
+asesor enseña lo que el agente ESCRIBIÓ —órdenes, reportes, casos, con su subagente
+y su resultado— pero no lo que consultó, porque esas dos acciones no dejan traza.
+Cerrarlo exige tocar el bundle del agente: añadir la entrada de correlación a las
+dos acciones, regenerar los esquemas de sus GenAiFunction —que no se regeneran si
+sólo cambian los `.json`, hay que tocar también el `.genAiFunction-meta.xml`— y
+republicar y activar una versión nueva. No se hizo en la misma sesión en la que el
+agente está atendiendo citas reales: republicarlo tiene precedentes de costar horas
+en este proyecto, y la experiencia que motivaba el cambio ya no depende de él.

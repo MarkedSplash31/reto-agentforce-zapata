@@ -1,7 +1,9 @@
-import { bloqueError, cargando, vacio, chip, escapar, fecha } from '../sistema.js';
+import { bloqueError, cargando, vacio, chip, escapar, fecha, numero } from '../sistema.js';
 
 const bandeja = document.getElementById('bandeja');
 const conteo = document.getElementById('conteo');
+const filtro = document.getElementById('filtro');
+const contexto = document.getElementById('contexto');
 const hilo = document.getElementById('hilo');
 const cabecera = document.getElementById('cabecera');
 const entrada = document.getElementById('entrada');
@@ -9,6 +11,7 @@ const boton = document.getElementById('enviar');
 
 let casoActual = null;
 let fuente = null;
+let casosEnMemoria = [];
 const vistos = new Set();
 
 // Sin sesión de asesor esta pantalla no existe. Se comprueba antes de pintar nada.
@@ -126,9 +129,33 @@ async function cargarBandeja() {
       return;
     }
     const d = await res.json();
-    const casos = d.casos ?? [];
-    conteo.textContent = casos.length ? `${casos.length}` : '';
+    casosEnMemoria = d.casos ?? [];
+    pintarBandeja();
+  } catch (e) {
+    bandeja.innerHTML = bloqueError(e, 'No se pudo leer la lista de conversaciones');
+  }
+}
 
+/**
+ * La cola llega a decenas de casos y muchos comparten asunto —«Escalamiento
+ * solicitado desde Agentforce»—, así que sin filtro encontrar el que un cliente
+ * acaba de escalar era cuestión de suerte. Se filtra en memoria: ya están todos.
+ */
+function pintarBandeja() {
+  const termino = (filtro?.value ?? '').trim().toLowerCase();
+  const casos = termino
+    ? casosEnMemoria.filter((c) =>
+        `${c.caseNumber ?? ''} ${c.asunto ?? ''}`.toLowerCase().includes(termino),
+      )
+    : casosEnMemoria;
+
+  conteo.textContent = termino
+    ? `${casos.length} de ${casosEnMemoria.length}`
+    : casosEnMemoria.length
+      ? `${casosEnMemoria.length}`
+      : '';
+
+  try {
     bandeja.innerHTML = casos.length
       ? casos
           .map(
@@ -144,15 +171,21 @@ async function cargarBandeja() {
       </button>`,
           )
           .join('')
-      : vacio('No hay conversaciones esperando. Cuando un cliente pida hablar con una persona, aparecerá aquí.');
+      : vacio(
+          termino
+            ? `Ninguna conversación coincide con «${termino}».`
+            : 'No hay conversaciones esperando. Cuando un cliente pida hablar con una persona, aparecerá aquí.',
+        );
 
     for (const b of bandeja.querySelectorAll('button[data-caso]')) {
       b.addEventListener('click', () => abrir(b.dataset.caso));
     }
   } catch (e) {
-    bandeja.innerHTML = bloqueError(e, 'No se pudo leer la lista de conversaciones');
+    bandeja.innerHTML = bloqueError(e, 'No se pudo pintar la lista de conversaciones');
   }
 }
+
+filtro?.addEventListener('input', pintarBandeja);
 
 async function abrir(id) {
   casoActual = id;
@@ -180,6 +213,10 @@ async function abrir(id) {
 
     hilo.innerHTML = '';
     (c.comentarios ?? []).forEach(burbuja);
+
+    // El expediente en paralelo: que tarde en releerse la traza no debe retrasar la
+    // conversación, que es lo que el asesor necesita primero.
+    void cargarContexto(id);
 
     entrada.disabled = false;
     boton.disabled = false;
@@ -210,6 +247,139 @@ async function abrir(id) {
     await cargarBandeja();
   } catch (e) {
     hilo.innerHTML = bloqueError(e, 'No se pudo abrir la conversación');
+  }
+}
+
+/* ══ el expediente de la conversación ═════════════════════════════════════
+   Lo que ocurrió bajo la misma correlación y no llegaba a esta pantalla: la
+   unidad de la que se habló, la orden que se creó, el reporte de carretera y
+   qué subagente ejecutó qué. Todo releído de la org, nada deducido del texto. */
+
+function filas(pares) {
+  const vivas = pares.filter(([, v]) => v !== undefined && v !== null && v !== '');
+  if (!vivas.length) return '';
+  return `<dl class="space-y-1.5">${vivas
+    .map(
+      ([k, v, mono]) => `
+      <div class="flex justify-between gap-4">
+        <dt class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(k)}</dt>
+        <dd class="text-[11px] ${mono ? 'font-mono tracking-wide' : ''} text-gray-300 text-right">${escapar(String(v))}</dd>
+      </div>`,
+    )
+    .join('')}</dl>`;
+}
+
+function bloque(titulo, cuerpo) {
+  // Superficie sobre el lienzo, igual que el resto de las tarjetas del panel: una
+  // tarjeta del mismo color que su fondo no se ve.
+  return `
+    <div class="border border-white/5 bg-[#0d0e12] p-5">
+      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3">${escapar(titulo)}</p>
+      ${cuerpo}
+    </div>`;
+}
+
+async function cargarContexto(id) {
+  contexto.innerHTML = cargando('el expediente de la conversación');
+  try {
+    const res = await fetch(`/publico/panel/caso/${encodeURIComponent(id)}/contexto`);
+    if (res.status === 401) {
+      location.replace('acceso.html');
+      return;
+    }
+    const d = await res.json();
+    if (!res.ok) throw new Error(d.mensaje || `El servidor respondió ${res.status}`);
+
+    if (!d.correlationId) {
+      contexto.innerHTML = bloque(
+        'Expediente',
+        '<p class="text-gray-500 text-xs font-light leading-relaxed">Este caso no trae correlación, así que no hay traza que releer.</p>',
+      );
+      return;
+    }
+
+    const partes = [];
+
+    if (d.unidades?.length) {
+      partes.push(
+        bloque(
+          'Unidad de la que se habló',
+          `<ul class="space-y-1.5">${d.unidades
+            .map((v) => `<li class="text-[11px] font-mono tracking-wide text-white">${escapar(v)}</li>`)
+            .join('')}</ul>`,
+        ),
+      );
+    }
+
+    for (const o of d.ordenes ?? []) {
+      partes.push(
+        bloque(
+          'Cita en taller',
+          filas([
+            ['Folio', o.folio, true],
+            ['Estado', o.estado],
+            ['Taller', o.sucursal, true],
+            ['Inicio', o.inicio ? fecha(o.inicio) : null],
+            ['Síntoma', o.sintoma],
+          ]),
+        ),
+      );
+    }
+
+    for (const v of d.varadas ?? []) {
+      partes.push(
+        bloque(
+          'Reporte de carretera',
+          filas([
+            ['Folio', v.folio, true],
+            ['Carretera', v.carretera],
+            ['Kilómetro', v.kilometro === null || v.kilometro === undefined ? null : numero(v.kilometro)],
+            ['Prioridad', v.prioridad],
+            ['Estado', v.estado],
+          ]),
+        ),
+      );
+    }
+
+    if (d.acciones?.length) {
+      partes.push(
+        bloque(
+          `Lo que ejecutó el asistente · ${d.acciones.length}`,
+          `<ul class="space-y-2.5">${d.acciones
+            .map(
+              (a) => `
+            <li class="flex items-start justify-between gap-3 border-b border-white/5 pb-2.5 last:border-0 last:pb-0">
+              <div class="min-w-0">
+                <p class="text-[11px] text-gray-200">${escapar((a.accion ?? 'acción').replace(/_/g, ' '))}</p>
+                <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-1">${escapar(a.subagente ?? 'sin subagente')} · ${escapar(a.folio)}</p>
+              </div>
+              ${chip(a.resultado ?? '—', a.resultado === 'SUCCESS' ? 'ok' : a.resultado === 'BLOCKED' ? 'bloqueo' : a.resultado ? 'error' : 'neutro')}
+            </li>`,
+            )
+            .join('')}</ul>`,
+        ),
+      );
+    }
+
+    if (!partes.length) {
+      partes.push(
+        bloque(
+          'Expediente',
+          `<p class="text-gray-500 text-xs font-light leading-relaxed">
+             El asistente no dejó traza bajo esta conversación: no ejecutó ninguna acción
+             que registre, o el cliente pidió una persona antes de que hiciera nada.
+           </p>`,
+        ),
+      );
+    }
+
+    contexto.innerHTML = `
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${partes.join('')}</div>
+      <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-4">
+        Folio de la visita · <span class="font-mono tracking-wide text-gray-500">${escapar(d.correlationId)}</span>
+      </p>`;
+  } catch (e) {
+    contexto.innerHTML = bloqueError(e, 'No se pudo leer el expediente de la conversación');
   }
 }
 

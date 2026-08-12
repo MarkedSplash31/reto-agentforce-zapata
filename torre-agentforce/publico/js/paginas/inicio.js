@@ -282,9 +282,10 @@ const CAPACIDADES = {
   agenda: {
     eyebrow: 'Taller',
     titulo: 'Elige tu cita',
-    async montar(raiz) {
+    async montar(raiz, opciones) {
       agenda = await montarAgenda(raiz, {
         vin: vinConocido,
+        sucursal: opciones?.sucursal ?? null,
         alAgendar: (cita) => {
           // Queda en el hilo: la conversación es el registro de lo que se hizo,
           // aunque lo haya hecho el cliente con sus propias manos.
@@ -296,7 +297,10 @@ const CAPACIDADES = {
         },
       });
     },
-    alReabrir: () => agenda?.conVin(vinConocido),
+    alReabrir: (opciones) => {
+      agenda?.conVin(vinConocido);
+      if (opciones?.sucursal) void agenda?.enTaller(opciones.sucursal);
+    },
   },
   modelos: {
     eyebrow: 'Garantía',
@@ -310,13 +314,13 @@ const CAPACIDADES = {
   },
 };
 
-async function abrirCapacidad(clave) {
+async function abrirCapacidad(clave, opciones) {
   const capacidad = CAPACIDADES[clave];
   if (!capacidad) return;
   entrarAlEspacio();
   const raiz = panel.componente(clave, capacidad.eyebrow, capacidad.titulo);
   if (raiz.dataset.montado === 'si') {
-    capacidad.alReabrir?.();
+    capacidad.alReabrir?.(opciones);
     return;
   }
   raiz.dataset.montado = 'si';
@@ -324,7 +328,7 @@ async function abrirCapacidad(clave) {
   // persona que lo atiende sabe qué estuvo mirando en vez de empezar de cero: hoy
   // sólo recibe los mensajes, y el trabajo hecho en la plataforma se perdía.
   turnos.push({ autor: 'cliente', texto: `Abrí «${capacidad.titulo}» en la plataforma.` });
-  await capacidad.montar(raiz);
+  await capacidad.montar(raiz, opciones);
 }
 
 // ── atajos de la portada ────────────────────────────────────────────────────
@@ -505,6 +509,11 @@ compositor.addEventListener('submit', async (ev) => {
           const accion = d.accion ?? '';
           if (/Consultar_disponibilidad|Disponibilidad/i.test(accion)) void abrirCapacidad('agenda');
           else if (/Conocimiento/i.test(accion)) void abrirCapacidad('manuales');
+        } else if (tipo === 'Capacidad') {
+          // El servidor comprobó contra el catálogo que el cliente nombró un taller.
+          // La agenda de ESE taller se abre sola, ya cargada: es lo que estaba
+          // pidiendo, y leerlo dictado en prosa era lo que sobraba.
+          void abrirCapacidad(d.capacidad, { sucursal: d.sucursal });
         } else if (tipo === 'Escalado') {
           // No se cambia de interlocutor a mitad del texto: se anota y se aplica al
           // cerrar el turno, para que el cliente lea completa la última respuesta del

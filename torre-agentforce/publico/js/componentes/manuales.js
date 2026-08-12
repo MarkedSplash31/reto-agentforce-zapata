@@ -98,7 +98,7 @@ export async function montarManuales(raiz) {
           class="w-full text-left group" aria-expanded="${abierto === a.id ? 'true' : 'false'}">
           <div class="flex items-start justify-between gap-4 mb-1.5">
             <span class="text-xs text-gray-100 group-hover:text-white transition-colors">${escapar(a.titulo)}</span>
-            ${chip(a.verificado ? escapar(a.version) : 'Sin verificar', a.verificado ? 'ok' : 'bloqueo')}
+            ${chip(a.version || 'Sin versión', a.verificado ? 'ok' : 'bloqueo')}
           </div>
           ${a.resumen ? `<p class="text-[11px] text-gray-500 font-light leading-relaxed">${escapar(a.resumen)}</p>` : ''}
         </button>

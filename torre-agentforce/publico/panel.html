@@ -38,11 +38,28 @@
             <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">En espera</p>
             <span id="conteo" class="text-[10px] uppercase tracking-widest text-amber-400"></span>
           </div>
-          <div id="bandeja" class="space-y-3" aria-live="polite"></div>
+          <!--
+            La cola llega a decenas de casos y muchos comparten asunto: sin filtro,
+            encontrar el que un cliente acaba de escalar es imposible.
+          -->
+          <label class="sr-only" for="filtro">Filtrar conversaciones</label>
+          <input id="filtro" autocomplete="off" placeholder="Filtrar por folio o asunto"
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs mb-4 focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+          <div id="bandeja" class="space-y-3 max-h-[560px] overflow-y-auto" aria-live="polite"></div>
         </div>
       </div>
 
       <div class="lg:col-span-2 space-y-6">
+
+        <!--
+          El expediente de la conversación, no sólo sus mensajes. Todo lo que ocurrió
+          bajo la misma correlación —la unidad, la orden, el reporte de carretera, qué
+          subagente ejecutó qué— vive en la org y hasta ahora no llegaba a esta
+          pantalla: el asesor tenía que deducirlo leyendo el hilo o volver a
+          preguntárselo al cliente que ya lo había contado.
+        -->
+        <div id="contexto" aria-live="polite"></div>
+
         <div class="border border-white/5 bg-[#0d0e12] flex flex-col min-h-[520px]">
           <div id="cabecera" class="border-b border-white/5 p-4"></div>
           <div id="hilo" role="log" aria-live="polite" aria-relevant="additions"

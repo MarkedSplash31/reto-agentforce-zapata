@@ -25,7 +25,7 @@
     "preverificar:diseno": "npm run build:frontend",
     "verificar:diseno": "node scripts/verificar-diseno.mjs",
     "test": "npm run test:unit && npm run test:agent-protocol && npm run test:e2e",
-    "test:unit": "node --experimental-strip-types --test tests/security/auth-ansi.test.ts tests/security/config.test.ts tests/security/evidence-and-logs.test.ts tests/security/oidc.test.ts tests/security/oidc-config.test.ts tests/security/oidc-server.test.ts tests/security/security.test.ts tests/security/superficie-cliente.test.ts tests/security/deteccion-escalamiento.test.ts tests/security/server.test.ts tests/security/shutdown.test.ts tests/escalamiento-apex.test.ts tests/verificar-escalamiento-agentforce.test.ts tests/vin-mencionado.test.ts",
+    "test:unit": "node --experimental-strip-types --test tests/security/auth-ansi.test.ts tests/security/config.test.ts tests/security/evidence-and-logs.test.ts tests/security/oidc.test.ts tests/security/oidc-config.test.ts tests/security/oidc-server.test.ts tests/security/security.test.ts tests/security/superficie-cliente.test.ts tests/security/deteccion-escalamiento.test.ts tests/security/server.test.ts tests/security/shutdown.test.ts tests/escalamiento-apex.test.ts tests/verificar-escalamiento-agentforce.test.ts tests/vin-mencionado.test.ts tests/sucursal-mencionada.test.ts tests/version-acredita.test.ts",
     "test:agent-protocol": "node --experimental-strip-types scripts/prueba-protocolo-agente.ts",
     "pretest:e2e": "npm run build:frontend",
     "test:e2e": "playwright test",

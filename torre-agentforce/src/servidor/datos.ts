@@ -658,6 +658,20 @@ export interface ArticuloPublicado {
 }
 
 /**
+ * Una versión que se declara sintética o no verificada NO acredita nada.
+ *
+ * Los 20 artículos de la org llevan hoy `v1.0-sintetica-no-verificada`: tienen
+ * versión, y tomar la mera presencia del campo por acreditación pintaba en verde
+ * justo lo que ese texto niega. La versión se enseña igual —es el dato—, pero el
+ * veredicto lo da lo que dice, no que exista.
+ */
+export function versionAcredita(version: string | null): boolean {
+  const v = (version ?? '').trim();
+  if (!v) return false;
+  return !/no[\s_-]*verificad|sintetic|sintétic|sin[\s_-]*version/i.test(v);
+}
+
+/**
  * Los artículos que el agente consulta, legibles también sin conversación.
  *
  * Hasta ahora este material sólo salía por boca del agente: `BuscarConocimientoPostventa`
@@ -694,7 +708,7 @@ export async function listarConocimiento(busqueda?: string): Promise<Listado<Art
     resumen: a.Summary,
     contenido: a.Contenido__c,
     version: a.Version_Politica__c,
-    verificado: Boolean(a.Version_Politica__c && a.Version_Politica__c.trim()),
+    verificado: versionAcredita(a.Version_Politica__c),
   }));
   return { total: registros.length, registros };
 }

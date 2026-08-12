@@ -389,5 +389,13 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
     conVin(nuevo) {
       if (nuevo) numeroDeSerie = nuevo;
     },
+    /** El cliente nombró un taller en la conversación: se cambia a ése. */
+    async enTaller(clave) {
+      if (!clave || clave === taller || !red.some((s) => s.clave === clave)) return;
+      taller = clave;
+      tipoFiltro = null;
+      pintarTalleres();
+      await cargarFranjas();
+    },
   };
 }

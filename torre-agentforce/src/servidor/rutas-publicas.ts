@@ -109,6 +109,88 @@ export function vinMencionado(texto: string): string | null {
   return null;
 }
 
+/** Sin acentos y en minúsculas, igual que hace `ZapataAgendaController` en Apex. */
+function plegar(texto: string): string {
+  return texto
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase();
+}
+
+/**
+ * El taller que el cliente nombró, o `null`.
+ *
+ * Mismo criterio que `vinMencionado`: no se adivina una intención, se comprueba un
+ * HECHO contra el catálogo real de la org. Que alguien escriba «Querétaro» y que
+ * Querétaro sea uno de los nueve talleres es un dato, no una interpretación.
+ *
+ * Se cotejan el código, la ciudad y el nombre, plegando acentos —el catálogo guarda
+ * «Queretaro» sin acento y quien escribe bien no puede quedarse fuera; ese defecto ya
+ * costó que ningún cliente pudiera agendar en Querétaro—. La ciudad exige límite de
+ * palabra para que «leon» no se dispare dentro de «leonardo».
+ */
+export function sucursalMencionada(
+  texto: string,
+  sucursales: ReadonlyArray<{ clave?: string | null; ciudad?: string | null; nombre?: string | null }>,
+): string | null {
+  const plano = plegar(texto ?? '');
+  if (!plano.trim()) return null;
+
+  const nombra = (valor: string): boolean => {
+    const v = valor.trim();
+    if (v.length < 4) return false;
+    // Límite de palabra propio: `\b` trata el guion como frontera y `fl-gdl` casaría
+    // dentro de `fl-gdlrm`. Aquí la frontera son los caracteres que no forman parte
+    // de un código ni de un nombre.
+    const escapado = v.replace(/[.*+?^${}()|[\]\\-]/g, '\\$&');
+    return new RegExp(`(^|[^a-z0-9-])${escapado}([^a-z0-9-]|$)`).test(plano);
+  };
+
+  // Los códigos, del más largo al más corto: si el cliente dicta `FL-GDLRM`, ese
+  // gana sobre `FL-GDL`, que es prefijo suyo y designa otro taller.
+  const porCodigo = [...sucursales]
+    .filter((s) => (s.clave ?? '').trim().length >= 4)
+    .sort((a, b) => (b.clave ?? '').length - (a.clave ?? '').length);
+  for (const s of porCodigo) {
+    if (nombra(plegar(s.clave ?? ''))) return s.clave ?? null;
+  }
+
+  for (const s of sucursales) {
+    // `Ciudad__c` viene como «Queretaro, Queretaro» o «Apodaca, Nuevo Leon»: lo que
+    // el cliente escribe es la ciudad, no la cadena entera con su estado.
+    const ciudad = plegar(s.ciudad ?? '').split(',')[0] ?? '';
+    if (nombra(ciudad)) return s.clave ?? null;
+  }
+
+  for (const s of sucursales) {
+    if (nombra(plegar(s.nombre ?? ''))) return s.clave ?? null;
+  }
+  return null;
+}
+
+/**
+ * El catálogo de talleres, releído como mucho una vez por minuto.
+ *
+ * Cada turno de conversación lo consultaría si no: son nueve filas que no cambian
+ * entre mensajes, y la cuota diaria de API de la org es finita —agotarla deja al
+ * sitio sin catálogo, sin cobertura y sin disponibilidad—.
+ */
+const MS_CATALOGO_FRESCO = 60_000;
+let catalogoTalleres: { en: number; lista: Array<{ clave: string | null; ciudad: string | null; nombre: string }> } | null =
+  null;
+
+async function talleres(): Promise<Array<{ clave: string | null; ciudad: string | null; nombre: string }>> {
+  if (catalogoTalleres && Date.now() - catalogoTalleres.en < MS_CATALOGO_FRESCO) return catalogoTalleres.lista;
+  const r = await datos.listarSucursales();
+  const lista = r.registros.map((s) => ({
+    clave: s.Codigo_Sucursal__c,
+    ciudad: s.Ciudad__c,
+    nombre: s.Name,
+  }));
+  catalogoTalleres = { en: Date.now(), lista };
+  return lista;
+}
+
 /**
  * Antepone al mensaje del cliente lo que la ORG dice sobre el número de serie que
  * mencionó, si mencionó alguno.
@@ -625,6 +707,20 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
           }),
         );
       }
+      // Si el cliente nombró un taller del catálogo, la pantalla abre su agenda.
+      //
+      // Por qué aquí y no esperando a que el agente lo diga: `Consultar_disponibilidad`
+      // no escribe en `Log_Agente__c`, así que cuando el agente sólo consulta no hay
+      // traza que releer y su respuesta se queda en prosa —una lista dictada de la que
+      // el cliente tiene que contestar «la opción 5»—. Esto no adivina una intención:
+      // comprueba un hecho contra el catálogo real, igual que se comprueba un VIN.
+      try {
+        const taller = sucursalMencionada(texto, await talleres());
+        if (taller) emitir('Capacidad', { capacidad: 'agenda', sucursal: taller });
+      } catch {
+        // El catálogo no contestó. La conversación no se interrumpe por esto: la
+        // agenda sigue estando a un clic desde el espacio de trabajo.
+      }
       emitir('Fin', { correlationId: sesion.correlationId });
     } catch (e) {
       // El fallo viaja por el mismo canal: si se cerrara callado, el cliente se
@@ -854,6 +950,65 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
       }
 
       json(res, 200, { respuesta, actividad: ejecutado });
+      return true;
+    }
+
+    // ── el expediente completo de la conversación escalada ──────────────────
+    //
+    // Hasta ahora el asesor abría un caso y sólo veía TEXTO: los mensajes y el
+    // contexto que Apex sembró. Todo lo demás que ocurrió bajo esa misma
+    // conversación —la unidad de la que se habló, la orden que se creó, el reporte
+    // de carretera, qué subagente ejecutó qué y con qué resultado— existe en la org
+    // colgado del mismo `Correlation_Id__c` y no llegaba a su pantalla. Tenía que
+    // deducirlo leyendo, o preguntárselo al cliente que ya lo había contado.
+    //
+    // Es la misma traza que audita el reto, proyectada para quien atiende.
+    if (sufijo === 'contexto') {
+      exigirSesion(ctx.cookies, 'admin');
+      const conv = await escalamiento.conversacion(caseId);
+      const correlationId = conv.caso.correlationId;
+      if (!correlationId) {
+        json(res, 200, { correlationId: null, hay: false, motivo: 'El caso no trae correlación.' });
+        return true;
+      }
+
+      const t = await datos.traza(correlationId);
+      const unidades = [
+        ...new Set(
+          t.logs
+            .map((l) => l.Asset__r?.SerialNumber)
+            .filter((v): v is string => Boolean(v)),
+        ),
+      ];
+
+      json(res, 200, {
+        correlationId,
+        hay: t.existe,
+        unidades,
+        ordenes: t.relacionados.ordenes.map((o) => ({
+          folio: o.WorkOrderNumber,
+          estado: o.Status,
+          inicio: o.StartDate,
+          sucursal: o.Sucursal__r?.Codigo_Sucursal__c ?? null,
+          sintoma: o.Sintoma_Reportado__c ?? null,
+        })),
+        varadas: t.relacionados.varadas.map((v) => ({
+          folio: v.Name,
+          carretera: v.Carretera__c,
+          kilometro: v.Kilometro__c,
+          estado: v.Estado__c,
+          prioridad: v.Prioridad__c,
+        })),
+        acciones: t.logs.map((l) => ({
+          folio: l.Name,
+          subagente: l.Subagent__c,
+          accion: l.Action_Name__c,
+          resultado: l.Outcome__c,
+          guardrail: l.Guardrail_Triggered__c ?? null,
+          creadoEn: l.Timestamp__c ?? l.CreatedDate,
+        })),
+        resumen: t.resumen,
+      });
       return true;
     }
 
