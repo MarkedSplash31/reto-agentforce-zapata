@@ -36,8 +36,31 @@ function aISO(fecha) {
   return fecha.toISOString().slice(0, 10);
 }
 
-function diaLegible(iso) {
+/**
+ * La fecha LOCAL de un instante, como `YYYY-MM-DD`.
+ *
+ * Agrupar por `inicio.slice(0, 10)` agrupa por la fecha UTC, que no es la del cliente.
+ * Con las franjas de hoy —15:00Z a 23:00Z, o sea 09:00 a 17:00 en México— las dos
+ * coinciden y no se notaba; una franja a las 19:00 locales caería en el día siguiente.
+ */
+export function diaLocal(iso) {
   const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+
+/**
+ * El día que el cliente lee sobre un grupo de franjas.
+ *
+ * Recibe `YYYY-MM-DD` y lo construye por partes, en local. Antes hacía
+ * `new Date('2026-08-14')`, y eso NO es el 14 a medianoche local: es medianoche UTC,
+ * que en México (UTC-6) cae a las 18:00 del día 13. El encabezado decía «jueves 13»
+ * encima de franjas del viernes 14 —comprobado contra la org— mientras el asistente,
+ * en la conversación de al lado, decía el día correcto. Un cliente que leyera el panel
+ * se presentaba un día antes.
+ */
+export function diaLegible(fecha) {
+  const [anio, mes, dia] = String(fecha).slice(0, 10).split('-').map(Number);
+  const d = new Date(anio, mes - 1, dia);
   return `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
 }
 
@@ -265,7 +288,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
 
     const porDia = new Map();
     for (const f of visibles) {
-      const dia = f.inicio.slice(0, 10);
+      const dia = diaLocal(f.inicio);
       if (!porDia.has(dia)) porDia.set(dia, []);
       porDia.get(dia).push(f);
     }
@@ -329,7 +352,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
       <form data-agenda-form class="border border-amber-400/30 bg-amber-400/5 p-5">
         <p class="text-[10px] uppercase tracking-[0.3em] text-amber-400/80 mb-3">Confirmar la cita</p>
         <p class="text-gray-200 text-xs font-light leading-relaxed mb-5">
-          ${escapar(diaLegible(franja.inicio.slice(0, 10)))}, de ${escapar(hora(franja.inicio))}${franja.fin ? ` a ${escapar(hora(franja.fin))}` : ''}
+          ${escapar(diaLegible(diaLocal(franja.inicio)))}, de ${escapar(hora(franja.inicio))}${franja.fin ? ` a ${escapar(hora(franja.fin))}` : ''}
           en ${escapar(s?.ciudad || s?.nombre || taller)}${franja.tipo ? ` · ${escapar(franja.tipo)}` : ''}.
         </p>
 

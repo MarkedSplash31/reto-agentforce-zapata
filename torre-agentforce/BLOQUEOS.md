@@ -915,3 +915,39 @@ arnés, así que ningún cliente puede alcanzar esta ruta.
   contradictorio, y como el `stderr` del hijo se descartaba el gate reportaba
   `LOCAL_SERVER_EXITED` sin decir por qué. Se declara el proveedor junto al modo y, si
   vuelve a morir, la consola imprime la causa.
+
+---
+
+## 18. La agenda rotulaba cada día uno antes — RESUELTO
+
+**Impacto: alto mientras duró, y visible para el cliente.** Se encontró usando la
+aplicación, no corriendo pruebas: ningún gate lo cazaba.
+
+En la misma pantalla, sobre la MISMA franja, el asistente decía una cosa y el panel de
+al lado otra:
+
+| | Dice |
+|---|---|
+| El asistente, en la conversación | «Viernes 14 de agosto de 15:00 a 17:00 — Garantía (1 lugar)» |
+| El panel, encima de esa franja | «JUEVES 13 DE AGOSTO · 15:00–17:00 · GARANTIA · 1 LUGARES» |
+| La organización, releída por SOQL | `2026-08-14T21:00Z` = **viernes 14, 15:00** en México |
+
+El asistente tenía razón. Todos los encabezados del panel iban un día atrasados, y el
+grupo de hoy aparecía rotulado como ayer. Un cliente que se guiara por el panel —que es
+la parte que se puede tocar— se presentaba un día antes al taller.
+
+**La causa.** `new Date('2026-08-14')` no es el 14 a medianoche local: es medianoche
+UTC, y en México (UTC-6) eso cae a las 18:00 del día 13. La agenda construía el
+encabezado a partir de la fecha suelta, y además agrupaba por `inicio.slice(0, 10)`, que
+es la fecha UTC del instante y no la del cliente.
+
+**El arreglo.** `diaLocal` deriva la fecha local del instante y `diaLegible` la
+construye por partes, en local. Comprobado en el navegador contra la organización:
+viernes 14 con sus dos franjas, lunes 17 con cinco, martes 18 con cinco.
+
+**Por qué no lo cazaba nada.** Las pruebas de interfaz comprueban que la agenda pinta
+franjas, no que el día que rotula sea el día que es; y las de datos leen la organización
+sin pasar por el navegador. `tests/dia-de-la-franja.test.ts` lo fija ahora ejecutando las
+dos funciones en un proceso con la zona horaria de México —y otro en Madrid, para que un
+arreglo a base de restar horas tampoco pase—. Con el código anterior devuelve
+«jueves 13»; con el actual, «viernes 14».
