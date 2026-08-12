@@ -24,6 +24,7 @@ import { crearPanel } from '../panel-contextual.js';
 import { montarAgenda } from '../componentes/agenda.js';
 import { montarModelos } from '../componentes/modelos.js';
 import { montarManuales } from '../componentes/manuales.js';
+import { separarProcedencia } from '../procedencia.js';
 
 const app = document.getElementById('app');
 const compositor = document.getElementById('compositor');
@@ -131,6 +132,23 @@ function turno(quien, texto) {
   return fila.querySelector('p:last-child');
 }
 
+/** Aplica la depuración al turno ya pintado, al cerrar la respuesta. */
+function marcarProcedencia(parrafo, texto) {
+  if (!parrafo) return;
+  const { cuerpo, marcas } = separarProcedencia(texto);
+  if (!marcas.length) return;
+  parrafo.textContent = cuerpo;
+
+  const titulos = marcas.find((m) => /Material|T[ií]tulos/i.test(m.etiqueta))?.valor;
+  const version = marcas.find((m) => /Estado de la fuente/i.test(m.etiqueta))?.valor;
+  const pie = document.createElement('div');
+  pie.className = 'mt-3 pt-3 border-t border-white/5';
+  pie.innerHTML = `
+    ${version ? chip(version, 'bloqueo') : ''}
+    ${titulos ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mt-2 leading-relaxed">Material consultado · ${escapar(titulos)}</p>` : ''}`;
+  parrafo.parentElement?.appendChild(pie);
+}
+
 function nota(texto, tono = 'neutro') {
   const p = document.createElement('p');
   const color = tono === 'error' ? 'text-red-300' : tono === 'ok' ? 'text-emerald-300' : 'text-gray-500';
@@ -145,10 +163,18 @@ function bloquear(si) {
   entrada.disabled = si;
 }
 
+/** El folio del caso que atiende una persona, cuando lo hay. */
+let casoConAsesor = null;
+
 function marcarInterlocutor(quien) {
   if (quien === 'asesor') {
     conAsesor = true;
-    interlocutor.textContent = 'Asesor de postventa';
+    // El folio va en la cabecera, no en un aviso suelto: es lo que el cliente
+    // necesita tener a la vista para preguntar por su caso, y al recargar era lo
+    // único que no se veía por ningún lado.
+    interlocutor.textContent = casoConAsesor
+      ? `Asesor de postventa · caso ${casoConAsesor}`
+      : 'Asesor de postventa';
     punto.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0';
     estado.innerHTML = chip('Con una persona', 'bloqueo');
     entrada.placeholder = 'Escríbele al asesor';
@@ -200,6 +226,7 @@ async function pasarConAsesor(motivo, avisar = true) {
     const d = await res.json();
     if (!res.ok) throw new Error(d.mensaje || `El servidor respondió ${res.status}`);
 
+    casoConAsesor = d.caseNumber ?? casoConAsesor;
     marcarInterlocutor('asesor');
     if (avisar) nota('Te pasamos con un asesor de postventa. Sigue escribiendo aquí mismo.', 'ok');
     panel.aviso(
@@ -220,7 +247,18 @@ async function pasarConAsesor(motivo, avisar = true) {
  */
 function adoptarAsesor(caseNumber) {
   if (conAsesor) return;
+  casoConAsesor = caseNumber ?? casoConAsesor;
   marcarInterlocutor('asesor');
+  // El agente escaló por su cuenta y el expediente se queda sin la conversación: el
+  // sobre de escalamiento y nada más. La app sí la tiene, así que se la manda. El
+  // asesor abre el caso y lee lo que pasó, en vez de preguntarlo otra vez.
+  void fetch('/publico/asesor/abrir', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ turnos: turnos.slice(-40) }),
+  }).catch(() => {
+    /* el cliente ya está con una persona; esto sólo enriquece su expediente */
+  });
   nota('Te pasamos con un asesor de postventa. Sigue escribiendo aquí mismo.', 'ok');
   panel.aviso(
     'Te estamos pasando con una persona',
@@ -399,6 +437,7 @@ try {
   }
 
   if (sesion.tieneEscalamiento) {
+    casoConAsesor = sesion.escalamiento?.caseNumber ?? null;
     // El cliente ya venía hablando con una persona: se retoma donde quedó, y con
     // conversación viva la pantalla arranca ya en el espacio de trabajo.
     marcarInterlocutor('asesor');
@@ -594,6 +633,11 @@ compositor.addEventListener('submit', async (ev) => {
         }
       }
     }
+
+    // Al cerrar el turno: el preámbulo de procedencia deja de ser prosa y pasa a ser
+    // una marca. Se hace ahora y no mientras llega, porque el texto se acumula por
+    // partes y a media respuesta no se sabe dónde acaba el preámbulo.
+    if (parrafo && acumulado) marcarProcedencia(parrafo, acumulado);
 
     if (acumulado) turnos.push({ autor: 'agente', texto: acumulado });
 

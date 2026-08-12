@@ -52,6 +52,14 @@ export async function montarModelos(raiz) {
   function pintar() {
     const modelo = modelos.find((m) => m.nombre === elegido) ?? modelos[0];
     raiz.innerHTML = `
+      ${
+        datos.mismaPolizaParaTodos
+          ? `<p class="text-[11px] text-amber-300/90 font-light leading-relaxed border-l-2 border-amber-400/40 pl-3 mb-5">
+               Los ${escapar(String(modelos.length))} modelos comparten hoy la misma póliza, sistema por sistema.
+               Cambiar de modelo aquí no cambia lo que cubre.
+             </p>`
+          : ''
+      }
       <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-3">Elige el modelo</p>
       <div class="flex flex-wrap gap-2 mb-6">
         ${modelos

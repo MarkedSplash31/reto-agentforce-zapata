@@ -400,18 +400,30 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         porModelo.set(modelo, sistemas);
       }
     }
+    const modelos = [...porModelo.entries()]
+      .map(([nombre, sistemas]) => ({
+        nombre,
+        sistemas: sistemas.sort(
+          (a, b) => Number(a.esExtendida) - Number(b.esExtendida) || a.sistema.localeCompare(b.sistema),
+        ),
+      }))
+      .sort((a, b) => a.nombre.localeCompare(b.nombre));
+
+    // Hoy los cuatro modelos comparten regla, sistema por sistema. Un selector que
+    // deja elegir modelo y siempre contesta lo mismo insinúa una comparación que no
+    // existe: quien la usa cree estar comparando y no aprende nada. Se dice.
+    const firma = (m: (typeof modelos)[number]) =>
+      m.sistemas
+        .map((s) => `${s.sistema}|${s.mesesLimite}|${s.kmLimite}|${s.sinLimiteKm}|${s.esExtendida}`)
+        .join('·');
+    const mismaPolizaParaTodos = modelos.length > 1 && new Set(modelos.map(firma)).size === 1;
+
     json(res, 200, {
       base: catalogo.parametros
         ? { meses: catalogo.parametros.Meses_Base__c, km: catalogo.parametros.Km_Base__c }
         : null,
-      modelos: [...porModelo.entries()]
-        .map(([nombre, sistemas]) => ({
-          nombre,
-          sistemas: sistemas.sort(
-            (a, b) => Number(a.esExtendida) - Number(b.esExtendida) || a.sistema.localeCompare(b.sistema),
-          ),
-        }))
-        .sort((a, b) => a.nombre.localeCompare(b.nombre)),
+      mismaPolizaParaTodos,
+      modelos,
     });
     return true;
   }
@@ -422,12 +434,24 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     if (!desde || !hasta) {
       throw new HttpRequestError(400, 'RANGO_REQUERIDO', 'Indica el rango de fechas.');
     }
+    // Se piden TODAS y se parten aquí, en vez de dejar que el SOQL descarte las que
+    // no son agendables.
+    //
+    // Con `soloDisponibles` la respuesta era una lista vacía para ocho de los nueve
+    // talleres, y la pantalla decía «este taller no tiene franjas libres». Es falso:
+    // tienen 38 cada uno, con cupo. Lo que no tienen es procedencia verificada, así
+    // que no se pueden apartar —y el guardrail es correcto: la validation rule de
+    // WorkOrder rechaza una franja sin procedencia acreditada—. Pero un taller lleno
+    // y un taller cuya capacidad nadie ha confirmado no se pueden ver igual.
     const r = await datos.listarSlots({ desde, hasta }, url.searchParams.get('sucursal') ?? undefined, {
-      soloDisponibles: true,
-      limite: 200,
+      limite: 400,
     });
+    const agendables = r.registros.filter((s) => s.agendable);
+    const sinCupo = r.registros.filter((s) => s.Disponible__c === false).length;
+    const noVerificadas = r.registros.filter((s) => s.Disponible__c !== false && !s.agendable).length;
+
     json(res, 200, {
-      franjas: r.registros.map((s) => ({
+      franjas: agendables.map((s) => ({
         id: s.Id,
         inicio: s.Inicio__c,
         fin: s.Fin__c,
@@ -435,7 +459,15 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
         libres: s.Cupos_Libres__c,
         sucursal: s.Sucursal__r?.Codigo_Sucursal__c ?? null,
       })),
-      total: r.total,
+      total: agendables.length,
+      /** Lo que existe pero no se puede ofrecer, y por qué. */
+      noOfrecidas: {
+        sinCupo,
+        noVerificadas,
+        motivo: noVerificadas
+          ? 'Este taller tiene horarios en el catálogo, pero su capacidad no está confirmada con el taller, así que no se pueden apartar desde aquí.'
+          : null,
+      },
     });
     return true;
   }
@@ -467,6 +499,43 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
       vin?: string; slotId?: string; sucursalClave?: string; fecha?: string;
       tipoServicio?: string; sintoma?: string;
     }>(req);
+
+    // La compuerta de modelo, ANTES de invocar el Flow.
+    //
+    // El agente no ofrece un taller que no atiende el modelo de la unidad: la
+    // comprueba `ZapataAgendaController`. El Flow que crea la orden NO la aplica, así
+    // que esta ruta —que llega directo a él— podía registrar una cita imposible. Pasó:
+    // la orden 00000072 quedó para un T680 en un taller que no atiende ese modelo.
+    // Un guardrail que sólo cubre uno de los dos caminos no es un guardrail.
+    const vinPedido = String(b.vin ?? '').trim();
+    const clavePedida = String(b.sucursalClave ?? '').trim();
+    if (vinPedido && clavePedida) {
+      const encontradas = await datos.listarUnidades({ busqueda: vinPedido });
+      const unidad = encontradas.registros[0];
+      if (unidad?.Product2Id) {
+        const atienden = await datos.talleresDelModelo(unidad.Product2Id);
+        if (!atienden.includes(clavePedida)) {
+          json(
+            res,
+            200,
+            {
+              ok: false,
+              bloqueado: true,
+              motivo: 'MODELO_NO_ATENDIDO',
+              mensaje:
+                `Ese taller no da servicio al modelo de tu unidad` +
+                (atienden.length
+                  ? `. Sí lo atienden: ${atienden.join(', ')}.`
+                  : `, y hoy no hay ningún taller de la red dado de alta para ese modelo. Un asesor puede revisarlo contigo.`),
+              talleresQueAtienden: atienden,
+            },
+            sesionVisitante(ctx).cookie,
+          );
+          return true;
+        }
+      }
+    }
+
     try {
       const r = await flows.crearOrdenServicio({
         vin: String(b.vin ?? ''),
@@ -786,8 +855,26 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     const b = await cuerpo<{ asunto?: string; mensaje?: string; turnos?: Array<{ autor: string; texto: string }> }>(req);
 
     if (sesion.caseId) {
-      // Ya tiene conversación abierta: se devuelve la misma, no se abre otra.
-      json(res, 200, { caseId: sesion.caseId, correlationId: sesion.correlationId, reusada: true }, cookie);
+      // Ya tiene conversación abierta: se devuelve la misma, no se abre otra. Pero si
+      // la abrió el AGENTE, el expediente se quedó sin la conversación —sólo el sobre
+      // de escalamiento— y el asesor tendría que preguntarle al cliente lo que ya
+      // contó. La app sí la tiene: se siembra, una sola vez por visita.
+      let contextoSembrado = 0;
+      if (!sesion.contextoSembrado && Array.isArray(b.turnos) && b.turnos.length) {
+        try {
+          contextoSembrado = await escalamiento.sembrarContextoDeVisita(sesion.caseId, b.turnos);
+          sesion.contextoSembrado = true;
+        } catch {
+          // Que no se pueda sembrar no rompe la conversación: el cliente ya está con
+          // una persona y el asesor tiene el expediente, aunque más pobre.
+        }
+      }
+      json(
+        res,
+        200,
+        { caseId: sesion.caseId, correlationId: sesion.correlationId, reusada: true, contextoSembrado },
+        cookie,
+      );
       return true;
     }
 
@@ -1022,6 +1109,11 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
           kilometro: v.Kilometro__c,
           estado: v.Estado__c,
           prioridad: v.Prioridad__c,
+          // El asesor tiene que ver esto antes de mandar auxilio: el agente pierde a
+          // veces las respuestas de seguridad y un reporte que dice «no está fuera
+          // del carril» cambia por completo cómo se atiende.
+          fueraDeCarril: v.Fuera_De_Carril__c ?? null,
+          intermitentes: v.Intermitentes_Encendidas__c ?? null,
         })),
         acciones: t.logs.map((l) => ({
           folio: l.Name,

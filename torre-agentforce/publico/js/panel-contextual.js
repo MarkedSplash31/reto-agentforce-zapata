@@ -321,6 +321,18 @@ export function crearPanel(contenedor, { alPintar } = {}) {
         return;
       }
       if (d?.clase === 'varada') {
+        // Las dos respuestas de seguridad se enseñan SIEMPRE, incluso —sobre todo—
+        // cuando quedaron en «no». El agente las pierde a veces: la misma
+        // conversación dejó `true/true` en una corrida y `false/false` en la
+        // siguiente. Quien va a mandar auxilio necesita saber si la unidad está
+        // fuera del carril, y el único que puede corregirlo es quien está ahí.
+        const seguridad =
+          d.fueraDeCarril === false || d.intermitentes === false
+            ? `<p class="text-amber-300 text-xs font-light leading-relaxed mt-4 border-l-2 border-amber-400 pl-3">
+                 Así quedó registrada tu seguridad. Si no es correcto, díselo al
+                 asistente ahora: es lo que verá quien vaya a auxiliarte.
+               </p>`
+            : '';
         agregar(
           tarjeta(
             'Reporte de unidad varada',
@@ -330,7 +342,9 @@ export function crearPanel(contenedor, { alPintar } = {}) {
               ['Carretera', d.carretera],
               ['Kilómetro', d.kilometro === null ? null : numero(d.kilometro)],
               ['Prioridad', d.prioridad],
-            ]),
+              ['Fuera del carril', d.fueraDeCarril === null || d.fueraDeCarril === undefined ? null : d.fueraDeCarril ? 'Sí' : 'No'],
+              ['Intermitentes', d.intermitentes === null || d.intermitentes === undefined ? null : d.intermitentes ? 'Sí' : 'No'],
+            ]) + seguridad,
             'alerta',
           ),
         );

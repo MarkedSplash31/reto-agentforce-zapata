@@ -336,6 +336,10 @@ async function cargarContexto(id) {
             ['Kilómetro', v.kilometro === null || v.kilometro === undefined ? null : numero(v.kilometro)],
             ['Prioridad', v.prioridad],
             ['Estado', v.estado],
+            // Antes de mandar auxilio: el agente pierde a veces estas dos respuestas
+            // y cambian por completo cómo se atiende la unidad.
+            ['Fuera del carril', v.fueraDeCarril === null || v.fueraDeCarril === undefined ? null : v.fueraDeCarril ? 'Sí' : 'No'],
+            ['Intermitentes', v.intermitentes === null || v.intermitentes === undefined ? null : v.intermitentes ? 'Sí' : 'No'],
           ]),
         ),
       );

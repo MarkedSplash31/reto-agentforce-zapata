@@ -538,3 +538,47 @@ sólo cambian los `.json`, hay que tocar también el `.genAiFunction-meta.xml`�
 republicar y activar una versión nueva. No se hizo en la misma sesión en la que el
 agente está atendiendo citas reales: republicarlo tiene precedentes de costar horas
 en este proyecto, y la experiencia que motivaba el cambio ya no depende de él.
+
+---
+
+## 11. El agente pierde a veces las respuestas de seguridad de una unidad varada
+
+**Estado: abierto el 12 de agosto de 2026.** Es del agente, no de la aplicación, y no
+se puede cerrar desde este repositorio.
+
+### Lo observado
+
+El mismo guion, tecleado en el sitio dos veces con las mismas palabras:
+
+| Reporte | Fuera del carril | Intermitentes |
+|---|---|---|
+| `VAR-000063` | true | true |
+| `VAR-000064` | **false** | **false** |
+
+En las dos corridas el cliente dijo, literalmente, *«Sí, está fuera del carril de
+circulación y con las intermitentes encendidas»*, y en las dos el asistente confirmó
+en pantalla el protocolo de seguridad antes de registrar. En la segunda, el Flow
+recibió los dos campos en falso.
+
+Es el defecto más peligroso encontrado: quien lee el reporte para mandar auxilio ve
+una unidad que **no** está fuera del carril y **sin** intermitentes. La consecuencia
+no es una pantalla fea.
+
+### Lo que se hizo mientras tanto
+
+No se puede arreglar desde la web app —el valor lo manda el agente al Flow—, pero sí
+se puede dejar de perder en silencio:
+
+- la tarjeta del cliente muestra ahora **cómo quedaron registradas** las dos
+  respuestas, y cuando alguna está en «No» le dice que lo corrija ahí mismo, porque
+  es lo que verá quien vaya a auxiliarlo;
+- el expediente del asesor las muestra también, antes de despachar.
+
+El único que sabe la verdad es quien está parado en la carretera. Enseñárselo es lo
+que convierte una pérdida silenciosa en algo corregible.
+
+### Lo que falta
+
+Que la acción del agente conserve las dos respuestas. Vive en el bundle
+`Agente_Postventa_Zapata` y en las entradas del Flow `Crear_Reporte_Unidad_Varada`;
+exige republicar y activar una versión nueva del agente.

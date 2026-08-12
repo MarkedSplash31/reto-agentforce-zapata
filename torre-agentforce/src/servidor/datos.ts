@@ -17,7 +17,7 @@
 //
 // Todo valor que venga del usuario pasa por `lit()` antes de tocar un SOQL.
 
-import { consultar, consultarTodo, lit } from './sf.ts';
+import { buscar, consultar, consultarTodo, lit, litSosl } from './sf.ts';
 import { describirProveniencia, esSlotOperacional, type Proveniencia } from './provenance.ts';
 import {
   AccessDeniedError,
@@ -635,6 +635,32 @@ export async function listarSucursales(incluirInactivas = false): Promise<Listad
   return { total: registros.length, registros };
 }
 
+/**
+ * Los talleres que atienden un modelo, por código de sucursal.
+ *
+ * La compuerta existía sólo dentro de `ZapataAgendaController`, la acción con la que
+ * el agente consulta horarios: el agente se niega a ofrecer un taller que no atiende
+ * el modelo de la unidad. El Flow que CREA la orden no la aplica, así que cualquier
+ * camino que llegue directo a él —como la agenda de la propia página— podía crear una
+ * cita que ese taller no puede honrar. Comprobado: la orden 00000072 quedó para un
+ * T680 en un taller sin una sola fila activa en `Modelo_Sucursal__c` para ese par.
+ */
+export async function talleresDelModelo(modeloId: string): Promise<string[]> {
+  if (!modeloId) return [];
+  const filas = limpiar(
+    await consultarTodo<{ Sucursal__r: { Codigo_Sucursal__c: string | null } | null }>(
+      `SELECT Sucursal__r.Codigo_Sucursal__c FROM Modelo_Sucursal__c
+       WHERE Activo__c = true AND Modelo__c = '${lit(modeloId)}'`,
+      'datos.talleresDelModelo',
+    ),
+  );
+  return [
+    ...new Set(
+      filas.map((f) => f.Sucursal__r?.Codigo_Sucursal__c).filter((c): c is string => Boolean(c)),
+    ),
+  ].sort();
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // 5b · Material de apoyo (Knowledge__kav)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -687,20 +713,51 @@ export function versionAcredita(version: string | null): boolean {
  * que el aviso existe para impedir.
  */
 export async function listarConocimiento(busqueda?: string): Promise<Listado<ArticuloPublicado>> {
-  const donde = ["PublishStatus = 'Online'", 'IsLatestVersion = true'];
+  const CAMPOS = 'Id, Title, Summary, Contenido__c, Version_Politica__c';
+  const VIGENTES = "PublishStatus = 'Online' AND IsLatestVersion = true";
   const termino = (busqueda ?? '').trim();
-  if (termino.length >= 2) {
-    const patron = `%${lit(termino)}%`;
-    donde.push(`(Title LIKE '${patron}' OR Summary LIKE '${patron}' OR Contenido__c LIKE '${patron}')`);
-  }
 
-  const crudos = limpiar(
-    await consultarTodo<ArticuloConocimiento>(
-      `SELECT Id, Title, Summary, Contenido__c, Version_Politica__c
-       FROM Knowledge__kav WHERE ${donde.join(' AND ')} ORDER BY Title ASC LIMIT 50`,
-      'datos.listarConocimiento',
-    ),
-  );
+  let crudos: ArticuloConocimiento[] = [];
+
+  if (termino.length >= 2) {
+    // Por SOSL, no por SOQL. `Contenido__c` es un área de texto larga y meterla en un
+    // `WHERE ... LIKE` devuelve INVALID_FIELD: «can not be filtered in a query call».
+    // Con un `LIKE` sólo sobre título y resumen, buscar «electrico» o «mecanica» no
+    // encontraba nada aunque los artículos hablaran de eso: ningún título lleva esas
+    // palabras. Es el mismo camino que sigue el Apex del agente.
+    try {
+      crudos = limpiar(
+        await buscar<ArticuloConocimiento>(
+          `FIND {${litSosl(termino)}} IN ALL FIELDS RETURNING ` +
+            `Knowledge__kav(${CAMPOS} WHERE ${VIGENTES} ORDER BY Title ASC LIMIT 50)`,
+          'datos.listarConocimiento.sosl',
+        ),
+      );
+    } catch {
+      // El índice de búsqueda puede no estar listo para un artículo recién publicado.
+      // Se cae al respaldo en vez de dejar al cliente sin material.
+      crudos = [];
+    }
+
+    if (!crudos.length) {
+      const patron = `%${lit(termino)}%`;
+      crudos = limpiar(
+        await consultarTodo<ArticuloConocimiento>(
+          `SELECT ${CAMPOS} FROM Knowledge__kav
+           WHERE ${VIGENTES} AND (Title LIKE '${patron}' OR Summary LIKE '${patron}')
+           ORDER BY Title ASC LIMIT 50`,
+          'datos.listarConocimiento.respaldo',
+        ),
+      );
+    }
+  } else {
+    crudos = limpiar(
+      await consultarTodo<ArticuloConocimiento>(
+        `SELECT ${CAMPOS} FROM Knowledge__kav WHERE ${VIGENTES} ORDER BY Title ASC LIMIT 50`,
+        'datos.listarConocimiento',
+      ),
+    );
+  }
 
   const registros = crudos.map((a) => ({
     id: a.Id,

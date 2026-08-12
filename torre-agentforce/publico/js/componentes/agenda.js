@@ -72,6 +72,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
   let taller = sucursal;
   let tipoFiltro = null;
   let franjas = [];
+  let noOfrecidas = null;
   let numeroDeSerie = vin;
 
   raiz.innerHTML = `
@@ -150,6 +151,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
         throw e;
       }
       franjas = (d.franjas ?? []).filter((f) => f.inicio);
+      noOfrecidas = d.noOfrecidas ?? null;
       pintarTipos();
       pintarDias();
     } catch (e) {
@@ -201,14 +203,26 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
   function pintarDias() {
     const visibles = franjas.filter((f) => !tipoFiltro || f.tipo === tipoFiltro);
     if (!visibles.length) {
-      nodoDias.innerHTML = `
-        <p class="text-gray-400 text-xs font-light leading-relaxed border border-white/5 bg-[#0d0e12] p-5">
-          ${
-            tipoFiltro
-              ? `Este taller no tiene franjas de ${escapar(tipoFiltro)} en los próximos ${DIAS_HORIZONTE} días.`
-              : `Este taller no tiene franjas libres en los próximos ${DIAS_HORIZONTE} días.`
-          }
-        </p>`;
+      // «No hay lugar» y «no te lo podemos ofrecer» no son lo mismo, y decir el
+      // primero cuando pasa el segundo es mentirle al cliente: ocho de los nueve
+      // talleres tienen horarios en el catálogo cuya capacidad nadie confirmó.
+      const soloNoVerificadas = !tipoFiltro && !franjas.length && noOfrecidas?.noVerificadas > 0;
+      nodoDias.innerHTML = soloNoVerificadas
+        ? `<div class="border border-amber-400/30 bg-amber-400/5 p-5" role="status">
+             <p class="text-[10px] uppercase tracking-[0.3em] text-amber-400/80 mb-2">Horario por confirmar</p>
+             <p class="text-gray-200 text-xs font-light leading-relaxed mb-2">${escapar(noOfrecidas.motivo)}</p>
+             <p class="text-gray-400 text-[11px] font-light leading-relaxed">
+               Son ${escapar(String(noOfrecidas.noVerificadas))} horarios de los próximos ${DIAS_HORIZONTE} días.
+               Pídeselo al asistente y un asesor lo confirma con el taller, o elige otro taller de la lista.
+             </p>
+           </div>`
+        : `<p class="text-gray-400 text-xs font-light leading-relaxed border border-white/5 bg-[#0d0e12] p-5">
+             ${
+               tipoFiltro
+                 ? `Este taller no tiene franjas de ${escapar(tipoFiltro)} apartables en los próximos ${DIAS_HORIZONTE} días.`
+                 : `Este taller no tiene franjas apartables en los próximos ${DIAS_HORIZONTE} días.`
+             }
+           </p>`;
       return;
     }
 
@@ -346,11 +360,38 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
 
         // Un bloqueo de política no es un fallo: es un guardrail que funcionó.
         if (d.ok === false) {
+          // Un bloqueo no puede ser un callejón: si la organización sabe qué talleres
+          // sí atienden ese modelo, se ofrecen para cambiarse con un toque.
+          const alternativas = (d.talleresQueAtienden ?? []).filter((c) => red.some((s) => s.clave === c));
           salida.innerHTML = `
             <div class="border border-amber-400/30 bg-amber-400/5 p-4" role="status">
               <p class="text-[10px] uppercase tracking-[0.3em] text-amber-400/80 mb-2">La cita no procedió</p>
               <p class="text-gray-200 text-xs font-light leading-relaxed">${escapar(d.mensaje || d.motivo || 'El taller no pudo tomar esa cita.')}</p>
+              ${
+                alternativas.length
+                  ? `<div class="flex flex-wrap gap-2 mt-4">
+                       ${alternativas
+                         .map((c) => {
+                           const s = red.find((x) => x.clave === c);
+                           return `<button type="button" data-cambiar-taller="${escapar(c)}"
+                             class="border border-white/20 px-4 py-2.5 text-[10px] uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">
+                             ${escapar(s?.ciudad || s?.nombre || c)}
+                           </button>`;
+                         })
+                         .join('')}
+                     </div>`
+                  : ''
+              }
             </div>`;
+          for (const cambio of salida.querySelectorAll('[data-cambiar-taller]')) {
+            cambio.addEventListener('click', async () => {
+              taller = cambio.dataset.cambiarTaller;
+              tipoFiltro = null;
+              nodoCierre.innerHTML = '';
+              pintarTalleres();
+              await cargarFranjas();
+            });
+          }
           boton.disabled = false;
           return;
         }

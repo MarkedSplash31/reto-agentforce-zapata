@@ -183,3 +183,27 @@ export async function actualizar(
 export function lit(valor: string): string {
   return valor.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }
+
+/**
+ * Búsqueda de texto (SOSL).
+ *
+ * Existe porque hay campos que SOQL no puede filtrar: `Knowledge__kav.Contenido__c`
+ * es un área de texto larga y meterla en un `WHERE ... LIKE` devuelve
+ * `INVALID_FIELD: field 'Contenido__c' can not be filtered in a query call`. Es
+ * exactamente lo que hace el Apex del agente, que busca por SOSL y sólo cae a SOQL
+ * por título y resumen si aquello no devuelve nada.
+ */
+export async function buscar<T = Record<string, unknown>>(sosl: string, operacion: string): Promise<T[]> {
+  const r = await peticion<{ searchRecords?: T[] }>(`/search?q=${encodeURIComponent(sosl)}`, { operacion });
+  return r?.searchRecords ?? [];
+}
+
+/**
+ * Escapa una literal para el bloque `FIND {...}` de SOSL.
+ *
+ * Los caracteres reservados de SOSL no son los de SOQL: sin escaparlos, un cliente
+ * que busque «frenos?» o «AdBlue+» recibe un 400 en vez de resultados.
+ */
+export function litSosl(valor: string): string {
+  return valor.replace(/[\\?&|!{}[\]()^~*:"'+-]/g, (c) => `\\${c}`);
+}

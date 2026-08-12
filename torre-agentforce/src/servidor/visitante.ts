@@ -46,6 +46,8 @@ export interface SesionWeb {
    * cualquier respuesta.
    */
   saludado: boolean;
+  /** La conversación previa ya se sembró en el expediente del asesor. */
+  contextoSembrado: boolean;
 }
 
 const sesiones = new Map<string, SesionWeb>();
@@ -74,6 +76,7 @@ export function crearSesion(rol: RolWeb): SesionWeb {
     secuenciaAgente: 0,
     actividadVista: new Set<string>(),
     saludado: false,
+    contextoSembrado: false,
   };
   sesiones.set(sesion.id, sesion);
   return sesion;

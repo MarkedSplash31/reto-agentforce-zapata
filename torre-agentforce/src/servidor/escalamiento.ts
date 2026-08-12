@@ -256,17 +256,55 @@ function aComentario(f: FilaComentario): ComentarioCaso {
  * Escribe un cuerpo como uno o más CaseComment y devuelve los ids REALES de Salesforce,
  * en el orden en que se crearon. Secuencial a propósito: el orden del hilo importa.
  */
-async function escribirComentarios(caseId: string, cuerpo: string): Promise<string[]> {
+async function escribirComentarios(caseId: string, cuerpo: string, publicado = true): Promise<string[]> {
   const ids: string[] = [];
   for (const pieza of trocear(cuerpo)) {
     const alta = await crear('CaseComment', {
       ParentId: caseId,
       CommentBody: pieza,
-      IsPublished: true,
+      IsPublished: publicado,
     });
     ids.push(alta.id);
   }
   return ids;
+}
+
+/**
+ * Deja en el expediente la conversación previa de una visita cuyo caso YA existe.
+ *
+ * Hace falta porque las dos formas de escalar no dejan lo mismo. Cuando lo pide el
+ * cliente, la app manda la transcripción y Apex la siembra: el asesor abre el caso y
+ * lee lo que pasó. Cuando escala el AGENTE por su cuenta, el expediente se queda con
+ * el sobre de escalamiento y nada más —comprobado en el caso 00001137: dos
+ * comentarios, uno con la huella y otro con la respuesta del propio asesor—. La
+ * persona que atiende empieza de cero preguntando lo que el cliente ya contó.
+ *
+ * Se escribe como contexto INTERNO, no publicado, con la misma forma que el panel ya
+ * sabe leer: `[turno n/m]` y `Autor:`. No cruza a la superficie del cliente.
+ */
+export async function sembrarContextoDeVisita(
+  caseId: string,
+  turnos: ReadonlyArray<{ autor: string; texto: string }>,
+): Promise<number> {
+  const op = 'escalamiento.sembrarContextoDeVisita';
+  const id = exigirId(caseId, 'caseId', op);
+  const utiles = turnos
+    .filter((t) => t && typeof t.texto === 'string' && t.texto.trim())
+    .slice(-40);
+  if (!utiles.length) return 0;
+
+  const cuerpo = [
+    '[contexto-torre] Conversación previa de la visita, sembrada por la aplicación',
+    'porque el escalamiento lo abrió el agente y el expediente se quedó sin ella.',
+    '',
+    ...utiles.map(
+      (t, i) =>
+        `[turno ${i + 1}/${utiles.length}]\nAutor: ${t.autor === 'agente' ? 'agente' : 'cliente'}\n${t.texto.slice(0, 3000)}`,
+    ),
+  ].join('\n');
+
+  const ids = await escribirComentarios(id, cuerpo, false);
+  return ids.length;
 }
 
 /** Relee de la org los comentarios recién creados. Sin relectura no hay Id real. */

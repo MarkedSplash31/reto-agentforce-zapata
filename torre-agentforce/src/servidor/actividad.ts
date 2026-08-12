@@ -35,7 +35,24 @@ export interface ActividadAgente {
 
 export type DetalleActividad =
   | { clase: 'orden'; folio: string; estado: string | null; inicio: string | null; sucursal: string | null; vin: string | null }
-  | { clase: 'varada'; folio: string; carretera: string | null; kilometro: number | null; prioridad: string | null }
+  | {
+      clase: 'varada';
+      folio: string;
+      carretera: string | null;
+      kilometro: number | null;
+      prioridad: string | null;
+      /**
+       * Las dos respuestas de seguridad, tal como quedaron registradas.
+       *
+       * Se enseñan porque el agente las pierde a veces: la misma conversación, dicha
+       * igual, dejó `true/true` en una corrida y `false/false` en la siguiente. Quien
+       * lee el reporte para mandar auxilio necesita saber si la unidad está fuera del
+       * carril; que el dato se pierda en silencio es lo peligroso. Enseñárselo al
+       * cliente es lo único que permite que lo corrija.
+       */
+      fueraDeCarril: boolean | null;
+      intermitentes: boolean | null;
+    }
   | { clase: 'caso'; folio: string; estado: string | null; asunto: string | null };
 
 interface FilaLog {
@@ -150,8 +167,11 @@ async function resolverDetalles(ids: readonly string[]): Promise<Map<string, Det
           Carretera__c: string | null;
           Kilometro__c: number | null;
           Prioridad__c: string | null;
+          Fuera_De_Carril__c: boolean | null;
+          Intermitentes_Encendidas__c: boolean | null;
         }>(
-          `SELECT Id, Name, Carretera__c, Kilometro__c, Prioridad__c ` +
+          `SELECT Id, Name, Carretera__c, Kilometro__c, Prioridad__c, ` +
+            `Fuera_De_Carril__c, Intermitentes_Encendidas__c ` +
             `FROM Unidad_Varada__c WHERE Id IN (${enLista(varadas)})`,
           'actividad.varadas',
         )
@@ -163,6 +183,8 @@ async function resolverDetalles(ids: readonly string[]): Promise<Map<string, Det
                 carretera: v.Carretera__c,
                 kilometro: v.Kilometro__c,
                 prioridad: v.Prioridad__c,
+                fueraDeCarril: v.Fuera_De_Carril__c,
+                intermitentes: v.Intermitentes_Encendidas__c,
               });
             }
           })
