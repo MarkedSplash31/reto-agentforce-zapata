@@ -21,6 +21,7 @@
 
 import { encabezado, bloqueError, cargando, vacio, escapar, chip } from '../sistema.js';
 import { crearPanel } from '../panel-contextual.js';
+import { montarAgenda } from '../componentes/agenda.js';
 
 const app = document.getElementById('app');
 const compositor = document.getElementById('compositor');
@@ -246,6 +247,10 @@ async function intentarCobertura(texto) {
     if (!res.ok) return;
     const d = await res.json();
     if (d.encontrada && d.cobertura) {
+      // La unidad existe: la agenda deja de pedir el número de serie que el cliente
+      // ya dictó en la conversación. Sólo se recuerda si la org lo reconoció.
+      vinConocido = posible[0];
+      agenda?.conVin(vinConocido);
       panel.cobertura(d.cobertura);
       return;
     }
@@ -260,15 +265,56 @@ async function intentarCobertura(texto) {
   }
 }
 
+// ── capacidades que se abren solas ──────────────────────────────────────────
+//
+// La agenda del taller no necesita al agente de intermediario: el mismo endpoint
+// que él consulta lo puede mirar el cliente, y escoger una franja tocándola es
+// mejor que dictar «la opción 5» de una lista en prosa. Mirar no exige número de
+// serie; sólo confirmar, que es cuando el Flow lo pide.
+
+/** El último número de serie que la conversación dejó ver. */
+let vinConocido = null;
+let agenda = null;
+
+async function abrirAgenda() {
+  entrarAlEspacio();
+  const raiz = panel.componente('agenda', 'Taller', 'Elige tu cita');
+  if (raiz.dataset.montado === 'si') {
+    agenda?.conVin(vinConocido);
+    return;
+  }
+  raiz.dataset.montado = 'si';
+  agenda = await montarAgenda(raiz, {
+    vin: vinConocido,
+    alAgendar: (cita) => {
+      // Queda en el hilo: la conversación es el registro de lo que se hizo,
+      // aunque lo haya hecho el cliente con sus propias manos.
+      nota(`Tu cita quedó registrada${cita?.folio ? ` con el folio ${cita.folio}` : ''}.`, 'ok');
+      turnos.push({
+        autor: 'cliente',
+        texto: `Agendé una cita desde la agenda del taller${cita?.folio ? ` (folio ${cita.folio})` : ''}.`,
+      });
+    },
+  });
+}
+
 // ── atajos de la portada ────────────────────────────────────────────────────
-// No son funciones nuevas: escriben una frase en la misma caja y el usuario decide
-// si la manda. Cada una corresponde a algo que el agente ya sabe hacer.
+// Los que llevan `data-atajo` escriben una frase en la caja y el usuario decide si
+// la manda: son cosas que el agente tiene que conducir —el protocolo de seguridad
+// de una varada, el paso a una persona—. Los que llevan `data-abre` abren
+// directamente la capacidad, porque la plataforma la resuelve sin intermediario.
 
 for (const atajo of document.querySelectorAll('[data-atajo]')) {
   atajo.addEventListener('click', () => {
     entrada.value = atajo.dataset.atajo;
     entrada.focus();
     entrada.setSelectionRange(entrada.value.length, entrada.value.length);
+  });
+}
+
+for (const boton of document.querySelectorAll('[data-abre]')) {
+  boton.addEventListener('click', () => {
+    if (boton.dataset.abre === 'agenda') void abrirAgenda();
   });
 }
 

@@ -64,9 +64,9 @@
           class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
           Garantía de mi unidad
         </button>
-        <button type="button" data-atajo="Necesito agendar un servicio en el taller."
+        <button type="button" data-abre="agenda"
           class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
-          Agendar taller
+          Ver horarios del taller
         </button>
         <button type="button" data-atajo="Mi unidad se quedó parada en la carretera y necesito asistencia."
           class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
@@ -85,6 +85,18 @@
        escenario. Mientras no haya nada que enseñar, el escenario no existe y la
        conversación se queda con todo el ancho.                                  -->
   <section id="espacio" class="max-w-7xl mx-auto px-6 pt-10 pb-10 min-h-[calc(100vh-5rem)] flex flex-col gap-6">
+
+    <!--
+      Lo que la plataforma resuelve sin que el agente tenga que conducirlo. No es un
+      menú de secciones: cada uno abre en el escenario una capacidad con datos vivos
+      de la organización, y sigue estando disponible mientras se conversa.
+    -->
+    <div id="capacidades" class="flex flex-wrap gap-2" aria-label="Capacidades disponibles">
+      <button type="button" data-abre="agenda"
+        class="border border-white/10 px-4 py-2.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+        Agenda del taller
+      </button>
+    </div>
 
     <div id="tablero" class="flex-1 grid grid-cols-1 lg:grid-cols-5 gap-6 items-start">
 

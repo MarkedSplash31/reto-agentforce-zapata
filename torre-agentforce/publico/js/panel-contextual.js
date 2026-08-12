@@ -253,6 +253,7 @@ export function crearPanel(contenedor, { alPintar } = {}) {
     vacio = false;
     const caja = document.createElement('div');
     caja.className = 'mb-6 last:mb-0';
+    caja.dataset.caja = '';
     caja.innerHTML = html;
     // Lo último que hizo el asistente va arriba: es lo que el cliente está mirando.
     contenedor.prepend(caja);
@@ -406,6 +407,31 @@ export function crearPanel(contenedor, { alPintar } = {}) {
 
     aviso(titulo, texto, tono = 'neutro') {
       agregar(tarjeta(titulo, 'Asistente', `<p class="text-gray-300 text-xs font-light leading-relaxed">${escapar(texto)}</p>`, tono));
+    },
+
+    /**
+     * Monta un componente con el que se trabaja, no una tarjeta que se lee.
+     *
+     * Se monta UNA vez por clave: dos calendarios en el mismo escenario serían dos
+     * estados que no se conocen entre sí, y el usuario acabaría agendando en el que
+     * no está mirando. Si ya existe, se trae a la vista y se devuelve el mismo nodo.
+     *
+     * Devuelve el elemento que el componente gobierna. Lo que pinte dentro es suyo.
+     */
+    componente(clave, eyebrow, titulo) {
+      const existente = contenedor.querySelector(`[data-componente="${clave}"]`);
+      if (existente) {
+        existente.closest('[data-caja]')?.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return existente;
+      }
+      agregar(
+        `<div class="border border-white/10 bg-[#0b0c10] p-6">
+          <p class="text-[10px] uppercase tracking-[0.3em] text-amber-400/80 mb-2">${escapar(eyebrow)}</p>
+          <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-5">${escapar(titulo)}</h3>
+          <div data-componente="${escapar(clave)}"></div>
+        </div>`,
+      );
+      return contenedor.querySelector(`[data-componente="${clave}"]`);
     },
   };
 }
