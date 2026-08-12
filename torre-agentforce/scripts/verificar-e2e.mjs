@@ -745,11 +745,57 @@ async function casoEscalamientoSitio() {
     `${publicados.totalSize} comentario(s) públicos en el expediente`,
   );
 
+  // ── la consulta privada del asesor al asistente ────────────────────────────
+  //
+  // El README la documenta y la ficha técnica la declara, y hasta hoy no la ejercitaba
+  // nada: la única superficie del producto sin una sola prueba. Lo que hay que fijar no
+  // es que conteste —eso es lo fácil— sino que sea PRIVADA. Corre bajo una correlación
+  // propia del asesor; si escribiera en el expediente del cliente, el cliente leería
+  // una consulta interna que nadie decidió mandarle.
+  const antesDeConsultar = soql(
+    `SELECT COUNT() FROM CaseComment WHERE ParentId = '${escapar(caseId)}'`,
+  ).totalSize;
+
+  const consulta = await asesor.web(`/publico/panel/caso/${caseId}/consultar`, {
+    method: 'POST',
+    body: JSON.stringify({ pregunta: `¿Qué cubre la garantía básica del VIN ${VIN}?` }),
+  });
+  const respondio = consulta.status === 200 && String(consulta.cuerpo?.respuesta ?? '').length > 20;
+  anotar(
+    'panel · el asesor le pregunta al mismo asistente',
+    respondio ? 'ok' : consulta.status === 200 ? 'aviso' : 'falla',
+    respondio
+      ? `contestó: «${String(consulta.cuerpo.respuesta).replace(/\s+/g, ' ').slice(0, 100)}»`
+      : `HTTP ${consulta.status} · ${JSON.stringify(consulta.cuerpo).slice(0, 140)}`,
+  );
+
+  const despuesDeConsultar = soql(
+    `SELECT COUNT() FROM CaseComment WHERE ParentId = '${escapar(caseId)}'`,
+  ).totalSize;
+  anotar(
+    'panel · esa consulta no toca el expediente del cliente',
+    despuesDeConsultar === antesDeConsultar ? 'ok' : 'falla',
+    despuesDeConsultar === antesDeConsultar
+      ? `el caso sigue con ${antesDeConsultar} comentarios`
+      : `el caso pasó de ${antesDeConsultar} a ${despuesDeConsultar}: la consulta privada se filtró al expediente`,
+  );
+
   // Y el cliente, con su propia cookie, la ve.
   const conversacion = await cliente.web('/publico/asesor/conversacion');
   const leyo = (conversacion.cuerpo?.comentarios ?? []).some((c) =>
     String(c.cuerpo ?? c.body ?? '').includes(`validación e2e ${ts}`),
   );
+  const veLaConsulta = (conversacion.cuerpo?.comentarios ?? []).some((c) =>
+    /garant[ií]a b[aá]sica del VIN/i.test(String(c.cuerpo ?? c.body ?? '')),
+  );
+  anotar(
+    'sitio · el cliente NO ve la consulta privada del asesor',
+    veLaConsulta ? 'falla' : 'ok',
+    veLaConsulta
+      ? 'la pregunta que el asesor le hizo al asistente llegó al hilo del cliente'
+      : 'la consulta se quedó del lado del asesor, que es donde vive',
+  );
+
   anotar(
     'sitio · el cliente recibe la respuesta del asesor',
     leyo ? 'ok' : 'falla',

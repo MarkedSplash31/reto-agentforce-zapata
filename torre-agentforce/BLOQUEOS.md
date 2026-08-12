@@ -863,3 +863,55 @@ refrescar la acción. `BuscarConocimientoPostventa` ya acepta `correlationId` y 
 traza cuando lo recibe, pero el planner no se lo pasará hasta que alguien abra la acción
 en Agent Builder y la refresque, como ya está hecho en `Crear_Escalamiento_Asesor`. Es el
 único pendiente que no se puede cerrar desde código.
+
+---
+
+## 17. El marcador de prueba técnica gana sobre un «pídeme confirmación» explícito
+
+**Impacto: bajo, y confinado al arnés.** No lo ve ningún cliente.
+
+`verificar:escalamiento-agentforce` manda un primer turno que dice, textualmente:
+
+> PRUEBA_TECNICA_AUTORIZADA … Solicito hablar con un asesor humano únicamente para una
+> verificación técnica autorizada del escalamiento. … **Antes de crear el registro, pide
+> mi confirmación.**
+
+El agente creó el caso en ese mismo turno, sin preguntar. El gate lo detecta y se
+detiene con `STOPPED_CASE_CREATED_BEFORE_CONFIRMATION`, que es lo correcto: paró antes
+de dar por buena una conversación que no se comportó como pedía.
+
+La causa son dos instrucciones del subagente de escalamiento que se contradicen para
+esta entrada concreta:
+
+- «Confirma con el cliente: *Voy a escalar tu caso con un asesor humano. ¿Te parece bien
+  que continúe?*»
+- «Si el mensaje contiene literalmente `PRUEBA_TECNICA_AUTORIZADA` y autoriza registrar
+  el escalamiento, **ejecuta la acción inmediatamente**.»
+
+La segunda es más específica y ganó. Pero el mensaje pedía explícitamente lo contrario, y
+una regla de atajo no debería poder pisar una petición literal del interlocutor.
+
+**Por qué no lo cambié yo.** Hay dos arreglos y los dos deciden algo que no me toca:
+
+1. En las instrucciones del agente: acotar el atajo a que ceda cuando el mismo mensaje
+   pide confirmación. Es territorio de Agent Builder.
+2. En el arnés: quitar la frase «pide mi confirmación», que hoy contradice al marcador
+   que ese mismo mensaje lleva. Sería decidir que la autonomía explícita gana siempre —
+   que es lo que la ficha declara, pero cambia lo que el gate promete verificar.
+
+**Lo que sí está comprobado**: la confirmación con un cliente real funciona. El caso
+`escalamiento` de `verificar:e2e` conversa, pide autorización y sólo entonces registra —
+verde el 12 de agosto. El marcador `PRUEBA_TECNICA_AUTORIZADA` no existe fuera de este
+arnés, así que ningún cliente puede alcanzar esta ruta.
+
+### De paso, dos defectos del propio arnés, ya arreglados
+
+- **Exigía la versión 15 del agente**, clavada. Al publicarse la v27 empezó a salir en
+  rojo con `TARGET_AGENT_VERSION_OR_QUEUE_NOT_VERIFIED` —que se lee como «el
+  escalamiento está roto»— cuando lo único desactualizado era un número. Ahora le
+  pregunta a la organización cuál está activa y exige que haya exactamente una.
+- **Su servidor local moría en silencio.** Arrancaba con `APP_AUTH_MODE=required`
+  heredando `APP_AUTH_PROVIDER=disabled` del `.env`, `security.ts` lo rechazaba por
+  contradictorio, y como el `stderr` del hijo se descartaba el gate reportaba
+  `LOCAL_SERVER_EXITED` sin decir por qué. Se declara el proveedor junto al modo y, si
+  vuelve a morir, la consola imprime la causa.

@@ -9,8 +9,15 @@ const source = readFileSync(
 );
 
 describe('contrato del verificador mutante de Agentforce', () => {
-  it('fija v15 como versión objetivo y elimina supuestos operativos de v10', () => {
-    assert.match(source, /const TARGET_AGENT_VERSION = 15;/);
+  it('lee de la org qué versión del agente está activa, en vez de fijarla', () => {
+    // La versión objetivo estuvo clavada en 15 y se quedó atrás: al publicarse la v27
+    // este gate salía en rojo con TARGET_AGENT_VERSION_OR_QUEUE_NOT_VERIFIED, que se
+    // lee como «el escalamiento está roto» cuando lo único desactualizado era un
+    // número. Lo que hay que fijar no es la versión, es que se pregunte.
+    assert.doesNotMatch(source, /const TARGET_AGENT_VERSION\s*=\s*\d+/);
+    assert.match(source, /function versionActivaDelAgente\(\): number \| null/);
+    assert.match(source, /filter\(\(v\) => v\.Status === 'Active'\)/);
+    assert.match(source, /activas\.length === 1/);
     assert.match(source, /16-agentforce-v15/);
     assert.doesNotMatch(source, /Version10|V10|v10/);
   });

@@ -22,7 +22,14 @@ const { configSegura } = await import('../src/servidor/config.ts');
 const QUEUE_ID = '00GgK00000BMTaVUAX';
 const ACTION_NAME = 'Escalar_Asesor_Humano';
 const TEST_PREFIX = 'PRUEBA_TECNICA_AUTORIZADA';
-const TARGET_AGENT_VERSION = 15;
+// Cuál es la versión del agente que se está verificando NO se escribe aquí: se le
+// pregunta a la organización cuál está activa.
+//
+// Estuvo clavada en 15 y se quedó atrás. Cuando alguien publicó la v27, este gate
+// empezó a salir en rojo con TARGET_AGENT_VERSION_OR_QUEUE_NOT_VERIFIED —que se lee
+// como «el escalamiento está roto»— cuando lo único desactualizado era este número.
+// Un verificador que exige una versión concreta caduca; uno que exige que haya
+// exactamente una versión activa, y la use, no.
 const MARKER_WINDOW_MINUTES = 10;
 const MARKER_ROW_LIMIT = 200;
 const markerWindowStart = new Date(Date.now() - MARKER_WINDOW_MINUTES * 60_000).toISOString();
@@ -65,7 +72,8 @@ interface BotDefinitionRecord {
   };
 }
 
-function verifyTargetAgentVersionActiveFromOrg(): boolean {
+/** El número de la única versión activa del agente, o null si no hay exactamente una. */
+function versionActivaDelAgente(): number | null {
   const sfExecutable = process.platform === 'win32' ? process.execPath : 'sf';
   const sfPrefix = process.platform === 'win32'
     ? [
@@ -114,11 +122,12 @@ function verifyTargetAgentVersionActiveFromOrg(): boolean {
     throw new Error('TARGET_AGENT_METADATA_RESPONSE_INVALID');
   }
   const records = parsed.result?.records ?? [];
-  return parsed.status === 0 && records.length === 1 &&
-    records[0]?.BotVersions.records.some(
-      (version) =>
-        version.VersionNumber === TARGET_AGENT_VERSION && version.Status === 'Active',
-    ) === true;
+  if (parsed.status !== 0 || records.length !== 1) return null;
+  // Exactamente una activa. Ninguna significa que el agente no atiende; varias, que la
+  // organización quedó en un estado que nadie quiso, y en los dos casos el escalamiento
+  // no se puede afirmar contra una versión concreta.
+  const activas = (records[0]?.BotVersions.records ?? []).filter((v) => v.Status === 'Active');
+  return activas.length === 1 ? (activas[0]?.VersionNumber ?? null) : null;
 }
 
 interface ParsedTurn {
@@ -171,7 +180,7 @@ interface Evidence {
     crmRecordsDeleted: false;
   };
   environment: {
-    targetAgentVersion: 15;
+    targetAgentVersion: number | null;
     targetAgentVersionActive: boolean;
     queueVerified: boolean;
     tokenProvider: string;
@@ -242,7 +251,7 @@ function blankEvidence(marker: string): Evidence {
       crmRecordsDeleted: false,
     },
     environment: {
-      targetAgentVersion: TARGET_AGENT_VERSION,
+      targetAgentVersion: null,
       targetAgentVersionActive: false,
       queueVerified: false,
       tokenProvider: configSegura().proveedorToken,
@@ -452,7 +461,9 @@ async function main(): Promise<number> {
     // El usuario de integración de Client Credentials no ve BotDefinition. El
     // alias CLI autorizado sí: se consulta la relación hija real BotVersions y
     // sólo se conserva el booleano, nunca metadata ni credenciales.
-    evidence.environment.targetAgentVersionActive = verifyTargetAgentVersionActiveFromOrg();
+    const versionActiva = versionActivaDelAgente();
+    evidence.environment.targetAgentVersion = versionActiva;
+    evidence.environment.targetAgentVersionActive = versionActiva !== null;
     stage('PREFLIGHT_QUEUE');
     const queue = await consultar<{ Id: string }>(
       `SELECT Id FROM Group WHERE Id = '${QUEUE_ID}' AND Type = 'Queue' LIMIT 1`,
@@ -495,6 +506,13 @@ async function main(): Promise<number> {
           PORT: String(port),
           APP_ENV: 'test',
           APP_AUTH_MODE: 'required',
+          // El proveedor tiene que ir junto al modo. Sin esto se heredaba
+          // `APP_AUTH_PROVIDER=disabled` del `.env` de desarrollo, `security.ts` lo
+          // rechazaba por contradictorio —«APP_AUTH_MODE contradice
+          // APP_AUTH_PROVIDER»— y el servidor moría antes de escuchar. Como su stderr
+          // se tiraba, el gate llevaba tiempo saliendo en rojo con LOCAL_SERVER_EXITED
+          // sin decir por qué. Es el mismo par que usa `playwright.config.ts`.
+          APP_AUTH_PROVIDER: 'static',
           APP_AUTH_CREDENTIALS_JSON: JSON.stringify([
             { id: 'verificador-escalamiento-v15', role: 'asesor', token: bearer },
           ]),
@@ -504,10 +522,31 @@ async function main(): Promise<number> {
         stdio: ['ignore', 'pipe', 'pipe'],
       },
     );
-    // Se drena la salida para que el child no se bloquee; nunca se persiste.
+    // Se drena la salida para que el child no se bloquee. El stdout no se guarda; del
+    // stderr se conserva la última cola EN MEMORIA y sólo para el mensaje de error: un
+    // servidor que muere llevándose su motivo deja un LOCAL_SERVER_EXITED que no dice
+    // nada, y diagnosticarlo obliga a reproducirlo a mano. No se persiste en la
+    // evidencia, que es pública y sanitizada.
+    let ultimoError = '';
     child.stdout?.on('data', () => undefined);
-    child.stderr?.on('data', () => undefined);
-    await waitServer(child, baseUrl);
+    child.stderr?.on('data', (trozo) => {
+      ultimoError = (ultimoError + String(trozo)).slice(-4000);
+    });
+    try {
+      await waitServer(child, baseUrl);
+    } catch (error) {
+      // La línea que importa es la del mensaje, no la cola del stack: quedarse con las
+      // últimas líneas devolvía «at async onImport…», que no dice nada.
+      const lineas = ultimoError.trim().split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
+      const causa =
+        lineas.find((l) => /^(Error|TypeError|RangeError|[A-Za-z]*Error):/.test(l)) ??
+        lineas.find((l) => !/^\s*at /.test(l) && !/^Node\.js v/.test(l)) ??
+        lineas[0] ??
+        '';
+      throw new Error(
+        `${error instanceof Error ? error.message : String(error)}${causa ? `: ${causa}` : ''}`,
+      );
+    }
 
     const api = async (path: string, body: Record<string, unknown>) => {
       const cleanupRequest = path === '/api/agente/cerrar';
@@ -701,7 +740,9 @@ async function main(): Promise<number> {
 
     stage('COMPLETE');
     persist(evidence);
-    console.log(`Escalamiento Agentforce v${TARGET_AGENT_VERSION}: ${evidence.outcome}`);
+    console.log(
+      `Escalamiento Agentforce v${evidence.environment.targetAgentVersion ?? '?'}: ${evidence.outcome}`,
+    );
     console.log(
       `Delta CRM: Case=${evidence.after.caseDelta ?? 'n/a'} ` +
       `CaseCommentInterno=${evidence.after.internalComments} LogSUCCESS=${evidence.after.logDelta ?? 'n/a'}`,
@@ -720,9 +761,15 @@ async function main(): Promise<number> {
       : `TECHNICAL_AT_${evidence.diagnostics.stage}`;
     persist(evidence);
     console.error(
-      `Escalamiento Agentforce v${TARGET_AGENT_VERSION}: ` +
+      `Escalamiento Agentforce v${evidence.environment.targetAgentVersion ?? '?'}: ` +
       `${evidence.outcome} (${evidence.failureCode})`,
     );
+    // El código de fallo nombra la ETAPA, no la causa. Cuando el error trae además una
+    // explicación —el stderr del servidor que murió, por ejemplo— se imprime aquí para
+    // quien está mirando la consola. No entra en la evidencia, que es pública y
+    // sanitizada; sin esto, diagnosticar obliga a reproducir el fallo a mano.
+    const detalle = error instanceof Error ? error.message : String(error);
+    if (detalle && detalle !== evidence.failureCode) console.error(`Causa: ${detalle}`);
     console.error(`Evidencia sanitizada: ${evidencePath}`);
     return 1;
   } finally {

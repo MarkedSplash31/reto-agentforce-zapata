@@ -18,7 +18,6 @@ mkdirSync(dir, { recursive: true });
 // alguien tocó datos que la demo da por estables.
 const CATALOGO: Record<string, number> = {
   Asset: 15,
-  Slot_Taller__c: 729,
   Sucursal__c: 9,
   Modelo_Sucursal__c: 180,
   Regla_Cobertura__c: 36,
@@ -27,7 +26,14 @@ const CATALOGO: Record<string, number> = {
 // Operación: crece cada vez que el agente o la Torre actúan. Se exige un MÍNIMO.
 // Exigir el número exacto aquí sería una prueba que se rompe sola en cuanto la app
 // funciona — y una prueba así se arregla, no se ignora.
+//
+// `Slot_Taller__c` empezó en el catálogo exacto, con 729. Dejó de pertenecer ahí el
+// 12-ago-2026, cuando `extender-agenda.mjs` pasó a ser la forma prevista de alargar el
+// calendario: la semilla se acababa el 20 de agosto y con ella la escena de agendar.
+// Un catálogo que se amplía a propósito no puede exigir un número exacto — pero sí un
+// mínimo, que es lo que sigue cazando un borrado.
 const OPERACION: Record<string, number> = {
+  Slot_Taller__c: 729,
   Unidad_Varada__c: 27,
   WorkOrder: 29,
   Log_Agente__c: 99,
