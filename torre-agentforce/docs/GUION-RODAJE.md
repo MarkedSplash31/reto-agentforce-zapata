@@ -145,6 +145,11 @@ catálogo trae horarios cuya capacidad nadie confirmó, y la aplicación lo dice
 - [ ] Entre escenas: pestaña nueva, nunca F5
 - [ ] Sin DevTools, sin extensiones, sin pestañas de trabajo
 - [ ] No mostrar: reprogramación (fuera del guion, no se ensayó)
+- [ ] **No nombrar otro taller que no sea Querétaro.** En los otros ocho el agente
+      lista horarios que el Flow después rechaza (`BLOQUEOS.md §15`). La pantalla lo
+      desmiente al lado, pero es una contradicción que no conviene tener en cámara.
+- [ ] **No usar un VIN que empiece por `3HAM`, `1XKA` o `4V4N`.** Son los T680, y
+      ninguna sucursal declara ese modelo (`§16`). El VIN del guion es un Cascadia.
 
 ## Escena por escena, con lo que se verificó
 
