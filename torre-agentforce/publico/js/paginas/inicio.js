@@ -22,6 +22,8 @@
 import { encabezado, bloqueError, cargando, vacio, escapar, chip } from '../sistema.js';
 import { crearPanel } from '../panel-contextual.js';
 import { montarAgenda } from '../componentes/agenda.js';
+import { montarModelos } from '../componentes/modelos.js';
+import { montarManuales } from '../componentes/manuales.js';
 
 const app = document.getElementById('app');
 const compositor = document.getElementById('compositor');
@@ -276,26 +278,49 @@ async function intentarCobertura(texto) {
 let vinConocido = null;
 let agenda = null;
 
-async function abrirAgenda() {
+const CAPACIDADES = {
+  agenda: {
+    eyebrow: 'Taller',
+    titulo: 'Elige tu cita',
+    async montar(raiz) {
+      agenda = await montarAgenda(raiz, {
+        vin: vinConocido,
+        alAgendar: (cita) => {
+          // Queda en el hilo: la conversación es el registro de lo que se hizo,
+          // aunque lo haya hecho el cliente con sus propias manos.
+          nota(`Tu cita quedó registrada${cita?.folio ? ` con el folio ${cita.folio}` : ''}.`, 'ok');
+          turnos.push({
+            autor: 'cliente',
+            texto: `Agendé una cita desde la agenda del taller${cita?.folio ? ` (folio ${cita.folio})` : ''}.`,
+          });
+        },
+      });
+    },
+    alReabrir: () => agenda?.conVin(vinConocido),
+  },
+  modelos: {
+    eyebrow: 'Garantía',
+    titulo: 'Qué cubre cada modelo',
+    montar: montarModelos,
+  },
+  manuales: {
+    eyebrow: 'Consulta',
+    titulo: 'Material de apoyo',
+    montar: montarManuales,
+  },
+};
+
+async function abrirCapacidad(clave) {
+  const capacidad = CAPACIDADES[clave];
+  if (!capacidad) return;
   entrarAlEspacio();
-  const raiz = panel.componente('agenda', 'Taller', 'Elige tu cita');
+  const raiz = panel.componente(clave, capacidad.eyebrow, capacidad.titulo);
   if (raiz.dataset.montado === 'si') {
-    agenda?.conVin(vinConocido);
+    capacidad.alReabrir?.();
     return;
   }
   raiz.dataset.montado = 'si';
-  agenda = await montarAgenda(raiz, {
-    vin: vinConocido,
-    alAgendar: (cita) => {
-      // Queda en el hilo: la conversación es el registro de lo que se hizo,
-      // aunque lo haya hecho el cliente con sus propias manos.
-      nota(`Tu cita quedó registrada${cita?.folio ? ` con el folio ${cita.folio}` : ''}.`, 'ok');
-      turnos.push({
-        autor: 'cliente',
-        texto: `Agendé una cita desde la agenda del taller${cita?.folio ? ` (folio ${cita.folio})` : ''}.`,
-      });
-    },
-  });
+  await capacidad.montar(raiz);
 }
 
 // ── atajos de la portada ────────────────────────────────────────────────────
@@ -313,9 +338,7 @@ for (const atajo of document.querySelectorAll('[data-atajo]')) {
 }
 
 for (const boton of document.querySelectorAll('[data-abre]')) {
-  boton.addEventListener('click', () => {
-    if (boton.dataset.abre === 'agenda') void abrirAgenda();
-  });
+  boton.addEventListener('click', () => void abrirCapacidad(boton.dataset.abre));
 }
 
 // ── arranque ────────────────────────────────────────────────────────────────

@@ -240,6 +240,76 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
     return true;
   }
 
+  // ── el material de apoyo, legible sin conversación ────────────────────────
+  //
+  // Es el MISMO material que el agente cita. Hasta ahora sólo salía por su boca,
+  // recortado dentro de una respuesta; quien quería leer qué dice sobre su modelo
+  // tenía que negociarlo por chat. La marca de fuente viaja con cada artículo: el
+  // Apex antepone un aviso de material sintético no verificado y esta ruta no lo
+  // borra, porque presentarlo como manual oficial sería la mentira que ese aviso
+  // existe para impedir.
+  if (p === '/publico/manuales') {
+    const r = await datos.listarConocimiento(url.searchParams.get('busca') ?? undefined);
+    json(res, 200, {
+      articulos: r.registros,
+      total: r.total,
+      aviso:
+        'Material de apoyo del reto. No es documentación oficial de Zapata: no debe ' +
+        'tomarse como confirmada sin verificarla con una fuente operacional.',
+    });
+    return true;
+  }
+
+  // ── qué cubre cada modelo, sin pedir número de serie ──────────────────────
+  //
+  // La cobertura de una unidad concreta necesita su VIN: depende de su odómetro y
+  // de su antigüedad. La póliza del MODELO no. Es la misma para toda la línea, y
+  // quien está considerando un camión —o quiere saber qué le tocaba al suyo— tiene
+  // derecho a leerla sin demostrar que posee uno. Sale de `Regla_Cobertura__c`,
+  // las mismas reglas con las que se evalúa una unidad.
+  //
+  // Se publica una proyección, no el catálogo administrativo. La comparación
+  // contra los parámetros base —dónde la póliza y la fórmula se contradicen— es un
+  // hallazgo de auditoría interna y se queda en `/api/politicas`.
+  if (p === '/publico/modelos') {
+    const catalogo = await datos.catalogoDePoliticas();
+    interface SistemaPublico {
+      sistema: string;
+      mesesLimite: number | null;
+      kmLimite: number | null;
+      sinLimiteKm: boolean;
+      esExtendida: boolean;
+    }
+    const porModelo = new Map<string, SistemaPublico[]>();
+    for (const entrada of catalogo.entradas) {
+      for (const modelo of entrada.modelos) {
+        const sistemas = porModelo.get(modelo) ?? [];
+        sistemas.push({
+          sistema: entrada.sistema,
+          mesesLimite: entrada.mesesLimite,
+          kmLimite: entrada.kmLimite,
+          sinLimiteKm: entrada.sinLimiteKm,
+          esExtendida: entrada.esExtendida,
+        });
+        porModelo.set(modelo, sistemas);
+      }
+    }
+    json(res, 200, {
+      base: catalogo.parametros
+        ? { meses: catalogo.parametros.Meses_Base__c, km: catalogo.parametros.Km_Base__c }
+        : null,
+      modelos: [...porModelo.entries()]
+        .map(([nombre, sistemas]) => ({
+          nombre,
+          sistemas: sistemas.sort(
+            (a, b) => Number(a.esExtendida) - Number(b.esExtendida) || a.sistema.localeCompare(b.sistema),
+          ),
+        }))
+        .sort((a, b) => a.nombre.localeCompare(b.nombre)),
+    });
+    return true;
+  }
+
   if (p === '/publico/disponibilidad') {
     const desde = url.searchParams.get('desde');
     const hasta = url.searchParams.get('hasta');

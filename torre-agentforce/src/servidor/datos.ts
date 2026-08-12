@@ -636,6 +636,70 @@ export async function listarSucursales(incluirInactivas = false): Promise<Listad
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
+// 5b · Material de apoyo (Knowledge__kav)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ArticuloConocimiento {
+  Id: string;
+  Title: string;
+  Summary: string | null;
+  Contenido__c: string | null;
+  Version_Politica__c: string | null;
+}
+
+export interface ArticuloPublicado {
+  id: string;
+  titulo: string;
+  resumen: string | null;
+  contenido: string | null;
+  version: string | null;
+  /** false mientras el artículo no declare una versión de política operacional. */
+  verificado: boolean;
+}
+
+/**
+ * Los artículos que el agente consulta, legibles también sin conversación.
+ *
+ * Hasta ahora este material sólo salía por boca del agente: `BuscarConocimientoPostventa`
+ * lo busca, lo recorta y lo devuelve dentro de una respuesta. Un cliente que quiere
+ * leer qué dice el material sobre su modelo —sin cita, sin número de serie y sin
+ * negociarlo por chat— no tenía por dónde.
+ *
+ * El mismo filtro que usa el Apex: `PublishStatus = 'Online'` e `IsLatestVersion`.
+ *
+ * `verificado` NO es decoración. El Apex antepone a cada respuesta un aviso de
+ * fuente sintética no verificada, y esa marca tiene que viajar con el artículo:
+ * presentarlo como manual oficial de Zapata sería exactamente la clase de mentira
+ * que el aviso existe para impedir.
+ */
+export async function listarConocimiento(busqueda?: string): Promise<Listado<ArticuloPublicado>> {
+  const donde = ["PublishStatus = 'Online'", 'IsLatestVersion = true'];
+  const termino = (busqueda ?? '').trim();
+  if (termino.length >= 2) {
+    const patron = `%${lit(termino)}%`;
+    donde.push(`(Title LIKE '${patron}' OR Summary LIKE '${patron}' OR Contenido__c LIKE '${patron}')`);
+  }
+
+  const crudos = limpiar(
+    await consultarTodo<ArticuloConocimiento>(
+      `SELECT Id, Title, Summary, Contenido__c, Version_Politica__c
+       FROM Knowledge__kav WHERE ${donde.join(' AND ')} ORDER BY Title ASC LIMIT 50`,
+      'datos.listarConocimiento',
+    ),
+  );
+
+  const registros = crudos.map((a) => ({
+    id: a.Id,
+    titulo: a.Title,
+    resumen: a.Summary,
+    contenido: a.Contenido__c,
+    version: a.Version_Politica__c,
+    verificado: Boolean(a.Version_Politica__c && a.Version_Politica__c.trim()),
+  }));
+  return { total: registros.length, registros };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // 6 · Cobertura — la contradicción, sin resolverla
 // ─────────────────────────────────────────────────────────────────────────────
 
