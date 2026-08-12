@@ -11,7 +11,7 @@
  * apunta `ZAPATA_DESIGN_AUDITOR` a la copia canónica y ejecuta con ella.
  *
  * `verificar-clon.mjs` compara contra un original. Este no lo necesita: audita
- * una página contra las diez reglas duras de la skill. Es la única forma de
+ * una página contra las once reglas duras de la skill. Es la única forma de
  * validar una página NUEVA — una que no existe en zapata.com.mx y que por tanto
  * no tiene contra qué difar.
  *
@@ -174,12 +174,106 @@ const AUDITORIA = () => {
       push('R9 tracking', `uppercase sin tracking (${ls} a ${px}px) — sin él Inter se lee como dashboard`, el);
   });
 
-  // ── R10 · contenedor a 1280 con padding 24
+  // ── R10 · contenedor a 1280 con el gutter del sistema
+  //
+  // El gutter es 24px, y 16px por debajo de 640px — está declarado así en
+  // `--z-gutter`. Exigir 24 a cualquier ancho hacía que la auditoría en móvil
+  // reprobara una decisión deliberada del propio sistema.
+  const gutter = window.innerWidth < 640 ? '16px' : '24px';
   const conts = [...document.querySelectorAll('.max-w-7xl')].filter(propio);
   conts.forEach(c => {
     const s = cs(c);
     if (s.maxWidth !== '1280px') push('R10 contenedor', `max-width: ${s.maxWidth} — el contenedor del sistema es 1280px`, c);
-    if (s.paddingLeft !== '24px') push('R10 contenedor', `padding-left: ${s.paddingLeft} — debe ser 24px`, c);
+    if (s.paddingLeft !== gutter) push('R10 contenedor', `padding-left: ${s.paddingLeft} — a ${window.innerWidth}px el gutter del sistema es ${gutter}`, c);
+  });
+
+  // ── R11 · el texto se lee
+  //
+  // Las diez reglas anteriores miden si la página SE PARECE al sistema. Ninguna medía
+  // si se puede leer, y en un lienzo casi negro esa es la falla fácil: `text-gray-600`
+  // sobre `#0d0e12` da 2.9:1 y un placeholder en `text-gray-700` da 1.9:1 — el sistema
+  // se respeta y el texto es invisible. WCAG AA pide 4.5:1, y 3:1 para texto grande
+  // (24px, o 18.66px en negrita).
+  //
+  // Lo deshabilitado queda fuera a propósito: la propia norma lo exceptúa y un control
+  // apagado DEBE verse apagado.
+  const aRGBA = (c) => {
+    const m = String(c).match(/rgba?\(([^)]+)\)/);
+    if (!m) return null;
+    const p = m[1].split(',').map((x) => parseFloat(x));
+    return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+  };
+  /** Compone `frente` sobre `fondo`, ambos opacos salvo el alfa de `frente`. */
+  const sobre = (frente, fondo) => ({
+    r: frente.r * frente.a + fondo.r * (1 - frente.a),
+    g: frente.g * frente.a + fondo.g * (1 - frente.a),
+    b: frente.b * frente.a + fondo.b * (1 - frente.a),
+    a: 1,
+  });
+  const luminancia = ({ r, g, b }) => {
+    const canal = (v) => {
+      const s = v / 255;
+      return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+    };
+    return 0.2126 * canal(r) + 0.7152 * canal(g) + 0.0722 * canal(b);
+  };
+  const razon = (a, b) => {
+    const [x, y] = [luminancia(a), luminancia(b)].sort((p, q) => q - p);
+    return (x + 0.05) / (y + 0.05);
+  };
+  /** El fondo real: se sube por los ancestros componiendo hasta encontrar opacidad. */
+  const fondoDe = (el) => {
+    let acumulado = null;
+    for (let n = el; n; n = n.parentElement) {
+      const c = aRGBA(cs(n).backgroundColor);
+      if (!c || c.a === 0) continue;
+      acumulado = acumulado ? sobre(acumulado, c) : c;
+      if (acumulado.a >= 0.999) return acumulado;
+    }
+    // Nadie pintó nada opaco: el lienzo del sistema.
+    return sobre(acumulado ?? { r: 0, g: 0, b: 0, a: 0 }, { r: 11, g: 12, b: 16, a: 1 });
+  };
+  /** La opacidad heredada multiplica el alfa del texto. */
+  const opacidadDe = (el) => {
+    let o = 1;
+    for (let n = el; n; n = n.parentElement) o *= parseFloat(cs(n).opacity || '1');
+    return o;
+  };
+  const apagado = (el) => !!el.closest?.('[disabled],[aria-disabled="true"],:disabled');
+
+  const medirContraste = (el, color, etiqueta) => {
+    const fg = aRGBA(color);
+    if (!fg || fg.a === 0) return;
+    const s = cs(el);
+    const px = parseFloat(s.fontSize);
+    const peso = parseInt(s.fontWeight, 10) || 400;
+    const grande = px >= 24 || (px >= 18.66 && peso >= 700);
+    const minimo = grande ? 3 : 4.5;
+    const fondo = fondoDe(el);
+    const texto = sobre({ ...fg, a: fg.a * opacidadDe(el) }, fondo);
+    const r = razon(texto, fondo);
+    if (r + 0.05 < minimo) {
+      push(
+        'R11 contraste',
+        `${etiqueta} a ${r.toFixed(2)}:1 sobre su fondo (mínimo ${minimo}:1 a ${px}px) — se ve, pero no se lee`,
+        el,
+      );
+    }
+  };
+
+  todos.forEach((el) => {
+    if (apagado(el)) return;
+    const r = el.getBoundingClientRect();
+    if (r.width === 0 || r.height === 0) return;
+    if (cs(el).visibility === 'hidden') return;
+    // Sólo hojas con texto propio: medir un contenedor mide el color que heredó.
+    const propioTexto = [...el.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+    if (propioTexto) medirContraste(el, cs(el).color, 'texto');
+    // El placeholder es texto que el usuario tiene que leer para saber qué escribir.
+    if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+      const c = getComputedStyle(el, '::placeholder').color;
+      if (c) medirContraste(el, c, 'placeholder');
+    }
   });
 
   // ── inventario informativo
@@ -203,17 +297,66 @@ const b = await chromium.launch();
 let totalViol = 0;
 
 for (const url of URLS) {
-  const ctx = await b.newContext({ viewport: { width: 1440, height: 900 }, deviceScaleFactor: 1 });
+  // `#viewport=375x812` audita la misma página en móvil. El sistema se diseñó y se
+  // midió a 1440, y a ese ancho se auditaba siempre: las reglas de tamaño, tracking y
+  // contraste nunca se habían comprobado en el ancho por el que entra la mitad de la
+  // gente.
+  const medida = /#.*\bviewport=(\d+)x(\d+)/.exec(url);
+  const viewport = medida
+    ? { width: Number(medida[1]), height: Number(medida[2]) }
+    : { width: 1440, height: 900 };
+  const ctx = await b.newContext({ viewport, deviceScaleFactor: 1 });
   const p = await ctx.newPage();
   const errsJS = [];
   p.on('pageerror', e => errsJS.push(String(e).slice(0, 160)));
+
+  // Las páginas con sesión se auditaban SIN sesión: el navegador llegaba, recibía un
+  // 401 y la propia página se redirigía al acceso. El auditor creía estar mirando el
+  // panel del asesor y estaba midiendo la pantalla de entrada dos veces, de modo que
+  // el panel —la única pantalla que nadie había auditado nunca— salía siempre limpio.
+  // `AUDITORIA_ACCESO` ({"ruta":"…","cuerpo":{…},"paginas":["/panel.html"]}) inicia
+  // sesión antes de navegar, y sólo en las páginas que la piden: con sesión abierta la
+  // pantalla de acceso se redirige al panel, así que iniciarla en todas cambiaba una
+  // vista sin auditar por otra.
+  const acceso = process.env.AUDITORIA_ACCESO ? JSON.parse(process.env.AUDITORIA_ACCESO) : null;
+  const necesitaSesion =
+    acceso && (!acceso.paginas?.length || acceso.paginas.includes(new URL(url).pathname));
+  if (necesitaSesion) {
+    await p.goto(new URL('/', url).href, { waitUntil: 'domcontentloaded', timeout: 60000 }).catch(() => {});
+    const ok = await p.evaluate(
+      ([ruta, cuerpo]) =>
+        fetch(ruta, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cuerpo),
+        }).then(r => r.ok),
+      [acceso.ruta, acceso.cuerpo],
+    ).catch(() => false);
+    if (!ok) console.log(`  (aviso: no se pudo iniciar sesión para auditar ${url})`);
+  }
+
   await p.goto(url, { waitUntil: 'networkidle', timeout: 60000 }).catch(() => {});
+
+  // Una página que se audita sólo en reposo se audita a medias: las capacidades del
+  // cliente —agenda, modelos, material— las pinta JavaScript con datos de la org y
+  // nunca habían pasado por aquí. `#abrir=agenda,modelos` las despliega antes de medir.
+  const abrir = /[#&]abrir=([^&]+)/.exec(new URL(url).hash)?.[1]?.split(',').filter(Boolean) ?? [];
+  for (const clave of abrir) {
+    // `:visible` no es cosmética: el mismo botón existe en la portada y en el espacio
+    // de trabajo, y al abrir el primero la portada se retira. Sin filtrar, el segundo
+    // clic iba al botón que acababa de ocultarse y expiraba.
+    const boton = p.locator(`[data-abre="${clave}"]:visible`).first();
+    await boton.click({ timeout: 10000 }).catch(() => console.log(`  (aviso: no se pudo abrir «${clave}»)`));
+    await p.waitForSelector(`[data-componente="${clave}"]`, { timeout: 20000 }).catch(() => {});
+    await p.waitForTimeout(600);
+  }
+
   await p.evaluate(async () => { await document.fonts.ready; });
   await p.waitForTimeout(900);
   const r = await p.evaluate(AUDITORIA);
 
   console.log(`\n${'═'.repeat(72)}\n  ${url}\n${'═'.repeat(72)}`);
-  console.log(`  nodos ${r.info.nodos} · alto ${r.info.alto}px · contenedores ${r.info.contenedores} · ámbar ${r.info.ambar}`);
+  console.log(`  viewport ${viewport.width}×${viewport.height} · nodos ${r.info.nodos} · alto ${r.info.alto}px · contenedores ${r.info.contenedores} · ámbar ${r.info.ambar}`);
   console.log(`  familias: ${r.info.familias.join(', ')}`);
   console.log(`  tamaños:  ${r.info.tamanos.join('  ')}`);
   console.log(`  easings:  ${r.info.easings.join(' | ') || '(ninguno)'}`);
@@ -225,7 +368,7 @@ for (const url of URLS) {
   const n = r.violaciones.length;
   totalViol += n;
 
-  if (!n) { console.log(`\n  ✓ SIN VIOLACIONES — cumple las diez reglas del sistema`); }
+  if (!n) { console.log(`\n  ✓ SIN VIOLACIONES — cumple las once reglas del sistema`); }
   else {
     console.log(`\n  ${n} VIOLACIONES:`);
     Object.entries(porRegla).forEach(([regla, lista]) => {

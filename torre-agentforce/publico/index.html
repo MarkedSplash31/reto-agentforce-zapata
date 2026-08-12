@@ -44,13 +44,13 @@
           <div class="flex flex-col sm:flex-row gap-3">
             <label for="entrada" class="sr-only">Escribe qué necesita tu unidad</label>
             <input id="entrada" autocomplete="off" placeholder="Cuéntanos qué pasa con tu unidad"
-              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-4 py-3.5 text-sm focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none placeholder:text-gray-700 disabled:opacity-40">
+              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-4 py-3.5 text-sm focus:outline-none focus:border-white/40 transition-colors duration-300 rounded-none placeholder-apagado disabled:opacity-40">
             <button id="enviar" type="submit"
               class="bg-white text-black px-8 py-3.5 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
               Enviar
             </button>
           </div>
-          <p id="pie" class="text-[10px] text-gray-600 font-light mt-3 leading-relaxed"></p>
+          <p id="pie" class="text-[10px] texto-apagado font-light mt-3 leading-relaxed"></p>
         </form>
       </div>
 
@@ -114,10 +114,18 @@
 
       <aside id="riel" class="lg:col-span-2 border border-white/5 bg-[#0d0e12] flex flex-col min-w-0"
              aria-label="Conversación con postventa">
-        <div class="border-b border-white/5 px-5 py-4 flex items-center justify-between gap-3">
+        <!--
+          `flex-wrap` y sin `truncate`: al escalar, esta línea pasa a decir «Asesor de
+          postventa · caso 00001145» y, con el chip de estado y la salida al lado, no
+          cabía. Se cortaba en «ASESOR DE …» y el folio —lo único que el cliente
+          necesita para preguntar por su caso, y lo único que sobrevive a una recarga—
+          desaparecía justo en el momento en que empieza a importar. Ahora baja a una
+          segunda línea, que es lo que hace un encabezado cuando el texto crece.
+        -->
+        <div class="border-b border-white/5 px-5 py-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <div class="flex items-center gap-3 min-w-0">
             <span id="punto" class="w-1.5 h-1.5 rounded-full bg-gray-600 shrink-0"></span>
-            <p id="interlocutor" class="text-[10px] uppercase tracking-[0.3em] text-gray-400 truncate">Asistente de postventa</p>
+            <p id="interlocutor" class="text-[10px] uppercase tracking-[0.3em] text-gray-400 leading-relaxed">Asistente de postventa</p>
           </div>
           <div class="flex items-center gap-2 shrink-0">
             <div id="estado"></div>

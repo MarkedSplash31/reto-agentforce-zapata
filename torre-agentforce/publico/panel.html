@@ -17,7 +17,7 @@
 
     <div class="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4 mb-16">
       <div>
-        <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">Interno</span>
+        <span class="text-xs uppercase tracking-[0.3em] texto-tenue block mb-2">Interno</span>
         <h1 class="font-serif-luxury text-3xl text-white tracking-wide font-light">Conversaciones escaladas</h1>
         <p class="text-gray-400 text-xs font-light mt-2 leading-relaxed max-w-2xl">
           Clientes que pidieron hablar con una persona. Lo que escribas les llega en vivo
@@ -35,16 +35,29 @@
       <div>
         <div class="border border-white/5 bg-[#0d0e12] p-6">
           <div class="flex items-center justify-between gap-3 mb-4">
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">En espera</p>
+            <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue">En espera</p>
             <span id="conteo" class="text-[10px] uppercase tracking-widest text-amber-400"></span>
           </div>
           <!--
-            La cola llega a decenas de casos y muchos comparten asunto: sin filtro,
-            encontrar el que un cliente acaba de escalar es imposible.
+            La cola no se vacía sola: acumula todo lo escalado desde que existe la org
+            —más de cien casos— y ahí dentro el que un cliente acaba de abrir es
+            indistinguible. La bandeja abre por lo que está vivo hoy; el resto no se
+            esconde, se dice cuántos son y se llega con un toque.
           -->
+          <div id="alcance" class="flex gap-2 mb-4" role="group" aria-label="Qué conversaciones ver">
+            <button type="button" data-alcance="hoy" aria-pressed="true"
+              class="flex-1 border border-white/20 bg-white/5 px-3 py-2 text-[10px] uppercase tracking-widest text-white transition-colors duration-300">
+              De hoy
+            </button>
+            <button type="button" data-alcance="todas" aria-pressed="false"
+              class="flex-1 border border-white/10 px-3 py-2 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+              Todas
+            </button>
+          </div>
+
           <label class="sr-only" for="filtro">Filtrar conversaciones</label>
           <input id="filtro" autocomplete="off" placeholder="Filtrar por folio o asunto"
-            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs mb-4 focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs mb-4 focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado">
           <div id="bandeja" class="space-y-3 max-h-[560px] overflow-y-auto" aria-live="polite"></div>
         </div>
       </div>
@@ -68,7 +81,7 @@
             <form id="form" class="flex flex-col sm:flex-row gap-3">
               <label for="entrada" class="sr-only">Respuesta para el cliente</label>
               <input id="entrada" autocomplete="off" placeholder="Elige una conversación de la lista" disabled
-                class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 disabled:opacity-40">
+                class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado disabled:opacity-40">
               <button id="enviar" type="submit" disabled
                 class="bg-white text-black px-8 py-2.5 text-xs uppercase tracking-widest font-medium hover:bg-neutral-200 transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
                 Responder
@@ -85,11 +98,11 @@
         -->
         <div class="border border-white/5 bg-[#0d0e12] p-6">
           <div class="flex items-center justify-between gap-3 mb-2">
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Herramienta del asesor</p>
-            <span class="text-[10px] uppercase tracking-widest text-gray-600">Privado</span>
+            <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue">Herramienta del asesor</p>
+            <span class="text-[10px] uppercase tracking-widest texto-apagado">Privado</span>
           </div>
           <h2 class="font-serif-luxury text-xl text-white tracking-wide font-light mb-2">Consultar al asistente</h2>
-          <p class="text-gray-500 text-[11px] font-light leading-relaxed mb-4">
+          <p class="texto-tenue text-[11px] font-light leading-relaxed mb-4">
             Pregúntale lo que necesites para responderle al cliente. El cliente no ve
             esta consulta: llega al mismo asistente, en una conversación aparte que es tuya.
           </p>
@@ -98,7 +111,7 @@
             <label for="consulta" class="sr-only">Consulta para el asistente</label>
             <input id="consulta" autocomplete="off"
               placeholder="Ej. ¿Qué cubre la garantía de este número de serie?"
-              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700 disabled:opacity-40">
+              class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado disabled:opacity-40">
             <button id="preguntar" type="submit"
               class="border border-white/20 text-white px-8 py-2.5 text-xs uppercase tracking-widest hover:bg-white hover:text-black transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed">
               Preguntar

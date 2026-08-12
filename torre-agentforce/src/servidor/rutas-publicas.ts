@@ -829,6 +829,13 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
               atiendeTuModelo = (await datos.talleresDelModelo(modeloId)).includes(taller);
             }
           }
+
+          // Sobre el CUPO no hace falta añadir nada aquí, y se comprobó antes de
+          // escribirlo: al abrirse, la agenda relee las franjas de ese taller y, si
+          // ninguna es apartable, ya lo dice en pantalla —«Este taller tiene horarios
+          // en el catálogo, pero su capacidad no está confirmada con el taller, así que
+          // no se pueden apartar desde aquí»— con salida de un toque al que sí puede.
+          // Un segundo aviso del servidor diciendo lo mismo sería ruido.
           emitir('Capacidad', { capacidad: 'agenda', sucursal: taller, atiendeTuModelo });
         }
       } catch {

@@ -170,6 +170,12 @@ before(async () => {
       APP_OIDC_ADVISOR_PERMISSION_SETS: 'Torre_Agentforce_Asesor',
       APP_AUTH_CREDENTIALS_JSON: '',
       SF_LOGIN_URL: identityOrigin,
+      // El proveedor de identidad de esta prueba es una organización distinta de la
+      // del reto, así que declara también sus identificadores: `config.ts` rechaza
+      // apuntar a una org ajena conservando el agente y la cola del reto.
+      SF_AGENT_ID: '0Xx000000000001AAA',
+      SF_COLA_ESCALAMIENTO_ID: '00G000000000001AAA',
+      SF_CASE_QUEUE_ID: '00G000000000001AAA',
       SF_OIDC_ALLOWED_HOSTS: '127.0.0.1',
       SF_OIDC_EXPECTED_ISSUERS: identityOrigin,
       SF_CLIENT_ID: 'oidc-integration-client',

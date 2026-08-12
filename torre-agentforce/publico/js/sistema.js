@@ -109,7 +109,7 @@ function montarFooter() {
     </div>`;
 
   document.getElementById('footer').innerHTML = `
-  <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs text-gray-500">
+  <footer class="bg-[#07080a] py-16 border-t border-white/5 text-xs texto-tenue">
     <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10 mb-12 text-left">
       <div class="space-y-4 md:col-span-2">
         <p class="font-serif-luxury tracking-widest text-white text-sm">TORRE AGENTFORCE</p>
@@ -127,7 +127,7 @@ function montarFooter() {
         ['Acceso de asesores', 'acceso.html'],
       ])}
     </div>
-    <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center text-gray-600 font-light">
+    <div class="max-w-7xl mx-auto px-6 border-t border-white/5 pt-8 text-center texto-apagado font-light">
       &copy; 2026 Zapata. Todos los derechos reservados.
     </div>
   </footer>`;
@@ -187,7 +187,7 @@ export function bloqueError(e, contexto) {
 /** Estado de carga. Sin latencia fingida: se muestra mientras la red trabaja. */
 export function cargando(que) {
   return `<div class="border border-white/5 bg-[#0d0e12] p-6 text-center">
-    <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500">Consultando ${escapar(que)}</p>
+    <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue">Consultando ${escapar(que)}</p>
   </div>`;
 }
 
@@ -220,7 +220,7 @@ export function numero(n) {
 export function encabezado(eyebrow, titulo, descripcion, nivel = 2) {
   const etiqueta = nivel === 1 ? 'h1' : 'h2';
   return `<div class="mb-16">
-    <span class="text-xs uppercase tracking-[0.3em] text-gray-500 block mb-2">${escapar(eyebrow)}</span>
+    <span class="text-xs uppercase tracking-[0.3em] texto-tenue block mb-2">${escapar(eyebrow)}</span>
     <${etiqueta} class="font-serif-luxury text-3xl text-white tracking-wide font-light">${escapar(titulo)}</${etiqueta}>
     ${descripcion ? `<p class="text-gray-400 text-xs font-light mt-2 leading-relaxed max-w-2xl">${escapar(descripcion)}</p>` : ''}
   </div>`;

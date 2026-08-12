@@ -14,7 +14,39 @@ function req(nombre: string, porDefecto?: string): string {
 }
 
 export const securityConfig = loadSecurityConfig(process.env);
-const DEFAULT_CASE_QUEUE_ID = '00GgK00000BMTaVUAX';
+
+/**
+ * La organización del reto y sus identificadores.
+ *
+ * Están aquí a propósito: quien clone el repositorio levanta el sitio contra ella sin
+ * configurar nada, y eso es lo que el reto necesita. Ninguno es un secreto —son Ids
+ * públicos dentro de esa org—.
+ *
+ * Lo que NO puede pasar es que alguien apunte el sitio a OTRA organización y se quede
+ * con estos Ids: estaría hablando con su org usando los identificadores de ésta, y el
+ * fallo aparecería dentro de una conversación con un error de Salesforce que no dice
+ * nada. Por eso se lleva la cuenta de cuáles vinieron por omisión y
+ * `exigirOrgCoherente` corta esa mezcla al arrancar.
+ */
+const ORG_DEL_RETO = {
+  SF_LOGIN_URL: 'https://orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com',
+  // BotDefinition.Id de Agente_Postventa_Zapata — confirmado por SOQL 5-ago-2026.
+  SF_AGENT_ID: '0XxgK0000022RhJSAU',
+  // Cola Escalamiento_Postventa — confirmada por SOQL sobre Group.
+  SF_COLA_ESCALAMIENTO_ID: '00GgK00000BMTaVUAX',
+  SF_CASE_QUEUE_ID: '00GgK00000BMTaVUAX',
+  SF_CLI_ORG_ALIAS: 'zapata',
+} as const;
+
+/** Las variables de identidad de org que nadie definió y se tomaron del reto. */
+const identidadPorOmision: string[] = [];
+
+function delReto(nombre: keyof typeof ORG_DEL_RETO): string {
+  const definida = process.env[nombre];
+  if (definida && definida.trim()) return definida.trim();
+  identidadPorOmision.push(nombre);
+  return ORG_DEL_RETO[nombre];
+}
 
 function originSeguro(nombre: string, porDefecto?: string): string {
   const raw = req(nombre, porDefecto);
@@ -189,14 +221,14 @@ function proveedorToken(): 'client_credentials' | 'cli' {
 }
 
 function aliasCli(): string {
-  const value = req('SF_CLI_ORG_ALIAS', 'zapata');
+  const value = delReto('SF_CLI_ORG_ALIAS');
   if (!/^[A-Za-z0-9._-]{1,80}$/.test(value)) throw new Error('SF_CLI_ORG_ALIAS no es valido.');
   return value;
 }
 
 const apiVersion = req('SF_API_VERSION', 'v67.0');
 if (!/^v\d{1,3}\.\d$/.test(apiVersion)) throw new Error('SF_API_VERSION no es valida.');
-const loginUrl = originSeguro('SF_LOGIN_URL', 'https://orgfarm-1c6625ec2e-dev-ed.develop.my.salesforce.com');
+const loginUrl = originSeguro('SF_LOGIN_URL', delReto('SF_LOGIN_URL'));
 const clientId = process.env.SF_CLIENT_ID ?? '';
 const clientSecret = process.env.SF_CLIENT_SECRET ?? '';
 
@@ -211,15 +243,13 @@ export const config = {
   appAuthProvider: securityConfig.authProvider,
   oidc: oidcConfig(loginUrl, clientId, clientSecret),
 
-  // BotDefinition.Id de Agente_Postventa_Zapata — confirmado por SOQL 5-ago-2026.
-  agentId: salesforceId('SF_AGENT_ID', '0XxgK0000022RhJSAU'),
+  agentId: salesforceId('SF_AGENT_ID', delReto('SF_AGENT_ID')),
   agentApiHost: originSeguro('SF_AGENT_API_HOST', 'https://api.salesforce.com'),
 
-  // Cola Escalamiento_Postventa — confirmada por SOQL sobre Group.
-  colaEscalamientoId: queueId('SF_COLA_ESCALAMIENTO_ID', DEFAULT_CASE_QUEUE_ID),
+  colaEscalamientoId: queueId('SF_COLA_ESCALAMIENTO_ID', delReto('SF_COLA_ESCALAMIENTO_ID')),
   // Frontera de autorizacion para asesores. Separada de la configuracion funcional
   // para que cambiar una cola no amplie acceso de forma implicita.
-  caseQueueId: queueId('SF_CASE_QUEUE_ID', DEFAULT_CASE_QUEUE_ID),
+  caseQueueId: queueId('SF_CASE_QUEUE_ID', delReto('SF_CASE_QUEUE_ID')),
 
   puerto: puerto(),
 
@@ -227,7 +257,33 @@ export const config = {
   proveedorToken: proveedorToken(),
   cliOrgAlias: aliasCli(),
   security: securityConfig,
+  /** Qué identificadores de org se tomaron del reto porque nadie los definió. */
+  identidadPorOmision: Object.freeze([...identidadPorOmision]),
 } as const;
+
+/**
+ * Apuntar a otra organización y conservar los identificadores de ésta es la mezcla
+ * que nadie detecta a tiempo: el sitio arranca, la pantalla se pinta, y el fallo sale
+ * dentro de una conversación como un error de Salesforce que no dice qué pasó. Si
+ * alguien se molestó en definir su propio `SF_LOGIN_URL`, los Ids tienen que ser
+ * suyos también.
+ *
+ * El alias del CLI queda fuera: nombra una sesión local, no un registro de la org, y
+ * exigirlo obligaría a renombrar la sesión de cualquiera que ya la tenga abierta.
+ */
+function exigirOrgCoherente(): void {
+  if (config.loginUrl === ORG_DEL_RETO.SF_LOGIN_URL) return;
+  const prestados = identidadPorOmision.filter((n) => n !== 'SF_LOGIN_URL' && n !== 'SF_CLI_ORG_ALIAS');
+  if (!prestados.length) return;
+  throw new Error(
+    `SF_LOGIN_URL apunta a ${config.loginUrl}, pero ${prestados.join(', ')} conserva(n) ` +
+      'los identificadores de la organización del reto. Esos Ids no existen en tu ' +
+      'organización: define esas variables con los tuyos, o quita SF_LOGIN_URL para ' +
+      'trabajar contra la del reto.',
+  );
+}
+
+exigirOrgCoherente();
 
 /** Nunca imprimas `config` directo: lleva el secreto. Usa esto. */
 export function configSegura() {
@@ -240,6 +296,7 @@ export function configSegura() {
     caseQueueId: config.caseQueueId,
     proveedorToken: config.proveedorToken,
     tieneCredenciales: Boolean(config.clientId && config.clientSecret),
+    identidadPorOmision: config.identidadPorOmision,
     seguridad: {
       entorno: config.security.appEnv,
       autenticacion: config.security.authMode,

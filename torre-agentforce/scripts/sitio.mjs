@@ -92,4 +92,17 @@ if (faltantes.length) {
   console.log('  El sitio levanta igual; cada pieza dirá qué le falta.\n');
 }
 
+// Contra QUÉ organización se está levantando. Sin esto, quien clona el repositorio
+// para trabajar con la suya no tiene forma de notar que sigue apuntando a la del reto:
+// el sitio arranca igual y las pantallas se pintan con datos que no son los suyos.
+const { config } = await import('../src/servidor/config.ts');
+if (config.identidadPorOmision.length) {
+  console.log('\n  Organización: la del reto, por omisión.');
+  console.log(`   · ${config.loginUrl}`);
+  console.log(`   · sin definir: ${config.identidadPorOmision.join(', ')}`);
+  console.log('   Define esas variables para trabajar contra la tuya.');
+} else {
+  console.log(`\n  Organización: ${config.loginUrl} (definida en el entorno).`);
+}
+
 await import('../src/servidor/index.ts');

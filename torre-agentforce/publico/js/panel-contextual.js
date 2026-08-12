@@ -54,7 +54,7 @@ function tarjeta(titulo, eyebrow, cuerpo, tono = 'neutro') {
     tono === 'ok' ? 'border-emerald-400/25' : tono === 'alerta' ? 'border-amber-400/30' : 'border-white/5';
   return `
     <div class="border ${borde} bg-[#0b0c10] p-6">
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-2">${escapar(eyebrow)}</p>
+      <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue mb-2">${escapar(eyebrow)}</p>
       <h3 class="font-serif-luxury text-xl text-white tracking-wide mb-4">${escapar(titulo)}</h3>
       ${cuerpo}
     </div>`;
@@ -67,7 +67,7 @@ function filas(pares) {
     .map(
       ([k, v, mono]) => `
       <div class="flex justify-between gap-4">
-        <dt class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(k)}</dt>
+        <dt class="text-[10px] uppercase tracking-widest texto-apagado">${escapar(k)}</dt>
         <dd class="text-[11px] ${mono ? 'font-mono tracking-wide' : ''} text-gray-300 text-right">${escapar(String(v))}</dd>
       </div>`,
     )
@@ -95,7 +95,7 @@ function pintarDisponibilidad(d) {
       return `
       <li class="flex items-center justify-between gap-4 border-b border-white/5 py-2">
         <span class="text-[11px] font-mono tracking-wide text-gray-300">${escapar(fecha(inicio))}</span>
-        <span class="text-[10px] uppercase tracking-widest text-gray-500">${libres != null ? escapar(String(libres)) + ' lugares' : ''}</span>
+        <span class="text-[10px] uppercase tracking-widest texto-tenue">${libres != null ? escapar(String(libres)) + ' lugares' : ''}</span>
       </li>`;
     })
     .join('');
@@ -154,7 +154,7 @@ function pintarConocimiento(d, citas) {
     `${cuerpo ? `<p class="text-gray-300 text-xs font-light leading-relaxed mb-4">${escapar(String(cuerpo).slice(0, 600))}</p>` : ''}
      ${
        fuentes.length
-         ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mb-2">Fuentes</p>
+         ? `<p class="text-[10px] uppercase tracking-widest texto-apagado mb-2">Fuentes</p>
             <ul class="space-y-1.5">${fuentes.map((f) => `<li class="text-[11px] text-gray-400 font-light">${escapar(String(f))}</li>`).join('')}</ul>`
          : ''
      }`,
@@ -202,7 +202,7 @@ function pintarCobertura(c) {
           <span class="text-xs text-gray-200">${escapar(s.sistema)}</span>
           ${chip(txt, tono)}
         </div>
-        <p class="text-[10px] uppercase tracking-widest text-gray-600">
+        <p class="text-[10px] uppercase tracking-widest texto-apagado">
           ${s.porRegla?.mesesLimite != null ? escapar(String(s.porRegla.mesesLimite)) + ' meses' : ''}
           ${limite ? ' · ' + escapar(limite) : ''}
         </p>
@@ -233,7 +233,7 @@ function pintarCobertura(c) {
               determinar su cobertura aquí. Un asesor lo revisa contigo.
             </p>`
          : sistemas
-           ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mt-5 mb-3">Por sistema</p>
+           ? `<p class="text-[10px] uppercase tracking-widest texto-apagado mt-5 mb-3">Por sistema</p>
               <ul class="space-y-3">${sistemas}</ul>`
            : ''
      }`,
@@ -284,7 +284,7 @@ export function crearPanel(contenedor, { alPintar } = {}) {
             tarjeta(
               accion.replace(/_/g, ' '),
               'El asistente consultó',
-              `<pre class="text-[10px] text-gray-500 font-mono leading-relaxed overflow-x-auto">${escapar(JSON.stringify(d, null, 1).slice(0, 800))}</pre>`,
+              `<pre class="text-[10px] texto-tenue font-mono leading-relaxed overflow-x-auto">${escapar(JSON.stringify(d, null, 1).slice(0, 800))}</pre>`,
             ),
           );
         }

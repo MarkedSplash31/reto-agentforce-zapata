@@ -12,6 +12,8 @@ const boton = document.getElementById('enviar');
 let casoActual = null;
 let fuente = null;
 let casosEnMemoria = [];
+/** `hoy` | `todas` — qué parte de la cola se está mirando. */
+let alcance = 'hoy';
 const vistos = new Set();
 
 // Sin sesión de asesor esta pantalla no existe. Se comprueba antes de pintar nada.
@@ -99,7 +101,7 @@ function burbuja(c) {
           : 'Lo que pidió el cliente';
     fila.innerHTML = `
       <div class="w-full border ${ctx.clase === 'turno' ? 'border-white/5' : 'border-amber-400/20'} bg-[#0b0c10] p-4">
-        <p class="text-[10px] uppercase tracking-[0.3em] ${ctx.clase === 'turno' ? 'text-gray-600' : 'text-amber-400/80'} mb-2">${escapar(etiqueta)}</p>
+        <p class="text-[10px] uppercase tracking-[0.3em] ${ctx.clase === 'turno' ? 'texto-apagado' : 'text-amber-400/80'} mb-2">${escapar(etiqueta)}</p>
         ${ctx.asunto ? `<p class="text-gray-300 text-xs font-light mb-1">${escapar(ctx.asunto)}</p>` : ''}
         <p class="text-gray-400 text-[11px] leading-relaxed font-light whitespace-pre-wrap"></p>
       </div>`;
@@ -111,7 +113,7 @@ function burbuja(c) {
   {
     fila.innerHTML = `
       <div class="max-w-[80%] border ${mio ? 'border-white/20 bg-white/5' : 'border-white/5 bg-[#0b0c10]'} p-4">
-        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-2">${mio ? 'Tú' : 'Cliente'} · ${escapar(fecha(c.creadoEn))}</p>
+        <p class="text-[10px] uppercase tracking-widest texto-tenue mb-2">${mio ? 'Tú' : 'Cliente'} · ${escapar(fecha(c.creadoEn))}</p>
         <p class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>
       </div>`;
   }
@@ -136,23 +138,40 @@ async function cargarBandeja() {
   }
 }
 
+/** Una conversación está viva si se abrió en las últimas 24 horas. */
+const HORAS_VIVAS = 24;
+function esDeHoy(c) {
+  const t = Date.parse(c.creadoEn ?? '');
+  return Number.isFinite(t) && Date.now() - t <= HORAS_VIVAS * 3_600_000;
+}
+
 /**
  * La cola llega a decenas de casos y muchos comparten asunto —«Escalamiento
  * solicitado desde Agentforce»—, así que sin filtro encontrar el que un cliente
  * acaba de escalar era cuestión de suerte. Se filtra en memoria: ya están todos.
+ *
+ * El alcance por omisión es lo de hoy. Un asesor que abre el panel atiende lo que
+ * está pasando, no el archivo entero de la organización; y con más de cien casos
+ * abiertos —ninguno se cierra solo— la lista completa era ruido en el que el caso
+ * recién escalado quedaba enterrado. Nada se oculta: el conteo dice cuántos quedan
+ * fuera y «Todas» los trae.
  */
 function pintarBandeja() {
   const termino = (filtro?.value ?? '').trim().toLowerCase();
+  const enAlcance = alcance === 'hoy' ? casosEnMemoria.filter(esDeHoy) : casosEnMemoria;
   const casos = termino
-    ? casosEnMemoria.filter((c) =>
+    ? enAlcance.filter((c) =>
         `${c.caseNumber ?? ''} ${c.asunto ?? ''}`.toLowerCase().includes(termino),
       )
-    : casosEnMemoria;
+    : enAlcance;
 
+  const anteriores = casosEnMemoria.length - enAlcance.length;
   conteo.textContent = termino
-    ? `${casos.length} de ${casosEnMemoria.length}`
+    ? `${casos.length} de ${enAlcance.length}`
     : casosEnMemoria.length
-      ? `${casosEnMemoria.length}`
+      ? alcance === 'hoy' && anteriores
+        ? `${enAlcance.length} · ${anteriores} anteriores`
+        : `${enAlcance.length}`
       : '';
 
   try {
@@ -167,14 +186,16 @@ function pintarBandeja() {
           ${chip(c.estado || '—', c.estado === 'Closed' ? 'ok' : 'neutro')}
         </div>
         <p class="text-gray-400 text-[11px] leading-relaxed font-light">${escapar((c.asunto || '').slice(0, 80))}</p>
-        <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-2">${escapar(fecha(c.creadoEn))} · ${c.comentarios ?? 0} mensajes</p>
+        <p class="text-[10px] uppercase tracking-widest texto-apagado mt-2">${escapar(fecha(c.creadoEn))} · ${c.comentarios ?? 0} mensajes</p>
       </button>`,
           )
           .join('')
       : vacio(
           termino
             ? `Ninguna conversación coincide con «${termino}».`
-            : 'No hay conversaciones esperando. Cuando un cliente pida hablar con una persona, aparecerá aquí.',
+            : alcance === 'hoy' && anteriores
+              ? `Hoy no ha escalado nadie. Quedan ${anteriores} conversaciones de días anteriores en «Todas».`
+              : 'No hay conversaciones esperando. Cuando un cliente pida hablar con una persona, aparecerá aquí.',
         );
 
     for (const b of bandeja.querySelectorAll('button[data-caso]')) {
@@ -186,6 +207,20 @@ function pintarBandeja() {
 }
 
 filtro?.addEventListener('input', pintarBandeja);
+
+for (const b of document.querySelectorAll('#alcance button[data-alcance]')) {
+  b.addEventListener('click', () => {
+    alcance = b.dataset.alcance;
+    for (const otro of document.querySelectorAll('#alcance button[data-alcance]')) {
+      const activo = otro === b;
+      otro.setAttribute('aria-pressed', String(activo));
+      otro.className = activo
+        ? 'flex-1 border border-white/20 bg-white/5 px-3 py-2 text-[10px] uppercase tracking-widest text-white transition-colors duration-300'
+        : 'flex-1 border border-white/10 px-3 py-2 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300';
+    }
+    pintarBandeja();
+  });
+}
 
 async function abrir(id) {
   casoActual = id;
@@ -208,7 +243,7 @@ async function abrir(id) {
       <div class="flex flex-wrap items-center gap-3">
         <span class="text-[11px] font-mono tracking-wide text-white">${escapar(c.caso?.caseNumber || '')}</span>
         ${chip(c.caso?.estado || '—', 'neutro')}
-        <span class="text-[11px] font-light text-gray-500">${escapar(c.caso?.asunto || '')}</span>
+        <span class="text-[11px] font-light texto-tenue">${escapar(c.caso?.asunto || '')}</span>
       </div>`;
 
     hilo.innerHTML = '';
@@ -262,7 +297,7 @@ function filas(pares) {
     .map(
       ([k, v, mono]) => `
       <div class="flex justify-between gap-4">
-        <dt class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(k)}</dt>
+        <dt class="text-[10px] uppercase tracking-widest texto-apagado">${escapar(k)}</dt>
         <dd class="text-[11px] ${mono ? 'font-mono tracking-wide' : ''} text-gray-300 text-right">${escapar(String(v))}</dd>
       </div>`,
     )
@@ -274,7 +309,7 @@ function bloque(titulo, cuerpo) {
   // tarjeta del mismo color que su fondo no se ve.
   return `
     <div class="border border-white/5 bg-[#0d0e12] p-5">
-      <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3">${escapar(titulo)}</p>
+      <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue mb-3">${escapar(titulo)}</p>
       ${cuerpo}
     </div>`;
 }
@@ -293,7 +328,7 @@ async function cargarContexto(id) {
     if (!d.correlationId) {
       contexto.innerHTML = bloque(
         'Expediente',
-        '<p class="text-gray-500 text-xs font-light leading-relaxed">Este caso no trae correlación, así que no hay traza que releer.</p>',
+        '<p class="texto-tenue text-xs font-light leading-relaxed">Este caso no trae correlación, así que no hay traza que releer.</p>',
       );
       return;
     }
@@ -355,7 +390,7 @@ async function cargarContexto(id) {
             <li class="flex items-start justify-between gap-3 border-b border-white/5 pb-2.5 last:border-0 last:pb-0">
               <div class="min-w-0">
                 <p class="text-[11px] text-gray-200">${escapar((a.accion ?? 'acción').replace(/_/g, ' '))}</p>
-                <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-1">${escapar(a.subagente ?? 'sin subagente')} · ${escapar(a.folio)}</p>
+                <p class="text-[10px] uppercase tracking-widest texto-apagado mt-1">${escapar(a.subagente ?? 'sin subagente')} · ${escapar(a.folio)}</p>
               </div>
               ${chip(a.resultado ?? '—', a.resultado === 'SUCCESS' ? 'ok' : a.resultado === 'BLOCKED' ? 'bloqueo' : a.resultado ? 'error' : 'neutro')}
             </li>`,
@@ -369,7 +404,7 @@ async function cargarContexto(id) {
       partes.push(
         bloque(
           'Expediente',
-          `<p class="text-gray-500 text-xs font-light leading-relaxed">
+          `<p class="texto-tenue text-xs font-light leading-relaxed">
              El asistente no dejó traza bajo esta conversación: no ejecutó ninguna acción
              que registre, o el cliente pidió una persona antes de que hiciera nada.
            </p>`,
@@ -379,8 +414,8 @@ async function cargarContexto(id) {
 
     contexto.innerHTML = `
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">${partes.join('')}</div>
-      <p class="text-[10px] uppercase tracking-widest text-gray-600 mt-4">
-        Folio de la visita · <span class="font-mono tracking-wide text-gray-500">${escapar(d.correlationId)}</span>
+      <p class="text-[10px] uppercase tracking-widest texto-apagado mt-4">
+        Folio de la visita · <span class="font-mono tracking-wide texto-tenue">${escapar(d.correlationId)}</span>
       </p>`;
   } catch (e) {
     contexto.innerHTML = bloqueError(e, 'No se pudo leer el expediente de la conversación');
@@ -464,7 +499,7 @@ document.getElementById('form-consulta').addEventListener('submit', async (ev) =
     const traza = (d.actividad ?? [])
       .map(
         (a) =>
-          `<li class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(
+          `<li class="text-[10px] uppercase tracking-widest texto-apagado">${escapar(
             (a.accion ?? 'acción').replace(/_/g, ' '),
           )} · ${escapar(a.resultado ?? '—')} · ${escapar(a.folio)}</li>`,
       )
@@ -472,7 +507,7 @@ document.getElementById('form-consulta').addEventListener('submit', async (ev) =
 
     salidaConsulta.innerHTML = `
       <div class="border border-white/10 bg-[#0b0c10] p-4">
-        <p class="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Respuesta del asistente · sólo para ti</p>
+        <p class="text-[10px] uppercase tracking-widest texto-tenue mb-2">Respuesta del asistente · sólo para ti</p>
         <p id="texto-consulta" class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>
         ${traza ? `<ul class="mt-3 space-y-1 border-t border-white/5 pt-3">${traza}</ul>` : ''}
         <button id="usar-consulta" type="button"

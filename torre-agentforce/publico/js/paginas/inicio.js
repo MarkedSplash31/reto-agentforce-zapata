@@ -124,7 +124,7 @@ function turno(quien, texto) {
   fila.className = 'turno';
   fila.dataset.de = quien;
   fila.innerHTML = `
-    <p class="text-[10px] uppercase tracking-[0.3em] ${quien === 'asesor' ? 'text-amber-400/80' : 'text-gray-500'} mb-2">${escapar(etiqueta)}</p>
+    <p class="text-[10px] uppercase tracking-[0.3em] ${quien === 'asesor' ? 'text-amber-400/80' : 'texto-tenue'} mb-2">${escapar(etiqueta)}</p>
     <p class="text-gray-100 text-xs leading-relaxed font-light whitespace-pre-wrap"></p>`;
   fila.querySelector('p:last-child').textContent = texto;
   hilo.appendChild(fila);
@@ -145,13 +145,13 @@ function marcarProcedencia(parrafo, texto) {
   pie.className = 'mt-3 pt-3 border-t border-white/5';
   pie.innerHTML = `
     ${version ? chip(version, 'bloqueo') : ''}
-    ${titulos ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mt-2 leading-relaxed">Material consultado · ${escapar(titulos)}</p>` : ''}`;
+    ${titulos ? `<p class="text-[10px] uppercase tracking-widest texto-apagado mt-2 leading-relaxed">Material consultado · ${escapar(titulos)}</p>` : ''}`;
   parrafo.parentElement?.appendChild(pie);
 }
 
 function nota(texto, tono = 'neutro') {
   const p = document.createElement('p');
-  const color = tono === 'error' ? 'text-red-300' : tono === 'ok' ? 'text-emerald-300' : 'text-gray-500';
+  const color = tono === 'error' ? 'text-red-300' : tono === 'ok' ? 'text-emerald-300' : 'texto-tenue';
   p.className = `nota text-[11px] font-light ${color}`;
   p.textContent = texto;
   hilo.appendChild(p);
@@ -692,17 +692,17 @@ try {
         </div>
         <dl class="space-y-1.5">
           <div class="flex justify-between gap-4">
-            <dt class="text-[10px] uppercase tracking-widest text-gray-600">Entre semana</dt>
+            <dt class="text-[10px] uppercase tracking-widest texto-apagado">Entre semana</dt>
             <dd class="text-[11px] text-gray-300 text-right">${escapar(s.horario || '—')}</dd>
           </div>
           <div class="flex justify-between gap-4">
-            <dt class="text-[10px] uppercase tracking-widest text-gray-600">Anticipación</dt>
+            <dt class="text-[10px] uppercase tracking-widest texto-apagado">Anticipación</dt>
             <dd class="text-[11px] font-mono tracking-wide text-gray-300">${s.anticipacionHoras ?? '—'} h</dd>
           </div>
           ${
             s.telefono
               ? `<div class="flex justify-between gap-4">
-                   <dt class="text-[10px] uppercase tracking-widest text-gray-600">Teléfono</dt>
+                   <dt class="text-[10px] uppercase tracking-widest texto-apagado">Teléfono</dt>
                    <dd class="text-[11px]"><a href="tel:${escapar(String(s.telefono).replace(/[^0-9+]/g, ''))}" class="font-mono tracking-wide text-amber-400 hover:text-amber-300 transition-colors">${escapar(s.telefono)}</a></dd>
                  </div>`
               : ''

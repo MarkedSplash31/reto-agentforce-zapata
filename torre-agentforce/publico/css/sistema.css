@@ -21,9 +21,18 @@
   --z-txt-base: #f3f4f6;
   --z-txt-sub:  #d1d5db;
   --z-txt-desc: #9ca3af;      /* el más usado: descripción y link en reposo */
-  --z-txt-eyeb: #6b7280;
-  --z-txt-min:  #4b5563;
-  --z-txt-ph:   #374151;
+
+  /* Los tres tonos quietos SUBEN respecto a lo medido en zapata.com.mx.
+     Medidos allí: eyeb #6b7280 (3.99:1 sobre la superficie), min #4b5563 (2.55:1) y
+     placeholder #374151 (1.87:1). El sistema se copiaba fiel y el texto no se leía:
+     por debajo de 4.5:1 una etiqueta de 10px sobre casi negro es una mancha, y el
+     placeholder que dice qué escribir era prácticamente invisible.
+     Se conserva la INTENCIÓN —tres escalones de silencio bajo la descripción— y se
+     sube cada uno al primer valor de su misma familia fría que pasa AA. Es la única
+     desviación deliberada del clon, y está aquí escrita para que se sepa. */
+  --z-txt-eyeb: #848b98;      /* 5.63:1 sobre la superficie — etiquetas y antetítulos */
+  --z-txt-min:  #7a818e;      /* 4.92:1 — el metadato más callado */
+  --z-txt-ph:   #7a818e;      /* 4.92:1 — un placeholder es una instrucción, se lee */
 
   /* ── acento ── brand.accent, "Ámbar de precisión" en el código de Zapata ── */
   --z-ambar:      #fbbf24;
@@ -124,7 +133,11 @@ dialog::backdrop { background: rgba(0,0,0,.82); }
 
 @media (max-width: 639px) {
   :root { --z-gutter: 16px; }
-  section.max-w-7xl { padding-left: var(--z-gutter); padding-right: var(--z-gutter); }
+  /* Cualquier contenedor del sistema, no sólo los <section>. La barra superior y el
+     pie usan <div class="max-w-7xl">, así que con el selector anterior en móvil se
+     quedaban a 24px mientras el contenido de en medio bajaba a 16: dos márgenes
+     distintos en la misma columna, y el logotipo desalineado respecto al texto. */
+  .max-w-7xl { padding-left: var(--z-gutter); padding-right: var(--z-gutter); }
   .mobile-stack { flex-direction: column; }
   .mobile-stack > * { width: 100%; }
 }
@@ -282,6 +295,16 @@ dialog::backdrop { background: rgba(0,0,0,.82); }
 ::-webkit-scrollbar-track { background: var(--z-canvas); }
 ::-webkit-scrollbar-thumb { background: var(--z-l05); }
 ::-webkit-scrollbar-thumb:hover { background: var(--z-l10); }
+
+/* ── la escala de texto quieto ─────────────────────────────────────────────
+   Tres clases con nombre en vez de `text-gray-500/600/700`. No es cosmética:
+   esos utilitarios de Tailwind traen sus valores clavados y sobre este lienzo
+   caen a 4.0, 2.6 y 1.9:1. Nombrarlas ata el color al token del sistema, así
+   que subir el token —como se hizo arriba— arregla la página entera de una vez
+   y nadie tiene que acordarse de qué gris tocaba en cada sitio.               */
+.texto-tenue   { color: var(--z-txt-eyeb); }
+.texto-apagado { color: var(--z-txt-min); }
+.placeholder-apagado::placeholder { color: var(--z-txt-ph); }
 
 /* ── accesibilidad ────────────────────────────────────────────────────────
    Zapata usa focus:outline-none con un cambio de borde de white/10 a white/40:

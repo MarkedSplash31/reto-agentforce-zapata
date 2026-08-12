@@ -40,7 +40,7 @@ export async function montarManuales(raiz) {
       <label class="sr-only" for="manuales-busca">Buscar en el material</label>
       <input id="manuales-busca" data-manuales-busca autocomplete="off"
         placeholder="Buscar: frenos, refacciones, servicio de 40,000 km…"
-        class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+        class="flex-1 min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado">
       <button type="submit"
         class="border border-white/20 px-6 py-2.5 text-[10px] uppercase tracking-widest text-white hover:bg-white hover:text-black transition-all duration-300">
         Buscar
@@ -100,7 +100,7 @@ export async function montarManuales(raiz) {
             <span class="text-xs text-gray-100 group-hover:text-white transition-colors">${escapar(a.titulo)}</span>
             ${chip(a.version || 'Sin versión', a.verificado ? 'ok' : 'bloqueo')}
           </div>
-          ${a.resumen ? `<p class="text-[11px] text-gray-500 font-light leading-relaxed">${escapar(a.resumen)}</p>` : ''}
+          ${a.resumen ? `<p class="text-[11px] texto-tenue font-light leading-relaxed">${escapar(a.resumen)}</p>` : ''}
         </button>
         ${
           abierto === a.id

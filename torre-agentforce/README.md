@@ -178,6 +178,26 @@ node scripts/deploy-verificar.mjs
 docker build --pull -t torre-agentforce:local .
 ```
 
+El sistema de diseño se audita solo, sobre la página viva:
+
+```bash
+npm run verificar:diseno
+```
+
+Once reglas duras —esquina viva, escala tipográfica, tracking del uppercase, un solo
+easing, el contenedor, y **el contraste**— sobre siete estados de pantalla: las tres
+páginas, la del cliente con sus capacidades desplegadas, y las mismas a 375 px.
+
+Tres cosas que hasta ahora no se auditaban y ahora sí. El panel del asesor: sin sesión
+el navegador recibía un 401, la página se iba a `acceso.html` y el auditor medía la
+pantalla de entrada creyendo que medía el panel. Las capacidades del cliente —agenda,
+cobertura por modelo, material— las pinta JavaScript y en reposo no existen en el DOM.
+Y el ancho de móvil, que nunca se había medido. La regla de contraste es nueva: el
+sistema se copiaba fiel de zapata.com.mx y ahí los tres tonos callados quedan por
+debajo del mínimo legible sobre casi negro. Están subidos, la desviación está escrita
+en `publico/css/sistema.css`, y `tests/contraste-sistema.test.ts` impide que se
+deshaga.
+
 El protocolo loopback se puede ejercitar sin llamar a la org, pero sólo valida el
 parser/estado local; no sustituye el lifecycle real:
 
@@ -268,6 +288,64 @@ CONFIRM_MUTATING_ESCALATION_E2E=1 npm run verificar:escalamiento-e2e
 El segundo verifica 15 invariantes releyendo Salesforce: un solo `Case` por correlación,
 idempotencia ante reintento concurrente, comentarios de apertura internos, ida y vuelta
 pública posterior y un único `Log_Agente__c` apuntando al mismo `Case`.
+
+### ¿Funciona el sistema, o funciona el demo?
+
+```bash
+npm run verificar:generalidad
+```
+
+Los gates anteriores usan la unidad y el taller del guion, así que ninguno contesta la
+pregunta que importa antes de enseñarle esto a alguien: si mañana entra **otro** cliente,
+con **otra** unidad, de **otro** modelo, y pide cita en **otro** taller, ¿sigue
+funcionando?
+
+Aquí no hay ni un dato escrito a mano: unidades, modelos, sucursales y clientes se le
+preguntan a la organización al arrancar y las comprobaciones se derivan de lo que
+conteste. Si mañana se carga una flota distinta, la verificación se adapta sola; y si la
+flota no da para probar algo, lo dice en vez de saltárselo.
+
+El criterio de cada caso es una **disyunción**: o hace el trabajo de verdad y Salesforce
+lo confirma, o se niega dando una razón cierta. Lo que nunca puede hacer es inventar.
+Recorre las 15 unidades de la flota una por una, los nueve talleres con el mismo rango, y
+después conversa con datos que no son los del guion: otra unidad de otro cliente, un
+modelo que la red no declara atender, un taller sin cupo confirmado, un número de serie
+que no existe y una varada en otra carretera.
+
+`GEN_SIN_AGENTE=1` corre sólo la mitad determinista, sin gastar sesiones de Agent API.
+
+### El ensayo del guion del video
+
+```bash
+npm run verificar:guion
+```
+
+Comprueba algo distinto de los gates anteriores: que el video **se pueda grabar**. Un
+guion dicta frases literales, un orden y momentos que la narración señala en pantalla
+—«el sábado a las ocho no existe», «el panel derecho se pobló solo»—. Que la aplicación
+funcione no garantiza que esos momentos ocurran.
+
+Así que teclea el guion tal cual en un navegador real, con su VIN, y después relee
+Salesforce por el CLI. Cada escena termina con un veredicto de director: **GRABABLE**,
+**RIESGO** (se puede rodar, pero algo depende del azar o caduca) o **NO GRABABLE** (la
+escena, tal como está escrita, no ocurre). Escribe en la organización, igual que la
+cámara; `GUION_SIN_ESCRIBIR=1` corre sólo lo que no muta.
+
+Lo que encontró y lo que hay que cambiar del guion está en
+[`docs/GUION-RODAJE.md`](docs/GUION-RODAJE.md).
+
+### El calendario tiene fecha de caducidad
+
+```bash
+node scripts/extender-agenda.mjs --dias 21 --ver
+```
+
+Las franjas de la organización terminan el 20 de agosto de 2026: después de ese día no
+hay nada que agendar en ningún taller. Este script copia hacia adelante el patrón
+semanal que cada sucursal ya tiene y con `--ver` enseña qué haría sin escribir. Las
+franjas nuevas nacen como capacidad **asumida**, no reservable; hacerlas apartables
+exige declararlo con `CONFIRM_AGENDA_VERIFICADA=1`, porque afirmar que un taller abre a
+una hora es un hecho operativo del negocio. Ver `BLOQUEOS.md §13`.
 
 ## Rutas
 

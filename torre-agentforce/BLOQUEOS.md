@@ -635,3 +635,141 @@ Decidir en la organización si las nueve sucursales atienden eléctrico, chasis 
 corrosión y, en su caso, dar de alta esas filas. No se hizo desde aquí: afirmar que
 un taller presta un servicio es un hecho operativo del negocio, no algo que se pueda
 deducir de que la póliza lo cubra.
+
+---
+
+## 13. El calendario de la agenda caduca el 20 de agosto de 2026
+
+**Impacto: alto, con fecha.** No es un defecto: es que la semilla se acaba.
+
+Las 729 franjas de `Slot_Taller__c` van del 31 de julio al **20 de agosto de 2026**.
+Pasado ese día, `Consultar_disponibilidad_de_taller` no devuelve nada, el agente
+contesta con verdad que no tiene horarios, y **cualquier demostración que agende una
+cita deja de existir**. La escena que el guion del video prohíbe recortar es
+precisamente esa.
+
+Dos consecuencias más, ya visibles hoy:
+
+- De las nueve sucursales, sólo **FL-QRO** tiene franjas apartables a futuro. Las otras
+  ocho traen horarios cuya capacidad nadie confirmó (`SITIO_WEB_CAPACIDAD_ASUMIDA`), y
+  la aplicación los enseña atenuados diciendo por qué.
+- «El sábado» sólo cae dentro del calendario el **15 de agosto**. Ese día Querétaro
+  tiene 09:00, 11:00 y 13:00 y no tiene las 8:00 — que es lo que hace funcionar la
+  corrección del guion.
+
+### Lo que hay para resolverlo
+
+`scripts/extender-agenda.mjs` copia hacia adelante el patrón semanal que cada sucursal
+ya tiene: mismos días, mismas horas, mismos tipos de servicio, misma capacidad. Con
+`--ver` enseña qué haría sin escribir. Las franjas nuevas nacen como capacidad
+**asumida**, no reservable: para que sean apartables hay que declararlo con
+`CONFIRM_AGENDA_VERIFICADA=1`.
+
+Esa distinción es deliberada y es la misma de §12: afirmar que un taller abre a una
+hora es un hecho operativo del negocio, y un script no puede comprobarlo. **No se ha
+ejecutado**: la decisión es de quien conoce la operación.
+
+---
+
+## 14. La traza no lleva kilometraje ni versión de política
+
+**Impacto: medio.** El dato existe como campo y casi nunca se puebla.
+
+`Log_Agente__c` tiene 341 registros. **2 traen `Odometer_Used__c` y 5 traen
+`Policy_Version__c`.** Los Flows escriben la traza sin esos dos valores en la ruta
+normal.
+
+Importa porque la ficha técnica y el guion del video los nombran como parte de lo que
+la traza demuestra. Enseñar la lista mientras se afirma que ahí está el kilometraje y
+la versión de la póliza es enseñar dos columnas vacías.
+
+Lo que sí está poblado en todos: `Correlation_Id__c`, `Subagent__c`, `Action_Name__c`,
+`Outcome__c` y `Related_Record_Id__c`. Y `Guardrail_Triggered__c` en 41,
+`Unit_Verified__c` en 82.
+
+La corrección es en los Flows, no en la aplicación: pasar el odómetro leído y la
+versión de la regla aplicada a `Registrar_Log_Agente` en las rutas de éxito. Mientras
+tanto, `docs/GUION-RODAJE.md` lleva la narración corregida para no afirmar de más.
+
+---
+
+## 15. El agente ofrece citas que el Flow después rechaza
+
+**Impacto: alto.** Es el defecto que aparece en cuanto el cliente nombra un taller que
+no sea Querétaro, y hoy son ocho de nueve.
+
+Tres piezas no dicen lo mismo sobre la misma franja:
+
+| Pieza | Qué hace con una franja `SITIO_WEB_CAPACIDAD_ASUMIDA` |
+|---|---|
+| La aplicación (`/publico/disponibilidad`, agenda) | no la ofrece; atenúa el taller y explica por qué |
+| `ZapataAgendaController` desplegado | **sí la ofrece**, etiquetada «(sujeto a confirmacion del taller)» |
+| Flow `Crear_Orden_Servicio` | **la rechaza**: `SLOT_NO_VERIFICADO` |
+
+El Apex se cambió el 11 de agosto para no bloquear ocho sucursales enteras: su
+comentario lo explica —el sitio de Zapata publica horarios y la cita se *solicita*, no
+se reserva—. Es una decisión razonable. Lo que no se cambió fue el Flow, que sigue
+exigiendo procedencia acreditada.
+
+Y entre medias está el modelo. Tecleando en el sitio, pidiendo cita en Aeropuerto para
+el VIN `3AKJHHDR4RS567893`, el agente contestó:
+
+> Estas son las opciones disponibles para agendar tu servicio en Zapata Camiones
+> Aeropuerto: 1. Jueves 13 de agosto de 13:00 a 15:00 — Diagnóstico […]
+
+Diez opciones, **sin una sola salvedad**: la etiqueta que el Apex devuelve se le perdió
+al redactar. Las diez son franjas reales de ese taller, y las diez son
+`SITIO_WEB_CAPACIDAD_ASUMIDA`. Elegir cualquiera devuelve:
+
+```
+{"ok":false,"bloqueado":true,"motivo":"SLOT_NO_VERIFICADO",
+ "mensaje":"La franja tiene procedencia SITIO_WEB_CAPACIDAD_ASUMIDA; su capacidad no
+ está verificada operacionalmente y no puede reservarse."}
+```
+
+### Lo que hace la aplicación mientras tanto
+
+Nada nuevo: ya lo hacía. Cuando el cliente nombra un taller, la agenda de la pantalla
+se abre en ése y, si ninguna franja es apartable, lo dice —«Este taller tiene horarios
+en el catálogo, pero su capacidad no está confirmada con el taller, así que no se
+pueden apartar desde aquí»— con salida de un toque al que sí puede. Se comprobó en el
+navegador durante esta revisión: mientras el agente listaba diez horarios de
+Aeropuerto, la pantalla de al lado los desmentía. Se llegó a escribir un segundo aviso
+desde el servidor y se retiró por redundante.
+
+### Lo que falta, y es de la organización
+
+Alinear las dos piezas, en cualquiera de los dos sentidos:
+
+- que el Apex vuelva a filtrar `Procedencia__c = 'OPERACIONAL_VERIFICADO'` —vuelve el
+  callejón de ocho sucursales—, o
+- que `Crear_Orden_Servicio` acepte una franja no verificada creando la orden como
+  **solicitud** en un estado propio, que es lo que el comentario del Apex describe.
+
+La segunda es la que sostiene la intención del cambio. No se decide desde aquí: cambia
+lo que Zapata le promete a un cliente al confirmar una cita.
+
+---
+
+## 16. El agente ofrece buscar «otro taller» para un modelo que ninguno atiende
+
+**Impacto: medio.** Se ve con cualquier T680, que son 9 de las 15 unidades de la org.
+
+`ZapataAgendaController` responde a la compuerta de modelo con:
+
+> El taller {taller} no da servicio a ese modelo. Puedo buscarte otro taller que si lo
+> atienda.
+
+Y el agente lo repite: *«¿Te gustaría que busque disponibilidad en otro taller cercano
+que sí pueda atender tu camión?»*. Comprobado tecleando en el sitio con el VIN
+`3HAMMAAR8LL123456`.
+
+La segunda frase es falsa para T680: **ninguna de las nueve sucursales lo declara** en
+`Modelo_Sucursal__c`, que sólo tiene filas para FL-114SD, FL-360, FL-CASCADIA y FL-M2.
+El cliente acepta la búsqueda y acaba probando taller por taller hasta rendirse.
+
+La corrección es de una línea en el Apex: antes de ofrecer, contar en cuántas
+sucursales activas aparece ese modelo, y si son cero decirlo —«ninguno de nuestros
+talleres tiene ese modelo dado de alta; te paso con un asesor»— en vez de prometer una
+búsqueda que no puede terminar bien. No se toca desde aquí por lo mismo que §12: qué
+modelos atiende la red es un hecho operativo del negocio.

@@ -109,7 +109,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
     // confirmar» y tiene que ir probando taller por taller hasta dar con el que sí.
     const conCupo = talleresConCupo;
     nodoTalleres.innerHTML = `
-      <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-3">Elige el taller</p>
+      <p class="text-[10px] uppercase tracking-widest texto-apagado mb-3">Elige el taller</p>
       <div class="flex flex-wrap gap-2">
         ${red
           .map((s) => {
@@ -121,7 +121,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
                 ? 'border-white/40 bg-white/10 text-white'
                 : puede
                   ? 'border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
-                  : 'border-white/5 text-gray-600 hover:border-white/20 hover:text-gray-400'
+                  : 'border-white/5 texto-apagado hover:border-white/20 hover:text-gray-400'
             }">
             ${escapar(s.ciudad || s.nombre)}${puede ? '' : ' ·'}
           </button>`;
@@ -130,7 +130,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
       </div>
       ${
         conCupo && conCupo.size && conCupo.size < red.length
-          ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mt-3">
+          ? `<p class="text-[10px] uppercase tracking-widest texto-apagado mt-3">
                Con horario apartable hoy · ${escapar([...conCupo].join(', '))}
              </p>`
           : ''
@@ -188,7 +188,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
       return;
     }
     nodoTipos.innerHTML = `
-      <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-3">¿Qué necesita tu unidad?</p>
+      <p class="text-[10px] uppercase tracking-widest texto-apagado mb-3">¿Qué necesita tu unidad?</p>
       <div class="flex flex-wrap gap-2">
         <button type="button" data-tipo=""
           class="border px-4 py-2.5 text-[10px] uppercase tracking-widest transition-colors duration-300 ${
@@ -282,16 +282,16 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
               <button type="button" data-franja="${escapar(f.id)}" ${pronto ? 'disabled' : ''}
                 class="w-full text-left border px-4 py-3 transition-colors duration-300 ${
                   pronto
-                    ? 'border-white/5 text-gray-600 cursor-not-allowed'
+                    ? 'border-white/5 texto-apagado cursor-not-allowed'
                     : 'border-white/10 hover:border-amber-400/40 hover:bg-amber-400/5'
                 }">
-                <span class="block text-xs ${pronto ? 'text-gray-600' : 'text-white'} font-mono tracking-wide">${escapar(hora(f.inicio))}${f.fin ? `–${escapar(hora(f.fin))}` : ''}</span>
-                <span class="block text-[10px] uppercase tracking-widest ${pronto ? 'text-gray-700' : 'text-gray-500'} mt-1.5">${escapar(f.tipo || 'servicio')}</span>
+                <span class="block text-xs ${pronto ? 'texto-apagado' : 'text-white'} font-mono tracking-wide">${escapar(hora(f.inicio))}${f.fin ? `–${escapar(hora(f.fin))}` : ''}</span>
+                <span class="block text-[10px] uppercase tracking-widest ${pronto ? 'texto-apagado' : 'texto-tenue'} mt-1.5">${escapar(f.tipo || 'servicio')}</span>
                 ${
                   pronto
-                    ? `<span class="block text-[10px] uppercase tracking-widest text-gray-700 mt-1.5">Menos de ${anticipacion} h</span>`
+                    ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">Menos de ${anticipacion} h</span>`
                     : f.libres != null
-                      ? `<span class="block text-[10px] uppercase tracking-widest text-gray-600 mt-1.5">${escapar(String(f.libres))} lugares</span>`
+                      ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">${escapar(String(f.libres))} lugares</span>`
                       : ''
                 }
               </button>
@@ -300,7 +300,7 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
           .join('');
         return `
           <div class="border-t border-white/5 pt-4 mt-4 first:border-0 first:pt-0 first:mt-0">
-            <p class="text-[10px] uppercase tracking-[0.3em] text-gray-500 mb-3">${escapar(diaLegible(dia))}</p>
+            <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue mb-3">${escapar(diaLegible(dia))}</p>
             <ul class="grid grid-cols-2 sm:grid-cols-3 gap-2">${botones}</ul>
           </div>`;
       })
@@ -334,16 +334,16 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
         </p>
 
         <label class="block mb-4">
-          <span class="text-[10px] uppercase tracking-widest text-gray-500 block mb-1.5">Número de serie de tu unidad</span>
+          <span class="text-[10px] uppercase tracking-widest texto-tenue block mb-1.5">Número de serie de tu unidad</span>
           <input data-agenda-vin value="${escapar(numeroDeSerie ?? '')}" autocomplete="off" required
-            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs font-mono tracking-wide focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado">
         </label>
 
         <label class="block mb-5">
-          <span class="text-[10px] uppercase tracking-widest text-gray-500 block mb-1.5">¿Qué le pasa a la unidad?</span>
+          <span class="text-[10px] uppercase tracking-widest texto-tenue block mb-1.5">¿Qué le pasa a la unidad?</span>
           <input data-agenda-sintoma autocomplete="off" required
             placeholder="Ej. pierde potencia en subida"
-            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder:text-gray-700">
+            class="w-full min-w-0 bg-[#0b0c10] border border-white/10 text-white px-3 py-2.5 text-xs focus:outline-none focus:border-white/40 transition-colors rounded-none placeholder-apagado">
         </label>
 
         <div class="flex flex-col sm:flex-row gap-3">

@@ -60,7 +60,7 @@ export async function montarModelos(raiz) {
              </p>`
           : ''
       }
-      <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-3">Elige el modelo</p>
+      <p class="text-[10px] uppercase tracking-widest texto-apagado mb-3">Elige el modelo</p>
       <div class="flex flex-wrap gap-2 mb-6">
         ${modelos
           .map(
@@ -84,7 +84,7 @@ export async function montarModelos(raiz) {
               <span class="text-xs text-gray-200">${escapar(s.sistema)}</span>
               ${s.esExtendida ? chip('Garantía extendida', 'bloqueo') : ''}
             </div>
-            <p class="text-[10px] uppercase tracking-widest text-gray-600">${escapar(limite(s))}</p>
+            <p class="text-[10px] uppercase tracking-widest texto-apagado">${escapar(limite(s))}</p>
           </li>`,
           )
           .join('')}
@@ -92,7 +92,7 @@ export async function montarModelos(raiz) {
 
       ${
         datos.base && (datos.base.meses != null || datos.base.km != null)
-          ? `<p class="text-[11px] text-gray-500 font-light leading-relaxed border-t border-white/5 pt-4 mt-5">
+          ? `<p class="text-[11px] texto-tenue font-light leading-relaxed border-t border-white/5 pt-4 mt-5">
                La póliza base de Zapata es de ${escapar(String(datos.base.meses ?? '—'))} meses
                y ${escapar(datos.base.km != null ? numero(datos.base.km) : '—')} km. Lo de arriba es lo
                que la regla activa dice para este modelo, sistema por sistema.
@@ -100,7 +100,7 @@ export async function montarModelos(raiz) {
           : ''
       }
 
-      <p class="text-[11px] text-gray-500 font-light leading-relaxed mt-4">
+      <p class="text-[11px] texto-tenue font-light leading-relaxed mt-4">
         Esto es la póliza del modelo. Que tu unidad esté dentro depende de su
         kilometraje y su antigüedad: dile al asistente su número de serie y te lo
         evalúa contra estas mismas reglas.

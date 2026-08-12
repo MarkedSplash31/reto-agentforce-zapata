@@ -996,6 +996,34 @@ export async function catalogoDePoliticas(): Promise<CatalogoDePoliticas> {
   };
 }
 
+/**
+ * Cuál de las reglas de un sistema se le aplica a esta unidad.
+ *
+ * Se prefiere la que corresponde a su situación —extendida si la tiene, básica si
+ * no—. Cuando esa no existe, el respaldo sólo puede ser la BÁSICA, nunca «la primera
+ * que salga».
+ *
+ * El respaldo hace falta: 28 de los 32 pares modelo-sistema de la org tienen sólo
+ * regla básica, y una unidad con extendida aplicable perdería su cobertura en todos
+ * ellos si aquí se devolviera null. Pero al revés no vale. Caer en la primera hacía
+ * que un sistema con SÓLO regla extendida se le aplicara a una unidad sin extendida,
+ * evaluándola contra 60 meses y 750 000 km como si fueran su póliza: saldría CUBIERTA
+ * una unidad que no lo está, y sin aviso. Hoy no hay ninguna fila así —comprobado—,
+ * pero basta cargar una para que la pantalla empiece a mentir.
+ *
+ * Exportada para poder probar las dos direcciones sin la org de por medio.
+ */
+export function elegirRegla<T extends { Es_Extendida__c: boolean }>(
+  delSistema: T[],
+  extendidaAplicable: boolean,
+): T | null {
+  return (
+    delSistema.find((r) => r.Es_Extendida__c === extendidaAplicable) ??
+    delSistema.find((r) => r.Es_Extendida__c === false) ??
+    null
+  );
+}
+
 function evaluarRegla(
   regla: ReglaCobertura,
   meses: number | null,
@@ -1155,8 +1183,7 @@ export async function evaluarCobertura(
   for (const [sistema, delSistema] of [...porSistemaMapa.entries()].sort((a, b) =>
     a[0].localeCompare(b[0]),
   )) {
-    const elegida =
-      delSistema.find((r) => r.Es_Extendida__c === extendidaAplicable) ?? delSistema[0] ?? null;
+    const elegida = elegirRegla(delSistema, extendidaAplicable);
 
     const evaluada = elegida
       ? evaluarRegla(elegida, unidad.Meses_Desde_Instalacion__c, unidad.Odometro__c)

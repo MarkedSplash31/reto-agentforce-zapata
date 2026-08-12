@@ -7,6 +7,13 @@ process.env.SF_TOKEN_PROVIDER = 'client_credentials';
 process.env.SF_CLIENT_ID = 'client-id-de-prueba';
 process.env.SF_CLIENT_SECRET = 'client-secret-de-prueba';
 process.env.SF_LOGIN_URL = 'https://example.my.salesforce.com';
+// Apuntar a otra organización obliga a declarar SUS identificadores: `config.ts` no
+// deja arrancar con una org ajena y los Ids del reto, porque esa mezcla habla con una
+// organización usando el agente y la cola de otra. Aquí no se llama a Salesforce —el
+// `fetch` está interceptado—, pero la regla es la misma para todos.
+process.env.SF_AGENT_ID = '0Xx000000000001AAA';
+process.env.SF_COLA_ESCALAMIENTO_ID = '00G000000000001AAA';
+process.env.SF_CASE_QUEUE_ID = '00G000000000001AAA';
 process.env.SF_API_VERSION = 'v67.0';
 
 test('abre y reintenta mediante Apex con el contexto completo siempre interno', async (t) => {

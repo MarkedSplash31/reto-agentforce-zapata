@@ -15,7 +15,21 @@ const AUDITOR = process.env.ZAPATA_DESIGN_AUDITOR?.trim()
 
 // La aplicación es una conversación, no un catálogo de formularios: una sola página
 // de cliente y dos internas para el asesor.
-const PAGINAS = ['/', '/acceso.html', '/panel.html'];
+//
+// La cuarta entrada no es otra página: es la MISMA del cliente con sus capacidades
+// desplegadas. La agenda del taller, la cobertura por modelo y el material de apoyo
+// los pinta JavaScript contra la org, y en reposo no existen en el DOM — de modo que
+// hasta ahora se auditaba una pantalla que el cliente sólo ve durante dos segundos.
+const PAGINAS = [
+  '/',
+  '/#abrir=agenda,modelos,manuales',
+  '/acceso.html',
+  '/panel.html',
+  // Y las mismas a 375px, que es el ancho por el que entra un operador desde la cabina.
+  '/#viewport=375x812',
+  '/#viewport=375x812&abrir=agenda,modelos,manuales',
+  '/panel.html#viewport=375x812',
+];
 
 function puertoLocal() {
   const puerto = Number(process.env.QA_DESIGN_PORT ?? 3011);
@@ -103,9 +117,25 @@ try {
     await esperarServidor(`${baseUrl}/`, servidor);
   }
 
+  // `/panel.html` exige sesión de asesor. Sin ella el navegador recibía un 401, la
+  // página se redirigía a `acceso.html` y el auditor medía la pantalla de entrada
+  // creyendo que medía el panel: la única vista que nunca se había auditado salía
+  // limpia por no existir en la corrida. Se entra con la credencial de demo, que fuera
+  // de producción es la que rige y está publicada en el README a propósito.
+  const acceso = {
+    ruta: '/publico/acceso',
+    cuerpo: {
+      usuario: process.env.APP_ADMIN_USER ?? 'asesor',
+      clave: process.env.APP_ADMIN_PASS ?? 'demo-zapata-2026',
+    },
+    // Sólo el panel: `acceso.html` con sesión abierta se va al panel, y entonces la
+    // pantalla de entrada dejaría de auditarse.
+    paginas: ['/panel.html'],
+  };
+
   const codigo = await ejecutar(process.execPath, [AUDITOR, ...urls], {
     cwd: RAIZ_PROYECTO,
-    env: process.env,
+    env: { ...process.env, AUDITORIA_ACCESO: JSON.stringify(acceso) },
     stdio: 'inherit',
   });
   process.exitCode = codigo;
