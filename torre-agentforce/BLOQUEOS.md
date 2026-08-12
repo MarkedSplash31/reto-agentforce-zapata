@@ -458,3 +458,60 @@ repositorio, en `scripts/auditar-sistema.mjs`. Antes se buscaba en la skill
 `zapata-design`, fuera del repositorio, y el comando sólo funcionaba en la máquina
 donde esa skill existe. Necesita los navegadores de Playwright una vez:
 `npm run test:e2e:install`.
+
+---
+
+## 10. Las acciones de CONSULTA del agente no dejan traza, y por eso la pantalla no reacciona
+
+**Estado: abierto el 11 de agosto de 2026.** No se puede cerrar desde este
+repositorio: es un cambio en la org y hoy la cuota diaria de API está agotada.
+
+### El síntoma
+
+Un cliente pide horarios y el agente se los **dicta**:
+
+```
+1. Jueves 13 de agosto de 09:00 a 11:00 — Garantía
+2. Jueves 13 de agosto de 11:00 a 13:00 — Reparación mayor
+…
+Por favor indícame el número de la opción que prefieres.
+```
+
+Contestar «el 5» no es escoger una cita: es deletrearla. Lo mismo al preguntar por
+material de apoyo — la respuesta llega en prosa y la plataforma no enseña nada.
+
+### La causa
+
+El escenario reacciona a `Log_Agente__c`, que es la única fuente autoritativa de lo
+que el agente ejecutó: la Agent API entrega `message.result` vacío por contrato.
+Pero **sólo escriben esa traza los tres Flows de escritura y `EscalarAsesorHumano`**.
+
+| Acción | ¿Escribe `Log_Agente__c`? |
+|---|---|
+| `Crear_Orden_Servicio` | sí |
+| `Crear_Reporte_Unidad_Varada` | sí |
+| `Reprogramar_Orden_Servicio` | sí |
+| `Escalar_Asesor_Humano` | sí |
+| `Consultar_disponibilidad` (`ZapataAgendaController`) | **no** |
+| `Buscar_Conocimiento` (`BuscarConocimientoPostventa`) | **no** |
+
+Cuando el agente sólo consulta, el servidor no tiene nada que releer, así que no
+emite `Actividad` y la interfaz no se entera. La conversación se queda con todo.
+
+### El cambio
+
+Que las dos acciones de consulta registren su ejecución en `Log_Agente__c` con el
+`Correlation_Id__c` de la conversación, igual que hacen las de escritura. El
+permission set del agente ya tiene creación sobre el objeto, así que no hace falta
+tocar permisos.
+
+El lado de la aplicación **ya está listo**: `inicio.js` abre el calendario cuando la
+traza reporta una consulta de disponibilidad, y el material de apoyo cuando reporta
+una de conocimiento. Hasta que la org las registre, ese código queda inerte y las
+dos capacidades se abren sólo cuando el cliente las pide.
+
+### Mientras tanto
+
+Las tres capacidades están disponibles sin depender del agente, desde la portada y
+desde el espacio de trabajo: agenda del taller, qué cubre cada modelo y material de
+apoyo. El cliente no tiene que negociar por chat lo que la plataforma resuelve.

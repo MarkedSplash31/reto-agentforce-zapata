@@ -320,6 +320,10 @@ async function abrirCapacidad(clave) {
     return;
   }
   raiz.dataset.montado = 'si';
+  // Lo que el cliente abrió viaja con el escalamiento. Si acaba con un asesor, la
+  // persona que lo atiende sabe qué estuvo mirando en vez de empezar de cero: hoy
+  // sólo recibe los mensajes, y el trabajo hecho en la plataforma se perdía.
+  turnos.push({ autor: 'cliente', texto: `Abrí «${capacidad.titulo}» en la plataforma.` });
   await capacidad.montar(raiz);
 }
 
@@ -491,6 +495,16 @@ compositor.addEventListener('submit', async (ev) => {
           // Lo que el agente ejecutó de verdad, releído por el servidor desde
           // Log_Agente__c. Es la única fuente: la Agent API no devuelve las acciones.
           panel.actividad(d);
+          // Una acción de CONSULTA no deja registro que enseñar, sólo texto. Cuando
+          // la traza la reporte, se abre la capacidad para que el cliente trabaje
+          // con ella en vez de leer una lista dictada.
+          //
+          // Hoy ninguna de las dos escribe en Log_Agente__c —sólo lo hacen los tres
+          // Flows de escritura y el escalamiento—, así que esto queda inerte hasta
+          // que la org las registre. Ver BLOQUEOS.md §10.
+          const accion = d.accion ?? '';
+          if (/Consultar_disponibilidad|Disponibilidad/i.test(accion)) void abrirCapacidad('agenda');
+          else if (/Conocimiento/i.test(accion)) void abrirCapacidad('manuales');
         } else if (tipo === 'Escalado') {
           // No se cambia de interlocutor a mitad del texto: se anota y se aplica al
           // cerrar el turno, para que el cliente lea completa la última respuesta del
