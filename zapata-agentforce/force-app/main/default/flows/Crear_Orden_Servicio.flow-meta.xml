@@ -233,6 +233,66 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Bloqueo_Slot_No_Verificado</name>
+        <label>Bloqueo franja sin procedencia operacional</label>
+        <locationX>50</locationX>
+        <locationY>1668</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>La franja proviene de horarios derivados o capacidad asumida y no esta verificada operacionalmente. No puedo reservarla.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Bloqueo_Slot_Verificado_Requerido</name>
+        <label>Bloqueo franja verificada requerida</label>
+        <locationX>50</locationX>
+        <locationY>936</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Esa franja no tiene procedencia registrada, asi que no puedo saber de donde salio su horario; elige otra o pide que te contacte un asesor.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Bloqueo_Sucursal</name>
         <label>Bloqueo sucursal no encontrada</label>
         <locationX>50</locationX>
@@ -399,9 +459,9 @@
         <locationX>300</locationX>
         <locationY>840</locationY>
         <defaultConnector>
-            <targetReference>Buscar_Sucursal_Por_Clave</targetReference>
+            <targetReference>Bloqueo_Slot_Verificado_Requerido</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Resolver por sucursal y fecha</defaultConnectorLabel>
+        <defaultConnectorLabel>Bloquear sin franja verificada</defaultConnectorLabel>
         <rules>
             <name>Slot_dado</name>
             <conditionLogic>1 AND 2</conditionLogic>
@@ -626,6 +686,21 @@
             <label>Franja sin cupo</label>
         </rules>
         <rules>
+            <name>Franja_no_verificada</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>recSlot.Procedencia__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Bloqueo_Slot_No_Verificado</targetReference>
+            </connector>
+            <label>Franja sin procedencia registrada</label>
+        </rules>
+        <rules>
             <name>Franja_muy_pronto</name>
             <conditionLogic>and</conditionLogic>
             <conditions>
@@ -808,6 +883,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Procedencia__c</field>
+            <value>
+                <stringValue>TRANSACCIONAL_CAPTURADO_EN_FLUJO</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Sintoma_Reportado__c</field>
             <value>
                 <elementReference>varSintoma</elementReference>
@@ -935,6 +1016,7 @@
         <queriedFields>Capacidad_Usada__c</queriedFields>
         <queriedFields>Cupos_Libres__c</queriedFields>
         <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
         <sortField>Inicio__c</sortField>
         <sortOrder>Asc</sortOrder>
     </recordLookups>
@@ -970,6 +1052,7 @@
         <queriedFields>Capacidad_Usada__c</queriedFields>
         <queriedFields>Cupos_Libres__c</queriedFields>
         <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Buscar_Slot_Sin_Tipo</name>
@@ -1017,6 +1100,7 @@
         <queriedFields>Capacidad_Usada__c</queriedFields>
         <queriedFields>Cupos_Libres__c</queriedFields>
         <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
         <sortField>Inicio__c</sortField>
         <sortOrder>Asc</sortOrder>
     </recordLookups>

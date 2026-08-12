@@ -38,6 +38,12 @@ public with sharing class BuscarConocimientoPostventa {
             description='Numero de serie que el cliente dicto, si lo dicto. La accion comprueba si esa unidad existe en el padron para que el agente no presente la poliza general como si fuera su cobertura.'
             required=false)
         public String vin;
+
+        @InvocableVariable(
+            label='Correlation Id'
+            description='Identificador estable de la conversacion. Usa RoutableId y conserva el mismo valor en cada reintento. Sin el, esta consulta no deja traza.'
+            required=false)
+        public String correlationId;
     }
 
     public class Respuesta {
@@ -73,6 +79,7 @@ public with sharing class BuscarConocimientoPostventa {
     public static List<Respuesta> buscar(List<Solicitud> solicitudes) {
 
         List<Respuesta> resultados = new List<Respuesta>();
+        List<Log_Agente__c> trazas = new List<Log_Agente__c>();
 
         for (Solicitud s : solicitudes) {
             Respuesta r = new Respuesta();
@@ -134,6 +141,7 @@ public with sharing class BuscarConocimientoPostventa {
                               AVISO_SINTETICO + '\n\n' +
                               'No se encontro material de apoyo sobre ese tema. ' +
                               'Informa al cliente que no tienes informacion verificada y ofrece escalar a un asesor humano.';
+                trazas.add(construirTraza(s, r, null));
                 resultados.add(r);
                 continue;
             }
@@ -165,10 +173,57 @@ public with sharing class BuscarConocimientoPostventa {
             r.contenido  = String.isBlank(r.avisoUnidad) ? texto : (r.avisoUnidad + SALTO + texto);
             r.titulos    = String.join(nombres, ', ');
             r.encontrado = true;
+            trazas.add(construirTraza(s, r, encontrados[0]));
             resultados.add(r);
         }
 
+        // La traza se escribe al final, en una sola DML, y NUNCA puede tumbar la
+        // respuesta: si el registro fallara —una regla de validacion nueva, un permiso—
+        // el cliente perderia su contestacion por un problema de auditoria. Se deja
+        // constancia en el debug log y la conversacion sigue.
+        if (!trazas.isEmpty()) {
+            try {
+                insert as user trazas;
+            } catch (Exception e) {
+                System.debug(LoggingLevel.WARN, 'No se pudo registrar la traza de conocimiento: ' + e.getMessage());
+            }
+        }
+
         return resultados;
+    }
+
+    /**
+     * El registro de esta consulta en `Log_Agente__c`.
+     *
+     * Por que no existia: el contrato de entrada de esta accion no recibia el
+     * identificador de correlacion, y `Correlation_Id__c` es obligatorio. El efecto era
+     * que una conversacion que solo pregunta —la mitad de las que atiende el agente— no
+     * dejaba rastro, y la pantalla del cliente no tenia nada que releer. Estaba declarado
+     * como limite conocido en la ficha tecnica; esta es la correccion que alli se
+     * identifico.
+     *
+     * Sin `correlationId` no se inventa uno: un folio fabricado aqui no amarraria nada y
+     * ensuciaria la traza de la visita. Se devuelve null y no se registra.
+     */
+    private static Log_Agente__c construirTraza(Solicitud s, Respuesta r, Knowledge__kav primero) {
+        if (s == null || String.isBlank(s.correlationId)) return null;
+        return new Log_Agente__c(
+            Correlation_Id__c = s.correlationId.trim(),
+            Action_Name__c = 'Buscar_Conocimiento_Postventa',
+            Outcome__c = r.encontrado == true ? 'SUCCESS' : 'NOT_FOUND',
+            Timestamp__c = System.now(),
+            // Consultar el material no verifica ninguna unidad. Sólo es cierto cuando el
+            // cliente dicto un VIN y ese VIN existe en el padron.
+            Unit_Verified__c = r.unidadEncontrada == true,
+            Knowledge_Article_Version_Id__c = primero == null ? null : String.valueOf(primero.Id),
+            // La version de la politica que se le leyo al cliente. Es lo que permite
+            // saber, meses despues, con que material se le contesto.
+            Policy_Version__c = primero == null
+                ? null
+                : (String.isBlank(primero.Version_Politica__c)
+                    ? 'SIN_VERSION_NO_VERIFICADA'
+                    : primero.Version_Politica__c)
+        );
     }
 
     /** Mantiene util el texto, pero hace imposible omitir su estado no verificado. */

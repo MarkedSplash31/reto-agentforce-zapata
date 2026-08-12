@@ -97,20 +97,29 @@ private class ZapataProvenienciaTest {
         Assert.isFalse(todos.isEmpty());
         Assert.isFalse(porSucursal.isEmpty());
         Assert.isFalse(sucursales.isEmpty());
-        // Una franja con capacidad asumida YA NO bloquea el taller: se ofrece diciendo
-        // que el cupo lo confirma el taller. Antes se devolvia SLOTS_NO_VERIFICADOS y
-        // eso dejaba fuera a ocho de las nueve sucursales de Zapata, cuyos horarios
-        // estan publicados aunque nadie haya verificado cuantas unidades caben.
-        Assert.areEqual(true, agenda.hayDisponibilidad);
-        Assert.areEqual(null, agenda.motivoBloqueo);
+        // Una franja con capacidad asumida se RECONOCE pero no se ofrece.
+        //
+        // Hubo una version intermedia que si la ofrecia, etiquetada «sujeto a
+        // confirmacion del taller», para no dejar fuera a ocho de las nueve sucursales.
+        // La intencion era buena y no se sostuvo: el Flow `Crear_Orden_Servicio` rechaza
+        // esas franjas con SLOT_NO_VERIFICADO, y el agente perdia la etiqueta al
+        // redactar. Un cliente elegia la opcion 3 y se enteraba al final.
+        //
+        // Lo que se fija ahora es el invariante que importa: la accion nunca devuelve
+        // una opcion que el alta vaya a rechazar. Y para no dejar al cliente a ciegas,
+        // el mensaje dice que el horario existe y quien lo confirma.
+        Assert.areEqual(false, agenda.hayDisponibilidad);
+        Assert.areEqual('SLOTS_NO_VERIFICADOS', agenda.motivoBloqueo);
         Assert.areEqual('SITIO_WEB_CAPACIDAD_ASUMIDA', agenda.estadoProcedencia);
+        Assert.areEqual(0, agenda.opciones.size(),
+            'ni una sola opcion: el agente no puede listar lo que no recibe');
         Assert.isTrue(
-            agenda.mensaje.contains('el cupo lo confirma el taller'),
-            'la respuesta debe decir quien confirma, no callarlo'
+            agenda.mensaje.contains('publica'),
+            'debe reconocer que el horario existe, no negar el taller: ' + agenda.mensaje
         );
         Assert.isTrue(
-            agenda.opciones[0].contains('sujeto a confirmacion'),
-            'cada franja no verificada se ofrece marcada'
+            agenda.mensaje.contains('cupo no esta confirmado'),
+            'y decir por que no puede apartarlo: ' + agenda.mensaje
         );
         Assert.areEqual('SUCURSAL_NO_ENCONTRADA', ausente.motivoBloqueo);
         // La vista de franjas refleja la procedencia de CADA una, en vez de dar por
@@ -168,12 +177,34 @@ private class ZapataProvenienciaTest {
                 new List<ZapataAgendaController.Peticion>{ conModelo, conSistema, noAtendido }
             );
 
-        Assert.areEqual(null, respuestas[0].motivoBloqueo);
-        Assert.areEqual(null, respuestas[1].motivoBloqueo);
-        Assert.areEqual('SITIO_WEB_CAPACIDAD_ASUMIDA', respuestas[0].estadoProcedencia);
+        // Esta prueba toma la PRIMERA cobertura que haya en la org, asi que no puede
+        // afirmar si esa sucursal tiene cupo confirmado o no: depende de los datos del
+        // dia. Afirmarlo la hacia fallar sin defecto en cuanto la agenda cambiaba.
+        //
+        // Lo que si vale siempre es el invariante: o hay disponibilidad y entonces las
+        // opciones son apartables, o no la hay y entonces NO llega ni una opcion. Nunca
+        // una lista que el alta va a rechazar.
+        for (ZapataAgendaController.Respuesta r : new List<ZapataAgendaController.Respuesta>{
+            respuestas[0], respuestas[1]
+        }) {
+            if (r.hayDisponibilidad == true) {
+                Assert.areEqual('OPERACIONAL_VERIFICADO', r.estadoProcedencia,
+                    'si ofrece, lo ofrecido tiene que ser apartable');
+                Assert.isTrue(r.opciones.size() > 0, 'con disponibilidad hay opciones');
+            } else {
+                Assert.areEqual(0, r.opciones.size(),
+                    'sin disponibilidad no puede llegar ninguna opcion: ' + r.mensaje);
+                Assert.isTrue(
+                    r.motivoBloqueo == 'SLOTS_NO_VERIFICADOS' || r.motivoBloqueo == 'SIN_CUPO',
+                    'el bloqueo tiene que decir cual de las dos cosas pasa: ' + r.motivoBloqueo
+                );
+            }
+        }
         // Lo que SI sigue bloqueando es que el taller no atienda ese modelo: eso es un
-        // hecho del catalogo, no una laguna de datos.
-        Assert.areEqual('MODELO_NO_ATENDIDO', respuestas[2].motivoBloqueo);
+        // hecho del catalogo, no una laguna de datos. Y como MODELO-INEXISTENTE no esta
+        // en NINGUNA sucursal, el bloqueo lo distingue para no ofrecer una busqueda que
+        // no puede terminar bien.
+        Assert.areEqual('MODELO_FUERA_DE_RED', respuestas[2].motivoBloqueo);
     }
 
     /**

@@ -63,10 +63,13 @@ Verificado: con esa frase el agente confirma y dicta el folio en el turno siguie
 ### 3 · La traza no tiene kilometraje ni versión de política
 
 La narración de 2:40 dice: *«qué acción se ejecutó, sobre qué registro, con qué
-kilometraje y qué versión de la política»*. De los 341 registros de `Log_Agente__c` de la
-organización, **2 traen odómetro y 5 traen versión de política**. En la sesión que se
-grabe, esas dos columnas van a estar vacías mientras la voz en off afirma que están
-llenas.
+kilometraje y qué versión de la política»*. **El odómetro sigue vacío**: de los 361
+registros de `Log_Agente__c` sólo 2 lo traen, porque los Flows no lo pueblan en la ruta
+normal. La versión de política sí empezó a poblarse el 12 de agosto en las consultas de
+conocimiento, pero no en la fila de la cita, que es la que se va a enseñar en cámara.
+
+O sea: si se filtra por la correlación de la sesión grabada, la columna de kilometraje
+estará en blanco mientras la voz en off dice que está llena.
 
 Lo que sí está poblado en todos: `Correlation_Id__c`, `Subagent__c`, `Action_Name__c`,
 `Outcome__c`, `Related_Record_Id__c`. Y `Guardrail_Triggered__c` en 41 registros,
@@ -99,20 +102,21 @@ recargar**.
 
 ## La ventana de rodaje
 
-**La última franja apartable de toda la red es el 20 de agosto de 2026.** Después de ese
-día no hay nada que agendar en ningún taller, y la escena 2 —la que el guion prohíbe
-recortar— deja de existir. No es un defecto: es que se acabó la semilla del calendario.
+**La última franja apartable de Querétaro es el 8 de septiembre de 2026.** El 12 de
+agosto se extendió su calendario cuatro semanas replicando su propio patrón semanal ya
+verificado: 74 franjas nuevas. Antes de eso se acababa el 20 de agosto y la escena 2 —la
+que el guion prohíbe recortar— dejaba de existir.
 
-Y «el sábado» del guion sólo cae dentro del calendario **el 15 de agosto**. Ese día el
-taller de Querétaro tiene 09:00, 11:00 y 13:00, y **no tiene las 8:00** — que es
-exactamente lo que hace funcionar la corrección de la escena. A partir del domingo 16, «el
-sábado» sería el 22 y el agente contestará, con verdad, que no hay nada.
+«El sábado» del guion funciona ahora el **15, el 22 y el 29 de agosto y el 5 de
+septiembre**. Todos esos días el taller de Querétaro abre a las 09:00, 11:00 y 13:00, y
+**no tiene las 8:00** — que es exactamente lo que hace funcionar la corrección de la
+escena. Las otras ocho sucursales siguen sin cupo confirmado, y eso no se tocó.
 
 | Si se graba… | Escena 2 |
 |---|---|
-| hasta el sábado 15 de agosto | tal como está escrita |
-| del 16 al 20 de agosto | cambiar «el sábado» por «el jueves» y ajustar la narración |
-| a partir del 21 de agosto | hay que extender el calendario antes |
+| hasta el sábado 5 de septiembre | tal como está escrita |
+| del 6 al 8 de septiembre | cambiar «el sábado» por «el lunes» y ajustar la narración |
+| a partir del 9 de septiembre | hay que extender el calendario otra vez |
 
 Para extenderlo:
 
@@ -144,12 +148,13 @@ catálogo trae horarios cuya capacidad nadie confirmó, y la aplicación lo dice
       41 200 km, 9 meses
 - [ ] Entre escenas: pestaña nueva, nunca F5
 - [ ] Sin DevTools, sin extensiones, sin pestañas de trabajo
-- [ ] No mostrar: reprogramación (fuera del guion, no se ensayó)
-- [ ] **No nombrar otro taller que no sea Querétaro.** En los otros ocho el agente
-      lista horarios que el Flow después rechaza (`BLOQUEOS.md §15`). La pantalla lo
-      desmiente al lado, pero es una contradicción que no conviene tener en cámara.
-- [ ] **No usar un VIN que empiece por `3HAM`, `1XKA` o `4V4N`.** Son los T680, y
-      ninguna sucursal declara ese modelo (`§16`). El VIN del guion es un Cascadia.
+- [ ] Nombrar otro taller **ya no rompe nada**: desde el 12 de agosto el agente no
+      ofrece horarios que el alta rechace; dice que el taller publica horario, que el
+      cupo lo confirma el taller, y en cuál sí se puede apartar hoy (`BLOQUEOS.md §15`).
+      Para el guion sigue conviniendo Querétaro, que es donde se aparta en el acto.
+- [ ] Un VIN de T680 (`3HAM`, `1XKA`, `4V4N`) **tampoco rompe nada**: el agente dice que
+      ese taller no atiende el modelo y pasa con un asesor, sin ofrecer una búsqueda
+      imposible (`§16`). El VIN del guion sigue siendo un Cascadia.
 
 ## Escena por escena, con lo que se verificó
 
@@ -211,8 +216,9 @@ final salieron dos registros: `Crear_Orden_Servicio` y `Escalar_Asesor_Humano`, 
 
 ## Lo que no se ha probado
 
-- **Reprogramar.** El guion lo excluye por un defecto abierto y aquí no se ensayó: no hay
-  dato nuevo sobre él en ninguno de los dos sentidos.
+- **Reprogramar ya se ensayó, y funciona.** El 12 de agosto la cita 00000088 se movió del
+  17 al 18 conservando el folio, sin crear una segunda orden. El guion la excluye por un
+  defecto que ya no se reproduce: si sobra tiempo, es una escena disponible.
 - **La cola con tráfico ajeno.** Los 19 casos «de hoy» del ensayo los creó el propio
   ensayo. El día del rodaje serán los que se creen ese día.
 - **Las respuestas de seguridad de una varada.** Sigue el defecto de `BLOQUEOS.md §11`;

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>67.0</apiVersion>
     <actionCalls>
         <name>Formato_Cita</name>
         <label>Formato de cita en espanol</label>
@@ -27,8 +26,11 @@
                 <elementReference>recSlot.Fin__c</elementReference>
             </value>
         </inputParameters>
+        <nameSegment>ZapataFormatoFecha</nameSegment>
         <storeOutputAutomatically>true</storeOutputAutomatically>
     </actionCalls>
+    <apiVersion>67.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
     <assignments>
         <name>Asignar_Duplicado</name>
         <label>Asignar duplicado idempotente</label>
@@ -74,132 +76,40 @@
         </connector>
     </assignments>
     <assignments>
-        <name>Bloqueo_VIN</name>
-        <label>Bloqueo VIN no encontrado</label>
-        <locationX>50</locationX>
-        <locationY>480</locationY>
-        <assignmentItems>
-            <assignToReference>varMotivoBloqueo</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>VIN_NO_ENCONTRADO</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMensaje</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>No encontre ninguna unidad registrada con ese VIN. Revisemos los 17 caracteres o te comunico con un asesor.</stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Log_No_Encontrado</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Bloqueo_No_Verificada</name>
-        <label>Bloqueo unidad no verificada</label>
-        <locationX>50</locationX>
-        <locationY>600</locationY>
-        <assignmentItems>
-            <assignToReference>varMotivoBloqueo</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>UNIDAD_NO_VERIFICADA</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMensaje</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Necesito verificar la titularidad de la unidad antes de agendar. No puedo crear la orden todavia.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varGuardrail</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>UNIDAD_NO_VERIFICADA</stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Log_Bloqueo</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Guardar_Unidad</name>
-        <label>Guardar datos de la unidad</label>
+        <name>Asignar_Exito</name>
+        <label>Asignar exito</label>
         <locationX>300</locationX>
-        <locationY>720</locationY>
+        <locationY>2280</locationY>
         <assignmentItems>
-            <assignToReference>varAssetId</assignToReference>
+            <assignToReference>varCreada</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Unidad.Id</elementReference>
+                <booleanValue>true</booleanValue>
             </value>
         </assignmentItems>
         <assignmentItems>
-            <assignToReference>varAccountId</assignToReference>
+            <assignToReference>varFolio</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>Buscar_Unidad.AccountId</elementReference>
+                <elementReference>Leer_Folio.WorkOrderNumber</elementReference>
             </value>
         </assignmentItems>
-        <connector>
-            <targetReference>Buscar_Orden_Existente</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Bloqueo_Sucursal</name>
-        <label>Bloqueo sucursal no encontrada</label>
-        <locationX>50</locationX>
-        <locationY>1080</locationY>
         <assignmentItems>
-            <assignToReference>varMotivoBloqueo</assignToReference>
+            <assignToReference>varCitaTexto</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>SUCURSAL_NO_ENCONTRADA</stringValue>
+                <elementReference>Formato_Cita.texto</elementReference>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varMensaje</assignToReference>
             <operator>Assign</operator>
             <value>
-                <stringValue>No encontre un taller con esa referencia. Puedo listarte los talleres disponibles.</stringValue>
+                <elementReference>frmMensajeExito</elementReference>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_No_Encontrado</targetReference>
-        </connector>
-    </assignments>
-    <assignments>
-        <name>Bloqueo_Sucursal_Inactiva</name>
-        <label>Bloqueo sucursal inactiva</label>
-        <locationX>50</locationX>
-        <locationY>1176</locationY>
-        <assignmentItems>
-            <assignToReference>varMotivoBloqueo</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>SUCURSAL_INACTIVA</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varMensaje</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>Ese taller no esta recibiendo citas en este momento. Puedo buscarte otro.</stringValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varGuardrail</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>SUCURSAL_INACTIVA</stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Log_Bloqueo</targetReference>
+            <targetReference>Log_Exito</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -226,6 +136,36 @@
             <operator>Assign</operator>
             <value>
                 <stringValue>ANTICIPACION_MINIMA</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Bloqueo_No_Verificada</name>
+        <label>Bloqueo unidad no verificada</label>
+        <locationX>50</locationX>
+        <locationY>600</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>UNIDAD_NO_VERIFICADA</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Necesito verificar la titularidad de la unidad antes de agendar. No puedo crear la orden todavia.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>UNIDAD_NO_VERIFICADA</stringValue>
             </value>
         </assignmentItems>
         <connector>
@@ -300,19 +240,27 @@
         <assignmentItems>
             <assignToReference>varMotivoBloqueo</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>SLOT_NO_VERIFICADO</stringValue></value>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varMensaje</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>La franja proviene de horarios derivados o capacidad asumida y no esta verificada operacionalmente. No puedo reservarla.</stringValue></value>
+            <value>
+                <stringValue>La franja proviene de horarios derivados o capacidad asumida y no esta verificada operacionalmente. No puedo reservarla.</stringValue>
+            </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varGuardrail</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>SLOT_NO_VERIFICADO</stringValue></value>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
         </assignmentItems>
-        <connector><targetReference>Log_Bloqueo</targetReference></connector>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
     </assignments>
     <assignments>
         <name>Bloqueo_Slot_Verificado_Requerido</name>
@@ -322,71 +270,102 @@
         <assignmentItems>
             <assignToReference>varMotivoBloqueo</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue></value>
+            <value>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
+            </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varMensaje</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>Esa franja no tiene procedencia registrada, asi que no puedo saber de donde salio su horario; elige otra o pide que te contacte un asesor.</stringValue></value>
+            <value>
+                <stringValue>Esa franja no tiene procedencia registrada, asi que no puedo saber de donde salio su horario; elige otra o pide que te contacte un asesor.</stringValue>
+            </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varGuardrail</assignToReference>
             <operator>Assign</operator>
-            <value><stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue></value>
-        </assignmentItems>
-        <connector><targetReference>Log_Bloqueo</targetReference></connector>
-    </assignments>
-    <assignments>
-        <name>Reservar_Cupo</name>
-        <label>Reservar cupo en la franja</label>
-        <locationX>300</locationX>
-        <locationY>1920</locationY>
-        <assignmentItems>
-            <assignToReference>recSlot.Capacidad_Usada__c</assignToReference>
-            <operator>Add</operator>
             <value>
-                <numberValue>1.0</numberValue>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Actualizar_Slot</targetReference>
+            <targetReference>Log_Bloqueo</targetReference>
         </connector>
     </assignments>
     <assignments>
-        <name>Asignar_Exito</name>
-        <label>Asignar exito</label>
-        <locationX>300</locationX>
-        <locationY>2280</locationY>
+        <name>Bloqueo_Sucursal</name>
+        <label>Bloqueo sucursal no encontrada</label>
+        <locationX>50</locationX>
+        <locationY>1080</locationY>
         <assignmentItems>
-            <assignToReference>varCreada</assignToReference>
+            <assignToReference>varMotivoBloqueo</assignToReference>
             <operator>Assign</operator>
             <value>
-                <booleanValue>true</booleanValue>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varFolio</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Leer_Folio.WorkOrderNumber</elementReference>
-            </value>
-        </assignmentItems>
-        <assignmentItems>
-            <assignToReference>varCitaTexto</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <elementReference>Formato_Cita.texto</elementReference>
+                <stringValue>SUCURSAL_NO_ENCONTRADA</stringValue>
             </value>
         </assignmentItems>
         <assignmentItems>
             <assignToReference>varMensaje</assignToReference>
             <operator>Assign</operator>
             <value>
-                <elementReference>frmMensajeExito</elementReference>
+                <stringValue>No encontre un taller con esa referencia. Puedo listarte los talleres disponibles.</stringValue>
             </value>
         </assignmentItems>
         <connector>
-            <targetReference>Log_Exito</targetReference>
+            <targetReference>Log_No_Encontrado</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Bloqueo_Sucursal_Inactiva</name>
+        <label>Bloqueo sucursal inactiva</label>
+        <locationX>50</locationX>
+        <locationY>1176</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SUCURSAL_INACTIVA</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Ese taller no esta recibiendo citas en este momento. Puedo buscarte otro.</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SUCURSAL_INACTIVA</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Bloqueo_VIN</name>
+        <label>Bloqueo VIN no encontrado</label>
+        <locationX>50</locationX>
+        <locationY>480</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>VIN_NO_ENCONTRADO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>No encontre ninguna unidad registrada con ese VIN. Revisemos los 17 caracteres o te comunico con un asesor.</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_No_Encontrado</targetReference>
         </connector>
     </assignments>
     <assignments>
@@ -435,81 +414,45 @@
             <targetReference>Log_Error</targetReference>
         </connector>
     </assignments>
-    <decisions>
-        <name>Ya_Existe</name>
-        <label>Ya existe la orden</label>
+    <assignments>
+        <name>Guardar_Unidad</name>
+        <label>Guardar datos de la unidad</label>
         <locationX>300</locationX>
-        <locationY>240</locationY>
-        <defaultConnector>
-            <targetReference>Ruta_Slot</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Es nueva</defaultConnectorLabel>
-        <rules>
-            <name>Es_reintento</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Orden_Existente</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Asignar_Duplicado</targetReference>
-            </connector>
-            <label>Es reintento</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Unidad_Existe</name>
-        <label>Unidad existe</label>
+        <locationY>720</locationY>
+        <assignmentItems>
+            <assignToReference>varAssetId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Unidad.Id</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varAccountId</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>Buscar_Unidad.AccountId</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Buscar_Orden_Existente</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Reservar_Cupo</name>
+        <label>Reservar cupo en la franja</label>
         <locationX>300</locationX>
-        <locationY>480</locationY>
-        <defaultConnector>
-            <targetReference>Bloqueo_VIN</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No existe</defaultConnectorLabel>
-        <rules>
-            <name>Si_existe</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Unidad</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Validar_Verificacion</targetReference>
-            </connector>
-            <label>Si existe</label>
-        </rules>
-    </decisions>
-    <decisions>
-        <name>Validar_Verificacion</name>
-        <label>Validar unidad verificada</label>
-        <locationX>300</locationX>
-        <locationY>600</locationY>
-        <defaultConnector>
-            <targetReference>Bloqueo_No_Verificada</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>No verificada</defaultConnectorLabel>
-        <rules>
-            <name>Verificada</name>
-            <conditionLogic>and</conditionLogic>
-            <conditions>
-                <leftValueReference>Buscar_Unidad.Unidad_Verificada__c</leftValueReference>
-                <operator>EqualTo</operator>
-                <rightValue>
-                    <booleanValue>true</booleanValue>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Guardar_Unidad</targetReference>
-            </connector>
-            <label>Verificada</label>
-        </rules>
-    </decisions>
+        <locationY>1920</locationY>
+        <assignmentItems>
+            <assignToReference>recSlot.Capacidad_Usada__c</assignToReference>
+            <operator>Add</operator>
+            <value>
+                <numberValue>1.0</numberValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Actualizar_Slot</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Ruta_Slot</name>
         <label>Ruta de eleccion de franja</label>
@@ -608,38 +551,6 @@
         </rules>
     </decisions>
     <decisions>
-        <name>Validar_Anticipacion_Pedida</name>
-        <label>Validar anticipacion de la fecha pedida</label>
-        <locationX>300</locationX>
-        <locationY>1200</locationY>
-        <defaultConnector>
-            <targetReference>Tipo_Definido</targetReference>
-        </defaultConnector>
-        <defaultConnectorLabel>Anticipacion suficiente</defaultConnectorLabel>
-        <rules>
-            <name>Demasiado_pronto</name>
-            <conditionLogic>1 AND 2</conditionLogic>
-            <conditions>
-                <leftValueReference>varFechaDeseada</leftValueReference>
-                <operator>IsNull</operator>
-                <rightValue>
-                    <booleanValue>false</booleanValue>
-                </rightValue>
-            </conditions>
-            <conditions>
-                <leftValueReference>frmFinDiaPedido</leftValueReference>
-                <operator>LessThan</operator>
-                <rightValue>
-                    <elementReference>frmDesde</elementReference>
-                </rightValue>
-            </conditions>
-            <connector>
-                <targetReference>Bloqueo_Anticipacion</targetReference>
-            </connector>
-            <label>Demasiado pronto</label>
-        </rules>
-    </decisions>
-    <decisions>
         <name>Tipo_Definido</name>
         <label>Tipo de servicio definido</label>
         <locationX>300</locationX>
@@ -669,6 +580,63 @@
                 <targetReference>Buscar_Slot_Con_Tipo</targetReference>
             </connector>
             <label>Con tipo</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Unidad_Existe</name>
+        <label>Unidad existe</label>
+        <locationX>300</locationX>
+        <locationY>480</locationY>
+        <defaultConnector>
+            <targetReference>Bloqueo_VIN</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No existe</defaultConnectorLabel>
+        <rules>
+            <name>Si_existe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Unidad</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Validar_Verificacion</targetReference>
+            </connector>
+            <label>Si existe</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Validar_Anticipacion_Pedida</name>
+        <label>Validar anticipacion de la fecha pedida</label>
+        <locationX>300</locationX>
+        <locationY>1200</locationY>
+        <defaultConnector>
+            <targetReference>Tipo_Definido</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Anticipacion suficiente</defaultConnectorLabel>
+        <rules>
+            <name>Demasiado_pronto</name>
+            <conditionLogic>1 AND 2</conditionLogic>
+            <conditions>
+                <leftValueReference>varFechaDeseada</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>frmFinDiaPedido</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <elementReference>frmDesde</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Bloqueo_Anticipacion</targetReference>
+            </connector>
+            <label>Demasiado pronto</label>
         </rules>
     </decisions>
     <decisions>
@@ -723,9 +691,13 @@
             <conditions>
                 <leftValueReference>recSlot.Procedencia__c</leftValueReference>
                 <operator>IsNull</operator>
-                <rightValue><booleanValue>true</booleanValue></rightValue>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
             </conditions>
-            <connector><targetReference>Bloqueo_Slot_No_Verificado</targetReference></connector>
+            <connector>
+                <targetReference>Bloqueo_Slot_No_Verificado</targetReference>
+            </connector>
             <label>Franja sin procedencia registrada</label>
         </rules>
         <rules>
@@ -744,48 +716,98 @@
             <label>Franja muy pronto</label>
         </rules>
     </decisions>
+    <decisions>
+        <name>Validar_Verificacion</name>
+        <label>Validar unidad verificada</label>
+        <locationX>300</locationX>
+        <locationY>600</locationY>
+        <defaultConnector>
+            <targetReference>Bloqueo_No_Verificada</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No verificada</defaultConnectorLabel>
+        <rules>
+            <name>Verificada</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Unidad.Unidad_Verificada__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Guardar_Unidad</targetReference>
+            </connector>
+            <label>Verificada</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Ya_Existe</name>
+        <label>Ya existe la orden</label>
+        <locationX>300</locationX>
+        <locationY>240</locationY>
+        <defaultConnector>
+            <targetReference>Ruta_Slot</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>Es nueva</defaultConnectorLabel>
+        <rules>
+            <name>Es_reintento</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>Buscar_Orden_Existente</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Asignar_Duplicado</targetReference>
+            </connector>
+            <label>Es reintento</label>
+        </rules>
+    </decisions>
     <description>Accion del subagente Agendar Servicio en Taller. Resuelve VIN a unidad, valida el gate Unidad_Verificada, elige la franja (por Id si el agente ya la tiene, o por sucursal y fecha si no), crea el WorkOrder y reserva el cupo. La idempotencia se resuelve leyendo Idempotency_Key__c antes de crear: un reintento devuelve el mismo folio y no genera una segunda orden. Toda rama, de exito o de bloqueo, invoca Registrar_Log_Agente.</description>
     <environments>Default</environments>
     <formulas>
+        <description>Hilo de la conversacion. Si el agente no lo manda se genera uno con el identificador de la interview: sin este dato Log_Agente__c.Correlation_Id__c queda vacio, el subflujo de log falla y eso REVIERTE toda la interview, asi que el usuario perderia la accion completa por un dato de trazabilidad.</description>
         <name>frmCorrelationId</name>
         <dataType>String</dataType>
-        <description>Hilo de la conversacion. Si el agente no lo manda se genera uno con el identificador de la interview: sin este dato Log_Agente__c.Correlation_Id__c queda vacio, el subflujo de log falla y eso REVIERTE toda la interview, asi que el usuario perderia la accion completa por un dato de trazabilidad.</description>
         <expression>IF( LEN({!varCorrelationId}) &lt; 8, &quot;CONV-&quot; &amp; {!$Flow.InterviewGuid}, {!varCorrelationId} )</expression>
     </formulas>
     <formulas>
-        <name>frmIdempotencyKey</name>
-        <dataType>String</dataType>
-        <description>Clave de la solicitud. Si el agente no la manda se deriva del hilo de la conversacion, para que un reintento dentro de la misma conversacion siga sin duplicar la orden.</description>
-        <expression>IF( LEN({!varIdempotencyKey}) &lt; 16, {!frmCorrelationId} &amp; &quot;-WO&quot;, {!varIdempotencyKey} )</expression>
-    </formulas>
-    <formulas>
+        <description>Momento mas temprano agendable: ahora mas la anticipacion minima que exige la sucursal. Si la sucursal no la define, se usan 24 horas.</description>
         <name>frmDesde</name>
         <dataType>DateTime</dataType>
-        <description>Momento mas temprano agendable: ahora mas la anticipacion minima que exige la sucursal. Si la sucursal no la define, se usan 24 horas.</description>
         <expression>{!$Flow.CurrentDateTime} + ( IF( ISBLANK({!recSucursal.Anticipacion_Minima_Horas__c}), 24, {!recSucursal.Anticipacion_Minima_Horas__c} ) / 24 )</expression>
     </formulas>
     <formulas>
+        <description>Piso de busqueda de franja: el dia que pidio el operador, pero nunca antes de la anticipacion minima.</description>
         <name>frmDesdeEfectivo</name>
         <dataType>DateTime</dataType>
-        <description>Piso de busqueda de franja: el dia que pidio el operador, pero nunca antes de la anticipacion minima.</description>
         <expression>IF( ISBLANK({!varFechaDeseada}), {!frmDesde}, IF( {!frmInicioDiaPedido} &gt; {!frmDesde}, {!frmInicioDiaPedido}, {!frmDesde} ) )</expression>
     </formulas>
     <formulas>
-        <name>frmInicioDiaPedido</name>
-        <dataType>DateTime</dataType>
-        <description>Arranque del dia local que pidio el operador. DATETIMEVALUE de una fecha da medianoche GMT; se le suman 6 horas para caer en la medianoche de Mexico. Con horario de verano el desfase real es de 5 horas, pero ninguna franja del taller empieza entre las 05:00 y las 06:00 GMT, asi que el resultado es el mismo.</description>
-        <expression>DATETIMEVALUE({!varFechaDeseada}) + 0.25</expression>
-    </formulas>
-    <formulas>
+        <description>Arranque del dia siguiente. Se compara contra la anticipacion minima para bloquear solo cuando el dia pedido COMPLETO ya no es agendable, no cuando apenas empieza a serlo.</description>
         <name>frmFinDiaPedido</name>
         <dataType>DateTime</dataType>
-        <description>Arranque del dia siguiente. Se compara contra la anticipacion minima para bloquear solo cuando el dia pedido COMPLETO ya no es agendable, no cuando apenas empieza a serlo.</description>
         <expression>DATETIMEVALUE({!varFechaDeseada}) + 1.25</expression>
     </formulas>
     <formulas>
-        <name>frmSubject</name>
+        <description>Clave de la solicitud. Si el agente no la manda se deriva del hilo de la conversacion, para que un reintento dentro de la misma conversacion siga sin duplicar la orden.</description>
+        <name>frmIdempotencyKey</name>
         <dataType>String</dataType>
-        <expression>&quot;Cita de taller - &quot; &amp; {!Buscar_Unidad.Name}</expression>
+        <expression>IF( LEN({!varIdempotencyKey}) &lt; 16, {!frmCorrelationId} &amp; &quot;-WO&quot;, {!varIdempotencyKey} )</expression>
+    </formulas>
+    <formulas>
+        <description>Arranque del dia local que pidio el operador. DATETIMEVALUE de una fecha da medianoche GMT; se le suman 6 horas para caer en la medianoche de Mexico. Con horario de verano el desfase real es de 5 horas, pero ninguna franja del taller empieza entre las 05:00 y las 06:00 GMT, asi que el resultado es el mismo.</description>
+        <name>frmInicioDiaPedido</name>
+        <dataType>DateTime</dataType>
+        <expression>DATETIMEVALUE({!varFechaDeseada}) + 0.25</expression>
+    </formulas>
+    <formulas>
+        <name>frmMensajeDuplicado</name>
+        <dataType>String</dataType>
+        <expression>&quot;Ya tenias una orden registrada para esta misma solicitud. El folio sigue siendo &quot; &amp; {!Buscar_Orden_Existente.WorkOrderNumber} &amp; &quot;.&quot;</expression>
     </formulas>
     <formulas>
         <name>frmMensajeExito</name>
@@ -793,9 +815,9 @@
         <expression>&quot;Cita registrada con folio &quot; &amp; {!Leer_Folio.WorkOrderNumber} &amp; &quot;: &quot; &amp; {!Formato_Cita.texto} &amp; &quot; en &quot; &amp; {!recSucursal.Name} &amp; &quot;.&quot;</expression>
     </formulas>
     <formulas>
-        <name>frmMensajeDuplicado</name>
+        <name>frmSubject</name>
         <dataType>String</dataType>
-        <expression>&quot;Ya tenias una orden registrada para esta misma solicitud. El folio sigue siendo &quot; &amp; {!Buscar_Orden_Existente.WorkOrderNumber} &amp; &quot;.&quot;</expression>
+        <expression>&quot;Cita de taller - &quot; &amp; {!Buscar_Unidad.Name}</expression>
     </formulas>
     <interviewLabel>Crear Orden Servicio {!$Flow.CurrentDateTime}</interviewLabel>
     <label>Crear Orden Servicio</label>
@@ -862,7 +884,9 @@
         </inputAssignments>
         <inputAssignments>
             <field>Procedencia__c</field>
-            <value><stringValue>TRANSACCIONAL_CAPTURADO_EN_FLUJO</stringValue></value>
+            <value>
+                <stringValue>TRANSACCIONAL_CAPTURADO_EN_FLUJO</stringValue>
+            </value>
         </inputAssignments>
         <inputAssignments>
             <field>Sintoma_Reportado__c</field>
@@ -907,7 +931,6 @@
             </value>
         </inputAssignments>
         <object>WorkOrder</object>
-        <storeOutputAutomatically>false</storeOutputAutomatically>
     </recordCreates>
     <recordLookups>
         <name>Buscar_Orden_Existente</name>
@@ -939,130 +962,6 @@
         <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>WorkOrder</object>
         <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Buscar_Unidad</name>
-        <label>Buscar unidad por VIN</label>
-        <locationX>300</locationX>
-        <locationY>360</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Unidad_Existe</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Fallo_Persistencia</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>SerialNumber</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>varVIN</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Asset</object>
-        <storeOutputAutomatically>true</storeOutputAutomatically>
-    </recordLookups>
-    <recordLookups>
-        <name>Buscar_Slot_Por_Id</name>
-        <label>Buscar franja por Id</label>
-        <locationX>580</locationX>
-        <locationY>840</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Slot_Directo_Existe</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Fallo_Persistencia</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>varSlotId</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Slot_Taller__c</object>
-        <outputReference>recSlot</outputReference>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <queriedFields>Sucursal__c</queriedFields>
-        <queriedFields>Inicio__c</queriedFields>
-        <queriedFields>Fin__c</queriedFields>
-        <queriedFields>Tipo_Servicio__c</queriedFields>
-        <queriedFields>Capacidad_Total__c</queriedFields>
-        <queriedFields>Capacidad_Usada__c</queriedFields>
-        <queriedFields>Cupos_Libres__c</queriedFields>
-        <queriedFields>Disponible__c</queriedFields>
-        <queriedFields>Procedencia__c</queriedFields>
-    </recordLookups>
-    <recordLookups>
-        <name>Buscar_Sucursal_Del_Slot</name>
-        <label>Buscar sucursal de la franja</label>
-        <locationX>720</locationX>
-        <locationY>960</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Validar_Slot_Final</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Fallo_Persistencia</targetReference>
-        </faultConnector>
-        <filterLogic>and</filterLogic>
-        <filters>
-            <field>Id</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>recSlot.Sucursal__c</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Sucursal__c</object>
-        <outputReference>recSucursal</outputReference>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <queriedFields>Ciudad__c</queriedFields>
-        <queriedFields>Activa__c</queriedFields>
-        <queriedFields>Anticipacion_Minima_Horas__c</queriedFields>
-    </recordLookups>
-    <recordLookups>
-        <name>Buscar_Sucursal_Por_Clave</name>
-        <label>Buscar sucursal por clave</label>
-        <locationX>300</locationX>
-        <locationY>960</locationY>
-        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
-        <connector>
-            <targetReference>Sucursal_Existe</targetReference>
-        </connector>
-        <faultConnector>
-            <targetReference>Fallo_Persistencia</targetReference>
-        </faultConnector>
-        <filterLogic>1 OR 2</filterLogic>
-        <filters>
-            <field>Codigo_Sucursal__c</field>
-            <operator>EqualTo</operator>
-            <value>
-                <elementReference>varSucursalClave</elementReference>
-            </value>
-        </filters>
-        <filters>
-            <field>Name</field>
-            <operator>Contains</operator>
-            <value>
-                <elementReference>varSucursalClave</elementReference>
-            </value>
-        </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
-        <object>Sucursal__c</object>
-        <outputReference>recSucursal</outputReference>
-        <queriedFields>Id</queriedFields>
-        <queriedFields>Name</queriedFields>
-        <queriedFields>Ciudad__c</queriedFields>
-        <queriedFields>Activa__c</queriedFields>
-        <queriedFields>Anticipacion_Minima_Horas__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Buscar_Slot_Con_Tipo</name>
@@ -1105,7 +1004,6 @@
                 <elementReference>varTipoServicio</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Slot_Taller__c</object>
         <outputReference>recSlot</outputReference>
         <queriedFields>Id</queriedFields>
@@ -1121,6 +1019,40 @@
         <queriedFields>Procedencia__c</queriedFields>
         <sortField>Inicio__c</sortField>
         <sortOrder>Asc</sortOrder>
+    </recordLookups>
+    <recordLookups>
+        <name>Buscar_Slot_Por_Id</name>
+        <label>Buscar franja por Id</label>
+        <locationX>580</locationX>
+        <locationY>840</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Slot_Directo_Existe</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fallo_Persistencia</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varSlotId</elementReference>
+            </value>
+        </filters>
+        <object>Slot_Taller__c</object>
+        <outputReference>recSlot</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Sucursal__c</queriedFields>
+        <queriedFields>Inicio__c</queriedFields>
+        <queriedFields>Fin__c</queriedFields>
+        <queriedFields>Tipo_Servicio__c</queriedFields>
+        <queriedFields>Capacidad_Total__c</queriedFields>
+        <queriedFields>Capacidad_Usada__c</queriedFields>
+        <queriedFields>Cupos_Libres__c</queriedFields>
+        <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Buscar_Slot_Sin_Tipo</name>
@@ -1156,7 +1088,6 @@
                 <elementReference>frmDesdeEfectivo</elementReference>
             </value>
         </filters>
-        <getFirstRecordOnly>true</getFirstRecordOnly>
         <object>Slot_Taller__c</object>
         <outputReference>recSlot</outputReference>
         <queriedFields>Id</queriedFields>
@@ -1172,6 +1103,93 @@
         <queriedFields>Procedencia__c</queriedFields>
         <sortField>Inicio__c</sortField>
         <sortOrder>Asc</sortOrder>
+    </recordLookups>
+    <recordLookups>
+        <name>Buscar_Sucursal_Del_Slot</name>
+        <label>Buscar sucursal de la franja</label>
+        <locationX>720</locationX>
+        <locationY>960</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Validar_Slot_Final</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fallo_Persistencia</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recSlot.Sucursal__c</elementReference>
+            </value>
+        </filters>
+        <object>Sucursal__c</object>
+        <outputReference>recSucursal</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Ciudad__c</queriedFields>
+        <queriedFields>Activa__c</queriedFields>
+        <queriedFields>Anticipacion_Minima_Horas__c</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <name>Buscar_Sucursal_Por_Clave</name>
+        <label>Buscar sucursal por clave</label>
+        <locationX>300</locationX>
+        <locationY>960</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Sucursal_Existe</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fallo_Persistencia</targetReference>
+        </faultConnector>
+        <filterLogic>1 OR 2</filterLogic>
+        <filters>
+            <field>Codigo_Sucursal__c</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varSucursalClave</elementReference>
+            </value>
+        </filters>
+        <filters>
+            <field>Name</field>
+            <operator>Contains</operator>
+            <value>
+                <elementReference>varSucursalClave</elementReference>
+            </value>
+        </filters>
+        <object>Sucursal__c</object>
+        <outputReference>recSucursal</outputReference>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Name</queriedFields>
+        <queriedFields>Ciudad__c</queriedFields>
+        <queriedFields>Activa__c</queriedFields>
+        <queriedFields>Anticipacion_Minima_Horas__c</queriedFields>
+    </recordLookups>
+    <recordLookups>
+        <name>Buscar_Unidad</name>
+        <label>Buscar unidad por VIN</label>
+        <locationX>300</locationX>
+        <locationY>360</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Unidad_Existe</targetReference>
+        </connector>
+        <faultConnector>
+            <targetReference>Fallo_Persistencia</targetReference>
+        </faultConnector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>SerialNumber</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>varVIN</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Asset</object>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
     </recordLookups>
     <recordLookups>
         <name>Leer_Folio</name>
@@ -1218,6 +1236,171 @@
         </connector>
     </start>
     <status>Active</status>
+    <subflows>
+        <name>Log_Bloqueo</name>
+        <label>Log bloqueo</label>
+        <locationX>50</locationX>
+        <locationY>1776</locationY>
+        <flowName>Registrar_Log_Agente</flowName>
+        <inputAssignments>
+            <name>varAccion</name>
+            <value>
+                <stringValue>Crear_Orden_Servicio</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varAssetId</name>
+            <value>
+                <elementReference>varAssetId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varCorrelationId</name>
+            <value>
+                <elementReference>frmCorrelationId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varErrorCode</name>
+            <value>
+                <elementReference>varMotivoBloqueo</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varGuardrail</name>
+            <value>
+                <elementReference>varGuardrail</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varOutcome</name>
+            <value>
+                <stringValue>BLOCKED</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSessionKey</name>
+            <value>
+                <elementReference>varSessionKey</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubagent</name>
+            <value>
+                <stringValue>Agenda</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Log_Duplicado</name>
+        <label>Log duplicado idempotente</label>
+        <locationX>50</locationX>
+        <locationY>336</locationY>
+        <flowName>Registrar_Log_Agente</flowName>
+        <inputAssignments>
+            <name>varAccion</name>
+            <value>
+                <stringValue>Crear_Orden_Servicio</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varCorrelationId</name>
+            <value>
+                <elementReference>frmCorrelationId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varGuardrail</name>
+            <value>
+                <stringValue>IDEMPOTENCIA_REUSO</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varOutcome</name>
+            <value>
+                <stringValue>SUCCESS</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedRecordId</name>
+            <value>
+                <elementReference>varWorkOrderId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSessionKey</name>
+            <value>
+                <elementReference>varSessionKey</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubagent</name>
+            <value>
+                <stringValue>Agenda</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varWorkOrderId</name>
+            <value>
+                <elementReference>varWorkOrderId</elementReference>
+            </value>
+        </inputAssignments>
+    </subflows>
+    <subflows>
+        <name>Log_Error</name>
+        <label>Log error</label>
+        <locationX>50</locationX>
+        <locationY>2160</locationY>
+        <flowName>Registrar_Log_Agente</flowName>
+        <inputAssignments>
+            <name>varAccion</name>
+            <value>
+                <stringValue>Crear_Orden_Servicio</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varAssetId</name>
+            <value>
+                <elementReference>varAssetId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varCorrelationId</name>
+            <value>
+                <elementReference>frmCorrelationId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varErrorCode</name>
+            <value>
+                <elementReference>varMotivoBloqueo</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varOutcome</name>
+            <value>
+                <stringValue>ERROR</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varRelatedRecordId</name>
+            <value>
+                <elementReference>varWorkOrderId</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSessionKey</name>
+            <value>
+                <elementReference>varSessionKey</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <name>varSubagent</name>
+            <value>
+                <stringValue>Agenda</stringValue>
+            </value>
+        </inputAssignments>
+    </subflows>
     <subflows>
         <name>Log_Exito</name>
         <label>Log exito</label>
@@ -1280,116 +1463,6 @@
         </inputAssignments>
     </subflows>
     <subflows>
-        <name>Log_Duplicado</name>
-        <label>Log duplicado idempotente</label>
-        <locationX>50</locationX>
-        <locationY>336</locationY>
-        <flowName>Registrar_Log_Agente</flowName>
-        <inputAssignments>
-            <name>varAccion</name>
-            <value>
-                <stringValue>Crear_Orden_Servicio</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varCorrelationId</name>
-            <value>
-                <elementReference>frmCorrelationId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varGuardrail</name>
-            <value>
-                <stringValue>IDEMPOTENCIA_REUSO</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varOutcome</name>
-            <value>
-                <stringValue>SUCCESS</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varRelatedRecordId</name>
-            <value>
-                <elementReference>varWorkOrderId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSessionKey</name>
-            <value>
-                <elementReference>varSessionKey</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSubagent</name>
-            <value>
-                <stringValue>Agenda</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varWorkOrderId</name>
-            <value>
-                <elementReference>varWorkOrderId</elementReference>
-            </value>
-        </inputAssignments>
-    </subflows>
-    <subflows>
-        <name>Log_Bloqueo</name>
-        <label>Log bloqueo</label>
-        <locationX>50</locationX>
-        <locationY>1776</locationY>
-        <flowName>Registrar_Log_Agente</flowName>
-        <inputAssignments>
-            <name>varAccion</name>
-            <value>
-                <stringValue>Crear_Orden_Servicio</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varAssetId</name>
-            <value>
-                <elementReference>varAssetId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varCorrelationId</name>
-            <value>
-                <elementReference>frmCorrelationId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varErrorCode</name>
-            <value>
-                <elementReference>varMotivoBloqueo</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varGuardrail</name>
-            <value>
-                <elementReference>varGuardrail</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varOutcome</name>
-            <value>
-                <stringValue>BLOCKED</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSessionKey</name>
-            <value>
-                <elementReference>varSessionKey</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSubagent</name>
-            <value>
-                <stringValue>Agenda</stringValue>
-            </value>
-        </inputAssignments>
-    </subflows>
-    <subflows>
         <name>Log_No_Encontrado</name>
         <label>Log no encontrado</label>
         <locationX>50</locationX>
@@ -1432,61 +1505,24 @@
             </value>
         </inputAssignments>
     </subflows>
-    <subflows>
-        <name>Log_Error</name>
-        <label>Log error</label>
-        <locationX>50</locationX>
-        <locationY>2160</locationY>
-        <flowName>Registrar_Log_Agente</flowName>
-        <inputAssignments>
-            <name>varAccion</name>
-            <value>
-                <stringValue>Crear_Orden_Servicio</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varAssetId</name>
-            <value>
-                <elementReference>varAssetId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varCorrelationId</name>
-            <value>
-                <elementReference>frmCorrelationId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varErrorCode</name>
-            <value>
-                <elementReference>varMotivoBloqueo</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varOutcome</name>
-            <value>
-                <stringValue>ERROR</stringValue>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varRelatedRecordId</name>
-            <value>
-                <elementReference>varWorkOrderId</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSessionKey</name>
-            <value>
-                <elementReference>varSessionKey</elementReference>
-            </value>
-        </inputAssignments>
-        <inputAssignments>
-            <name>varSubagent</name>
-            <value>
-                <stringValue>Agenda</stringValue>
-            </value>
-        </inputAssignments>
-    </subflows>
+    <variables>
+        <description>Uso interno. Franja elegida.</description>
+        <name>recSlot</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Slot_Taller__c</objectType>
+    </variables>
+    <variables>
+        <description>Uso interno. Taller resuelto.</description>
+        <name>recSucursal</name>
+        <dataType>SObject</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>false</isOutput>
+        <objectType>Sucursal__c</objectType>
+    </variables>
     <variables>
         <description>Uso interno. Cuenta de la unidad.</description>
         <name>varAccountId</name>
@@ -1577,24 +1613,6 @@
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
-    </variables>
-    <variables>
-        <description>Uso interno. Franja elegida.</description>
-        <name>recSlot</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>Slot_Taller__c</objectType>
-    </variables>
-    <variables>
-        <description>Uso interno. Taller resuelto.</description>
-        <name>recSucursal</name>
-        <dataType>SObject</dataType>
-        <isCollection>false</isCollection>
-        <isInput>false</isInput>
-        <isOutput>false</isOutput>
-        <objectType>Sucursal__c</objectType>
     </variables>
     <variables>
         <description>Referencia de sesion sin PII.</description>

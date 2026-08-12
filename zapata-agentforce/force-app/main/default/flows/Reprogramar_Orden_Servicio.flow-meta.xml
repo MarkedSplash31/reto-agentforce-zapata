@@ -273,6 +273,66 @@
         </connector>
     </assignments>
     <assignments>
+        <name>Bloqueo_Slot_No_Verificado</name>
+        <label>Bloqueo franja sin procedencia operacional</label>
+        <locationX>50</locationX>
+        <locationY>1788</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_NO_VERIFICADO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>La franja nueva no esta verificada operacionalmente. La cita sigue como estaba.</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Bloqueo_Slot_Verificado_Requerido</name>
+        <label>Bloqueo franja verificada requerida</label>
+        <locationX>50</locationX>
+        <locationY>1416</locationY>
+        <assignmentItems>
+            <assignToReference>varMotivoBloqueo</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varGuardrail</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SLOT_VERIFICADO_REQUERIDO</stringValue>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>varMensaje</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>Selecciona una franja concreta con procedencia OPERACIONAL_VERIFICADO; la cita sigue como estaba.</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Log_Bloqueo</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
         <name>Bloqueo_Sucursal</name>
         <label>Bloqueo taller no encontrado</label>
         <locationX>50</locationX>
@@ -597,9 +657,9 @@
         <locationX>300</locationX>
         <locationY>1320</locationY>
         <defaultConnector>
-            <targetReference>Buscar_Slot_Libre</targetReference>
+            <targetReference>Bloqueo_Slot_Verificado_Requerido</targetReference>
         </defaultConnector>
-        <defaultConnectorLabel>Resolver por fecha</defaultConnectorLabel>
+        <defaultConnectorLabel>Bloquear sin franja verificada</defaultConnectorLabel>
         <rules>
             <name>Slot_dado</name>
             <conditionLogic>1 AND 2</conditionLogic>
@@ -740,6 +800,28 @@
                 <targetReference>Bloqueo_Slot</targetReference>
             </connector>
             <label>Franja sin cupo</label>
+        </rules>
+        <rules>
+            <name>Franja_no_verificada</name>
+            <conditionLogic>or</conditionLogic>
+            <conditions>
+                <leftValueReference>recSlot.Procedencia__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>recSlot.Procedencia__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <stringValue>OPERACIONAL_VERIFICADO</stringValue>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Bloqueo_Slot_No_Verificado</targetReference>
+            </connector>
+            <label>Franja sin verificacion operacional</label>
         </rules>
         <rules>
             <name>Franja_muy_pronto</name>
@@ -1003,6 +1085,7 @@
         <queriedFields>Capacidad_Usada__c</queriedFields>
         <queriedFields>Cupos_Libres__c</queriedFields>
         <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
         <sortField>Inicio__c</sortField>
         <sortOrder>Asc</sortOrder>
     </recordLookups>
@@ -1038,6 +1121,7 @@
         <queriedFields>Capacidad_Usada__c</queriedFields>
         <queriedFields>Cupos_Libres__c</queriedFields>
         <queriedFields>Disponible__c</queriedFields>
+        <queriedFields>Procedencia__c</queriedFields>
     </recordLookups>
     <recordLookups>
         <name>Buscar_Slot_Viejo</name>

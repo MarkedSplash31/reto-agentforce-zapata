@@ -585,7 +585,7 @@ exige republicar y activar una versión nueva del agente.
 
 ---
 
-## 12. La póliza cubre sistemas que ninguna agencia declara atender
+## 12. La póliza cubre sistemas que ninguna agencia declara atender — MITIGADO
 
 **Estado: abierto el 12 de agosto de 2026.** Es un hueco de DATOS en la organización;
 la aplicación ya lo esquiva, pero conviene cerrarlo en la org.
@@ -638,7 +638,7 @@ deducir de que la póliza lo cubra.
 
 ---
 
-## 13. El calendario de la agenda caduca el 20 de agosto de 2026
+## 13. El calendario de la agenda caduca — RESUELTO hasta el 8 de septiembre
 
 **Impacto: alto, con fecha.** No es un defecto: es que la semilla se acaba.
 
@@ -671,7 +671,7 @@ ejecutado**: la decisión es de quien conoce la operación.
 
 ---
 
-## 14. La traza no lleva kilometraje ni versión de política
+## 14. La traza no lleva kilometraje ni versión de política — PARCIAL
 
 **Impacto: medio.** El dato existe como campo y casi nunca se puebla.
 
@@ -693,7 +693,7 @@ tanto, `docs/GUION-RODAJE.md` lleva la narración corregida para no afirmar de m
 
 ---
 
-## 15. El agente ofrece citas que el Flow después rechaza
+## 15. El agente ofrece citas que el Flow después rechaza — RESUELTO
 
 **Impacto: alto.** Es el defecto que aparece en cuanto el cliente nombra un taller que
 no sea Querétaro, y hoy son ocho de nueve.
@@ -751,7 +751,7 @@ lo que Zapata le promete a un cliente al confirmar una cita.
 
 ---
 
-## 16. El agente ofrece buscar «otro taller» para un modelo que ninguno atiende
+## 16. El agente ofrece «otro taller» para un modelo que ninguno atiende — RESUELTO
 
 **Impacto: medio.** Se ve con cualquier T680, que son 9 de las 15 unidades de la org.
 
@@ -773,3 +773,93 @@ sucursales activas aparece ese modelo, y si son cero decirlo —«ninguno de nue
 talleres tiene ese modelo dado de alta; te paso con un asesor»— en vez de prometer una
 búsqueda que no puede terminar bien. No se toca desde aquí por lo mismo que §12: qué
 modelos atiende la red es un hecho operativo del negocio.
+
+
+---
+
+# Cierre del 12 de agosto de 2026
+
+Lo que se hizo hoy sobre los bloqueos anteriores, y lo que quedó.
+
+## §12 — mitigado en el Apex
+
+`ZapataAgendaController` dejó de cruzar la compuerta por un sistema que el catálogo no
+sabe expresar. `Sistemas_Soportados__c` es una lista cerrada y Eléctrico y electrónica,
+Chasis y estructura y Corrosión no están en ella: cruzar por un valor que el modelo de
+datos no puede representar no comprueba nada, garantiza cero y niega el taller. Ese era
+el falso negativo que le hizo decir al agente que Querétaro no atiende un Cascadia
+eléctrico. Ahora, cuando el valor no existe en la lista, cruza sólo por modelo — que es
+lo único que el catálogo puede afirmar. Los valores se leen del esquema, así que
+agregarlos a la lista reactiva la compuerta sola.
+
+**Queda**: decidir si las nueve sucursales atienden esos tres sistemas y, en su caso,
+ampliar la lista y dar de alta las filas. Sigue siendo un hecho operativo del negocio.
+
+## §13 — resuelto para Querétaro
+
+Se ejecutó `extender-agenda.mjs --dias 28 --sucursal FL-QRO` con
+`CONFIRM_AGENDA_VERIFICADA=1`: **74 franjas nuevas**, replicando hacia adelante el patrón
+semanal que esa sucursal ya tenía verificado. El calendario llega ahora al **8 de
+septiembre** y hay sábados apartables el 15, 22 y 29 de agosto y el 5 de septiembre.
+
+Lo que eso afirma, dicho con todas sus letras: que el taller de Querétaro abre esas horas
+en las próximas cuatro semanas igual que en las anteriores. Es una réplica del patrón ya
+verificado de esa misma sucursal, no una capacidad inventada para otras. Las ocho
+restantes **no** se tocaron.
+
+## §14 — parcial
+
+`BuscarConocimientoPostventa` ahora escribe `Policy_Version__c` y
+`Knowledge_Article_Version_Id__c` en cada consulta —comprobado con `LOG-00000396`—, así
+que la versión de la póliza deja de estar vacía en las consultas de conocimiento.
+
+**Queda** el odómetro: lo pueblan los Flows en la ruta de agenda y siguen sin hacerlo.
+
+## §15 — resuelto
+
+`Consultar_disponibilidad_de_taller` sólo devuelve franjas que el alta acepta. Cuando el
+taller publica horario sin cupo confirmado ya no entrega **ninguna** opción: devuelve
+`SLOTS_NO_VERIFICADOS`, dice cuántos horarios publica, que el cupo lo confirma el taller,
+y nombra las sucursales donde sí se puede apartar hoy.
+
+La clave no es el texto, es la lista vacía. Una salvedad redactada se pierde cuando el
+agente compone la respuesta —así fue como ofreció diez horarios de Aeropuerto sin una
+sola advertencia—; una lista vacía no se puede perder.
+
+Comprobado tecleando en el sitio después del despliegue: *«Por el momento, no puedo
+agendar directamente en Zapata Camiones Aeropuerto porque el taller no tiene cupo
+confirmado en su sistema…»*, y cero opciones ofrecidas.
+
+## §16 — resuelto
+
+Antes de ofrecer «otro taller que sí lo atienda», la acción cuenta en cuántas sucursales
+activas está dado de alta ese modelo. Si son cero devuelve `MODELO_FUERA_DE_RED` y pasa
+con un asesor. Comprobado con un T680: el agente dice que ese taller no atiende el modelo
+y ya **no** ofrece buscar en otra sucursal.
+
+**Queda** lo mismo de siempre: dar de alta el T680 en la red es decisión del negocio.
+
+## Reprogramar — ya no se reproduce
+
+El guion excluía la reprogramación por un defecto abierto. Se ejercitó de punta a punta el
+12 de agosto: la cita **00000088** se movió del 17 al 18 de agosto conservando el folio,
+sin crear una segunda orden, con su traza `Reprogramar_Orden_Servicio` en `SUCCESS`.
+Verde, 0 fallas. La acción se puede volver a considerar para la demostración.
+
+## El respaldo del repositorio
+
+`zapata-dx` estaba desfasado respecto de la org: `ZapataAgendaController` iba 155 líneas
+atrás y los cuatro Flows diferían. Se sincronizó por `sf project retrieve` —clases, Flows,
+bundle del agente y sus seis acciones— y `zapata-agentforce`, que duplica parte de esa
+metadata, se puso al día con las mismas copias.
+
+**Queda**: los dos proyectos duplican metadata y pueden volver a divergir. Consolidarlos
+en uno es trabajo de repositorio, no de la org.
+
+## Lo único que necesita la interfaz de Agent Builder
+
+El esquema de entrada de una `GenAiFunction` no se despliega por metadata: se regenera al
+refrescar la acción. `BuscarConocimientoPostventa` ya acepta `correlationId` y registra la
+traza cuando lo recibe, pero el planner no se lo pasará hasta que alguien abra la acción
+en Agent Builder y la refresque, como ya está hecho en `Crear_Escalamiento_Asesor`. Es el
+único pendiente que no se puede cerrar desde código.

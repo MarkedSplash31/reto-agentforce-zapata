@@ -469,6 +469,12 @@
             </value>
         </inputAssignments>
         <inputAssignments>
+            <field>Procedencia__c</field>
+            <value>
+                <stringValue>TRANSACCIONAL_CAPTURADO_EN_FLUJO</stringValue>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
             <field>Referencia_Ubicacion__c</field>
             <value>
                 <elementReference>varReferencia</elementReference>

@@ -1,29 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Flow xmlns="http://soap.sforce.com/2006/04/metadata">
     <apiVersion>67.0</apiVersion>
-    <description>Subflow de trazabilidad. Plan seccion 8.2: todos los Flows de negocio lo invocan dentro de la misma ruta de exito o de error. Escribe un Log_Agente__c y devuelve su Id. Rellena solo el momento del evento y el actor; todo lo demas lo pasa quien lo llama.</description>
-    <environments>Default</environments>
-    <interviewLabel>Registrar Log Agente {!$Flow.CurrentDateTime}</interviewLabel>
-    <label>Registrar Log Agente</label>
-    <processType>AutoLaunchedFlow</processType>
-    <status>Active</status>
-
-    <formulas>
-        <name>frmTimestamp</name>
-        <dataType>DateTime</dataType>
-        <expression>NOW()</expression>
-    </formulas>
-    <formulas>
-        <name>frmOutcome</name>
-        <dataType>String</dataType>
-        <expression>IF( ISBLANK({!varOutcome}), &quot;SUCCESS&quot;, {!varOutcome} )</expression>
-    </formulas>
-    <formulas>
-        <name>frmActor</name>
-        <dataType>String</dataType>
-        <expression>IF( ISBLANK({!varActor}), {!$User.Username}, {!varActor} )</expression>
-    </formulas>
-
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Poner_Codigo_Generico</name>
+        <label>Poner codigo generico</label>
+        <locationX>50</locationX>
+        <locationY>408</locationY>
+        <assignmentItems>
+            <assignToReference>varErrorCode</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <stringValue>SIN_CODIGO_REPORTADO</stringValue>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Crear_Log</targetReference>
+        </connector>
+    </assignments>
     <decisions>
         <name>Falta_Codigo_De_Error</name>
         <label>Falta codigo de error</label>
@@ -70,24 +64,26 @@
             <label>Si falta</label>
         </rules>
     </decisions>
-
-    <assignments>
-        <name>Poner_Codigo_Generico</name>
-        <label>Poner codigo generico</label>
-        <locationX>50</locationX>
-        <locationY>408</locationY>
-        <assignmentItems>
-            <assignToReference>varErrorCode</assignToReference>
-            <operator>Assign</operator>
-            <value>
-                <stringValue>SIN_CODIGO_REPORTADO</stringValue>
-            </value>
-        </assignmentItems>
-        <connector>
-            <targetReference>Crear_Log</targetReference>
-        </connector>
-    </assignments>
-
+    <description>Subflow de trazabilidad. Plan seccion 8.2: todos los Flows de negocio lo invocan dentro de la misma ruta de exito o de error. Escribe un Log_Agente__c y devuelve su Id. Rellena solo el momento del evento y el actor; todo lo demas lo pasa quien lo llama.</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>frmActor</name>
+        <dataType>String</dataType>
+        <expression>IF( ISBLANK({!varActor}), {!$User.Username}, {!varActor} )</expression>
+    </formulas>
+    <formulas>
+        <name>frmOutcome</name>
+        <dataType>String</dataType>
+        <expression>IF( ISBLANK({!varOutcome}), &quot;SUCCESS&quot;, {!varOutcome} )</expression>
+    </formulas>
+    <formulas>
+        <name>frmTimestamp</name>
+        <dataType>DateTime</dataType>
+        <expression>NOW()</expression>
+    </formulas>
+    <interviewLabel>Registrar Log Agente {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Registrar Log Agente</label>
+    <processType>AutoLaunchedFlow</processType>
     <recordCreates>
         <name>Crear_Log</name>
         <label>Crear log</label>
@@ -209,9 +205,7 @@
             </value>
         </inputAssignments>
         <object>Log_Agente__c</object>
-        <storeOutputAutomatically>false</storeOutputAutomatically>
     </recordCreates>
-
     <start>
         <locationX>50</locationX>
         <locationY>0</locationY>
@@ -219,148 +213,148 @@
             <targetReference>Falta_Codigo_De_Error</targetReference>
         </connector>
     </start>
-
+    <status>Active</status>
     <variables>
+        <description>Nombre de la accion del catalogo P0, por ejemplo Evaluar_Cobertura_Garantia.</description>
         <name>varAccion</name>
         <dataType>String</dataType>
-        <description>Nombre de la accion del catalogo P0, por ejemplo Evaluar_Cobertura_Garantia.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Identidad que ejecuto. Si viene vacio se usa el usuario en curso.</description>
         <name>varActor</name>
         <dataType>String</dataType>
-        <description>Identidad que ejecuto. Si viene vacio se usa el usuario en curso.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Articulo citado. Admite Id de Salesforce o Id semantico.</description>
         <name>varArticuloId</name>
         <dataType>String</dataType>
-        <description>Articulo citado. Admite Id de Salesforce o Id semantico.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Unidad relacionada.</description>
         <name>varAssetId</name>
         <dataType>String</dataType>
-        <description>Unidad relacionada.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Caso relacionado.</description>
         <name>varCaseId</name>
         <dataType>String</dataType>
-        <description>Caso relacionado.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>OBLIGATORIO. Hilo de la conversacion. Sin esto la traza no se puede reconstruir.</description>
         <name>varCorrelationId</name>
         <dataType>String</dataType>
-        <description>OBLIGATORIO. Hilo de la conversacion. Sin esto la traza no se puede reconstruir.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Codigo estable de error. Nunca un stack trace.</description>
         <name>varErrorCode</name>
         <dataType>String</dataType>
-        <description>Codigo estable de error. Nunca un stack trace.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Regla que bloqueo o desvio la accion.</description>
         <name>varGuardrail</name>
         <dataType>String</dataType>
-        <description>Regla que bloqueo o desvio la accion.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>SALIDA. Id del log creado.</description>
         <name>varLogId</name>
         <dataType>String</dataType>
-        <description>SALIDA. Id del log creado.</description>
         <isCollection>false</isCollection>
         <isInput>false</isInput>
         <isOutput>true</isOutput>
     </variables>
     <variables>
+        <description>Declarado, Verificado o Seed.</description>
         <name>varOdometroFuente</name>
         <dataType>String</dataType>
-        <description>Declarado, Verificado o Seed.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Kilometraje con el que se tomo la decision.</description>
         <name>varOdometroUsado</name>
         <dataType>Number</dataType>
-        <description>Kilometraje con el que se tomo la decision.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
         <scale>0</scale>
     </variables>
     <variables>
+        <description>SUCCESS, BLOCKED, NOT_FOUND o ERROR. Si viene vacio se asume SUCCESS.</description>
         <name>varOutcome</name>
         <dataType>String</dataType>
-        <description>SUCCESS, BLOCKED, NOT_FOUND o ERROR. Si viene vacio se asume SUCCESS.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Version de la regla aplicada.</description>
         <name>varPolicyVersion</name>
         <dataType>String</dataType>
-        <description>Version de la regla aplicada.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Registro creado o modificado por la accion.</description>
         <name>varRelatedRecordId</name>
         <dataType>String</dataType>
-        <description>Registro creado o modificado por la accion.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Referencia de sesion sin exponer PII.</description>
         <name>varSessionKey</name>
         <dataType>String</dataType>
-        <description>Referencia de sesion sin exponer PII.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Garantia, Diagnostico, Agenda o Compensacion.</description>
         <name>varSubagent</name>
         <dataType>String</dataType>
-        <description>Garantia, Diagnostico, Agenda o Compensacion.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Reporte de unidad varada relacionado.</description>
         <name>varUnidadVaradaId</name>
         <dataType>String</dataType>
-        <description>Reporte de unidad varada relacionado.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
     </variables>
     <variables>
+        <description>Gate de seguridad al momento del evento. Arranca en false porque un campo de casilla no admite nulo y el flujo revienta si se le pasa vacio.</description>
         <name>varUnidadVerificada</name>
         <dataType>Boolean</dataType>
-        <description>Gate de seguridad al momento del evento. Arranca en false porque un campo de casilla no admite nulo y el flujo revienta si se le pasa vacio.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>
@@ -369,9 +363,9 @@
         </value>
     </variables>
     <variables>
+        <description>Orden de servicio relacionada.</description>
         <name>varWorkOrderId</name>
         <dataType>String</dataType>
-        <description>Orden de servicio relacionada.</description>
         <isCollection>false</isCollection>
         <isInput>true</isInput>
         <isOutput>false</isOutput>

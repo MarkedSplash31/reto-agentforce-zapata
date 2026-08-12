@@ -574,9 +574,18 @@ if (!CON_AGENTE) {
       const horasOfrecidas = [
         ...todo.matchAll(/^\s*\d+[.)]\s*[^\n:]{0,70}?\b([01]?\d|2[0-3]):([0-5]\d)\b/gm),
       ].map((m) => `${m[1].padStart(2, '0')}:${m[2]}`);
+      // Sin quitar acentos esto no compara nada: el catálogo guarda «Queretaro» y el
+      // agente escribe «Querétaro». La primera versión daba por callado a un agente que
+      // había nombrado el taller con todas sus letras.
+      const plano = (s) =>
+        String(s ?? '')
+          .normalize('NFD')
+          .replace(/[̀-ͯ]/g, '')
+          .toLowerCase();
+      const dicho = plano(todo);
       const nombraOtro = agenda
         .filter((a) => a.clave !== tallerSinCupo.clave && a.reales > 0)
-        .some((a) => todo.toLowerCase().includes(String(a.nombre ?? '').toLowerCase().replace(/^zapata camiones /i, '')));
+        .some((a) => dicho.includes(plano(a.nombre).replace(/^zapata camiones /, '')));
       const diceQueNoHay = /no (hay|tengo|tiene|cuenta)|sin (horarios|disponibilidad|cupo)|no (est[aá]|figura)/i.test(todo);
       check(
         'no presenta como suyas las franjas de otro taller',
