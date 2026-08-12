@@ -74,6 +74,9 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
   let franjas = [];
   let noOfrecidas = null;
   let numeroDeSerie = vin;
+  /** Claves de taller que hoy tienen al menos una franja apartable. `null` mientras
+   *  no se sepa: se prefiere no marcar nada antes que marcar mal. */
+  let talleresConCupo = null;
 
   raiz.innerHTML = `
     <div data-agenda-talleres class="mb-5"></div>
@@ -101,23 +104,37 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
   }
 
   const pintarTalleres = () => {
+    // Qué talleres pueden apartar hoy se sabe de una sola lectura de la red entera.
+    // Sin esto, ocho de los nueve son un callejón: el cliente elige, lee «por
+    // confirmar» y tiene que ir probando taller por taller hasta dar con el que sí.
+    const conCupo = talleresConCupo;
     nodoTalleres.innerHTML = `
       <p class="text-[10px] uppercase tracking-widest text-gray-600 mb-3">Elige el taller</p>
       <div class="flex flex-wrap gap-2">
         ${red
-          .map(
-            (s) => `
+          .map((s) => {
+            const puede = !conCupo || conCupo.has(s.clave);
+            return `
           <button type="button" data-taller="${escapar(s.clave)}"
             class="border px-4 py-2.5 text-[10px] uppercase tracking-widest transition-colors duration-300 ${
               s.clave === taller
                 ? 'border-white/40 bg-white/10 text-white'
-                : 'border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
+                : puede
+                  ? 'border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
+                  : 'border-white/5 text-gray-600 hover:border-white/20 hover:text-gray-400'
             }">
-            ${escapar(s.ciudad || s.nombre)}
-          </button>`,
-          )
+            ${escapar(s.ciudad || s.nombre)}${puede ? '' : ' ·'}
+          </button>`;
+          })
           .join('')}
-      </div>`;
+      </div>
+      ${
+        conCupo && conCupo.size && conCupo.size < red.length
+          ? `<p class="text-[10px] uppercase tracking-widest text-gray-600 mt-3">
+               Con horario apartable hoy · ${escapar([...conCupo].join(', '))}
+             </p>`
+          : ''
+      }`;
     for (const boton of nodoTalleres.querySelectorAll('[data-taller]')) {
       boton.addEventListener('click', () => {
         taller = boton.dataset.taller;
@@ -213,8 +230,23 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
              <p class="text-gray-200 text-xs font-light leading-relaxed mb-2">${escapar(noOfrecidas.motivo)}</p>
              <p class="text-gray-400 text-[11px] font-light leading-relaxed">
                Son ${escapar(String(noOfrecidas.noVerificadas))} horarios de los próximos ${DIAS_HORIZONTE} días.
-               Pídeselo al asistente y un asesor lo confirma con el taller, o elige otro taller de la lista.
+               Pídeselo al asistente y un asesor lo confirma con el taller.
              </p>
+             ${
+               talleresConCupo?.size
+                 ? `<div class="flex flex-wrap gap-2 mt-4">
+                      ${[...talleresConCupo]
+                        .map((c) => {
+                          const otro = red.find((x) => x.clave === c);
+                          return `<button type="button" data-ir-taller="${escapar(c)}"
+                            class="border border-white/20 px-4 py-2.5 text-[10px] uppercase tracking-widest text-white hover:bg-white hover:text-black transition-colors duration-300">
+                            Apartar en ${escapar(otro?.ciudad || otro?.nombre || c)}
+                          </button>`;
+                        })
+                        .join('')}
+                    </div>`
+                 : ''
+             }
            </div>`
         : `<p class="text-gray-400 text-xs font-light leading-relaxed border border-white/5 bg-[#0d0e12] p-5">
              ${
@@ -276,6 +308,14 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
 
     for (const boton of nodoDias.querySelectorAll('[data-franja]:not([disabled])')) {
       boton.addEventListener('click', () => confirmar(boton.dataset.franja));
+    }
+    for (const ir of nodoDias.querySelectorAll('[data-ir-taller]')) {
+      ir.addEventListener('click', async () => {
+        taller = ir.dataset.irTaller;
+        tipoFiltro = null;
+        pintarTalleres();
+        await cargarFranjas();
+      });
     }
   }
 
@@ -415,6 +455,20 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
     });
   }
 
+  // Una sola lectura de la red entera para saber quién puede apartar. Si falla, el
+  // componente sigue funcionando igual: simplemente no marca nada.
+  try {
+    const hoy = new Date();
+    const hasta = new Date(hoy.getTime() + DIAS_HORIZONTE * 86_400_000);
+    const res = await fetch(`/publico/disponibilidad?desde=${aISO(hoy)}&hasta=${aISO(hasta)}`);
+    if (res.ok) {
+      const d = await res.json();
+      talleresConCupo = new Set((d.franjas ?? []).map((f) => f.sucursal).filter(Boolean));
+    }
+  } catch {
+    talleresConCupo = null;
+  }
+
   pintarTalleres();
   if (taller) await cargarFranjas();
   else {
@@ -431,12 +485,25 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
       if (nuevo) numeroDeSerie = nuevo;
     },
     /** El cliente nombró un taller en la conversación: se cambia a ése. */
-    async enTaller(clave) {
-      if (!clave || clave === taller || !red.some((s) => s.clave === clave)) return;
-      taller = clave;
-      tipoFiltro = null;
-      pintarTalleres();
-      await cargarFranjas();
+    async enTaller(clave, atiendeTuModelo) {
+      if (!clave || !red.some((s) => s.clave === clave)) return;
+      if (clave !== taller) {
+        taller = clave;
+        tipoFiltro = null;
+        pintarTalleres();
+        await cargarFranjas();
+      }
+      // El servidor lo comprobó contra la organización. Se dice cuando el agente
+      // pudo haber afirmado lo contrario: es el dato, no una opinión.
+      if (atiendeTuModelo === true) {
+        const s = red.find((x) => x.clave === clave);
+        nodoTalleres.insertAdjacentHTML(
+          'beforeend',
+          `<p class="text-[11px] text-emerald-300/90 font-light leading-relaxed mt-3">
+             Comprobado en el sistema de Zapata: ${escapar(s?.ciudad || s?.nombre || clave)} sí atiende el modelo de tu unidad.
+           </p>`,
+        );
+      }
     },
   };
 }

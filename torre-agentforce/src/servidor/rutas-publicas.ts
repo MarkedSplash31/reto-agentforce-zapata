@@ -809,7 +809,28 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
       // comprueba un hecho contra el catálogo real, igual que se comprueba un VIN.
       try {
         const taller = sucursalMencionada(texto, await talleres());
-        if (taller) emitir('Capacidad', { capacidad: 'agenda', sucursal: taller });
+        if (taller) {
+          // Si además dictó un número de serie, se comprueba contra la org si ese
+          // taller atiende su modelo, y el veredicto viaja con la capacidad.
+          //
+          // Hace falta porque el agente se equivoca aquí, y en la cara del cliente:
+          // ante una falla eléctrica contestó «El taller de Querétaro no atiende el
+          // modelo Freightliner Cascadia», que es FALSO —ese taller tiene cinco filas
+          // activas para ese modelo—. Lo que no existe es una fila para el sistema
+          // eléctrico, porque ese valor no está en la lista de sistemas de las
+          // sucursales. Un cliente que se cree esa frase se va pensando que su camión
+          // no se atiende en ningún lado.
+          let atiendeTuModelo: boolean | null = null;
+          const vinDicho = vinMencionado(texto);
+          if (vinDicho) {
+            const encontradas = await datos.listarUnidades({ busqueda: vinDicho });
+            const modeloId = encontradas.registros[0]?.Product2Id;
+            if (modeloId) {
+              atiendeTuModelo = (await datos.talleresDelModelo(modeloId)).includes(taller);
+            }
+          }
+          emitir('Capacidad', { capacidad: 'agenda', sucursal: taller, atiendeTuModelo });
+        }
       } catch {
         // El catálogo no contestó. La conversación no se interrumpe por esto: la
         // agenda sigue estando a un clic desde el espacio de trabajo.

@@ -582,3 +582,56 @@ que convierte una pérdida silenciosa en algo corregible.
 Que la acción del agente conserve las dos respuestas. Vive en el bundle
 `Agente_Postventa_Zapata` y en las entradas del Flow `Crear_Reporte_Unidad_Varada`;
 exige republicar y activar una versión nueva del agente.
+
+---
+
+## 12. La póliza cubre sistemas que ninguna agencia declara atender
+
+**Estado: abierto el 12 de agosto de 2026.** Es un hueco de DATOS en la organización;
+la aplicación ya lo esquiva, pero conviene cerrarlo en la org.
+
+### La asimetría
+
+| Sistemas con regla de cobertura | ¿Alguna sucursal lo declara? |
+|---|---|
+| Tren motriz · Cabina · Frenos · Refrigeracion · General | sí, las nueve |
+| **Electrico y electronica** | **no, ninguna** |
+| **Chasis y estructura** | **no, ninguna** |
+| **Corrosion** | **no, ninguna** |
+
+`Modelo_Sucursal__c` tiene 180 filas —9 sucursales × 4 modelos × 5 sistemas— y su
+picklist `Sistemas_Soportados__c` no incluye los tres de arriba. `Regla_Cobertura__c`
+sí los cubre: eléctrico a 24 meses / 200,000 km en los cuatro modelos.
+
+### Lo que provoca
+
+La compuerta de `ZapataAgendaController` cruza modelo **y sistema**. Con una falla
+eléctrica, el agente puede contestar —y contestó, tecleando en el sitio—:
+
+> El taller Zapata Camiones Querétaro no atiende el modelo Freightliner Cascadia
+> para fallas eléctricas.
+
+Es **falso**: Querétaro tiene cinco filas activas para ese modelo. Lo que no existe es
+una fila para el sistema eléctrico. Un cliente que se cree esa frase entiende que su
+camión no se atiende en ningún lado, y como ninguna de las nueve declara ese sistema,
+buscar otro taller tampoco lo resolvería.
+
+No es determinista: la misma frase, cuatro corridas, dio dos veces horarios y una vez
+la negación.
+
+### Lo que hace la aplicación mientras tanto
+
+- La agenda de la página **no cruza sistema**, sólo modelo y sucursal —que es la
+  compuerta que el Flow respeta—, así que la cita eléctrica sí se puede apartar.
+  Comprobado: órdenes 00000074, 00000076 y 00000078, todas por falla eléctrica.
+- Cuando el cliente nombra un taller y dicta su número de serie, el servidor comprueba
+  contra la org si ese taller atiende su modelo y la pantalla lo afirma: *«Comprobado
+  en el sistema de Zapata: Querétaro sí atiende el modelo de tu unidad»*. Así una
+  negación equivocada del agente no queda como última palabra.
+
+### Lo que falta
+
+Decidir en la organización si las nueve sucursales atienden eléctrico, chasis y
+corrosión y, en su caso, dar de alta esas filas. No se hizo desde aquí: afirmar que
+un taller presta un servicio es un hecho operativo del negocio, no algo que se pueda
+deducir de que la póliza lo cubra.

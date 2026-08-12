@@ -358,7 +358,7 @@ const CAPACIDADES = {
     },
     alReabrir: (opciones) => {
       agenda?.conVin(vinConocido);
-      if (opciones?.sucursal) void agenda?.enTaller(opciones.sucursal);
+      if (opciones?.sucursal) void agenda?.enTaller(opciones.sucursal, opciones.atiendeTuModelo);
     },
   },
   modelos: {
@@ -598,7 +598,7 @@ compositor.addEventListener('submit', async (ev) => {
           // El servidor comprobó contra el catálogo que el cliente nombró un taller.
           // La agenda de ESE taller se abre sola, ya cargada: es lo que estaba
           // pidiendo, y leerlo dictado en prosa era lo que sobraba.
-          void abrirCapacidad(d.capacidad, { sucursal: d.sucursal });
+          void abrirCapacidad(d.capacidad, { sucursal: d.sucursal, atiendeTuModelo: d.atiendeTuModelo });
         } else if (tipo === 'Escalado') {
           // No se cambia de interlocutor a mitad del texto: se anota y se aplica al
           // cerrar el turno, para que el cliente lea completa la última respuesta del
