@@ -117,6 +117,15 @@ process.env.APP_ENV = 'development';
 process.env.APP_AUTH_MODE = 'disabled';
 process.env.SF_AGENT_API_HOST = base;
 process.env.SF_LOGIN_URL = base;
+// `SF_LOGIN_URL` apunta al loopback, así que `config.ts` exige que los identificadores
+// se declaren: apuntar a otra org conservando por omisión el agente y la cola del reto
+// es la mezcla que no arranca. Aquí se declaran los MISMOS del reto, a propósito —el
+// servidor de este arnés enruta por ese id, y lo que se está probando es el contrato de
+// la Agent API, no a qué organización se habla—. Declararlos es la diferencia: el
+// guardia caza el olvido, no la elección.
+process.env.SF_AGENT_ID = '0XxgK0000022RhJSAU';
+process.env.SF_COLA_ESCALAMIENTO_ID = '00GgK00000BMTaVUAX';
+process.env.SF_CASE_QUEUE_ID = '00GgK00000BMTaVUAX';
 process.env.SF_TOKEN_PROVIDER = 'client_credentials';
 process.env.SF_CLIENT_ID = 'harness-loopback';
 process.env.SF_CLIENT_SECRET = 'harness-loopback';
