@@ -254,7 +254,31 @@ export async function rutasPublicas(ctx: Contexto): Promise<boolean> {
   // ── identidad de la visita ────────────────────────────────────────────────
   if (p === '/publico/sesion') {
     const { sesion, cookie } = sesionVisitante(ctx);
-    json(res, 200, vista(sesion), cookie);
+
+    // Si la visita traía un escalamiento, hay que preguntar por él ANTES de decir
+    // que sigue vigente. Nada liberaba nunca `caseId`: una vez escalado, cada
+    // recarga devolvía al cliente con el asesor para siempre, incluso después de
+    // que ese asesor cerrara el caso —y un caso cerrado ya no aparece en su
+    // bandeja, así que el cliente seguía escribiéndole a nadie—.
+    let escalamiento_: { caseNumber: string; estado: string | null } | null = null;
+    let recienCerrado = false;
+    if (sesion.caseId) {
+      try {
+        const estado = await escalamiento.estadoDeCaso(sesion.caseId);
+        if (!estado || estado.cerrado) {
+          sesion.caseId = null;
+          recienCerrado = Boolean(estado?.cerrado);
+          if (estado) escalamiento_ = { caseNumber: estado.caseNumber, estado: estado.estado };
+        } else {
+          escalamiento_ = { caseNumber: estado.caseNumber, estado: estado.estado };
+        }
+      } catch {
+        // Si la org no contesta no se suelta el caso: soltarlo por un fallo de red
+        // mandaría al cliente con el asistente teniendo una persona asignada.
+      }
+    }
+
+    json(res, 200, { ...vista(sesion), escalamiento: escalamiento_, escalamientoCerrado: recienCerrado }, cookie);
     return true;
   }
 

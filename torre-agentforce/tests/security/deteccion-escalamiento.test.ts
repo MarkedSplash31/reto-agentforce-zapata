@@ -111,6 +111,75 @@ describe('apertura de la conversación', () => {
   });
 });
 
+describe('la conversación escalada tiene salida', () => {
+  // Encontrado el 11-ago-2026 recargando la página después de pedir un asesor: la
+  // visita volvía con el asesor, el hilo aparecía VACÍO —lo que el cliente contó vive
+  // como contexto interno del expediente y no cruza a su superficie— y no había forma
+  // de volver con el asistente. Nada liberaba nunca `caseId`: tres sitios lo ponían y
+  // ninguno lo quitaba. Un caso ya cerrado por el asesor seguía atrapando al cliente,
+  // que escribía en un expediente desaparecido de la bandeja.
+
+  it('el servidor pregunta por el caso antes de darlo por vigente', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(
+      fuente.indexOf("p === '/publico/sesion'"),
+      fuente.indexOf("p === '/publico/acceso'"),
+    );
+
+    assert.match(
+      bloque,
+      /escalamiento\.estadoDeCaso\(sesion\.caseId\)/,
+      'la sesión no puede afirmar que hay una persona atendiendo sin preguntárselo a la org',
+    );
+    assert.match(
+      bloque,
+      /sesion\.caseId = null/,
+      'un caso cerrado tiene que soltarse: si no, el cliente le escribe a nadie',
+    );
+  });
+
+  it('un fallo de red no suelta el caso', async () => {
+    const fuente = await rutas();
+    const bloque = fuente.slice(
+      fuente.indexOf("p === '/publico/sesion'"),
+      fuente.indexOf("p === '/publico/acceso'"),
+    );
+    // Soltarlo porque la org no contestó mandaría al cliente con el asistente
+    // teniendo una persona asignada, que es el defecto contrario y peor.
+    assert.match(bloque, /} catch \{/, 'el fallo de la consulta debe quedar contenido');
+    const traccatch = bloque.slice(bloque.indexOf('} catch {'));
+    assert.doesNotMatch(
+      traccatch.slice(0, 300),
+      /sesion\.caseId = null/,
+      'el catch no puede liberar el caso',
+    );
+  });
+
+  it('el cliente puede empezar una consulta nueva', async () => {
+    const fuente = await inicio();
+    assert.match(
+      fuente,
+      /fetch\('\/publico\/salir', \{ method: 'POST' \}\)/,
+      'sin salida, cada recarga devolvía al cliente con el asesor para siempre',
+    );
+    assert.match(fuente, /nueva\.hidden = false/, 'la salida se enseña cuando hay una persona asignada');
+  });
+
+  it('la reanudación no deja una ventana en blanco', async () => {
+    const fuente = await inicio();
+    assert.match(
+      fuente,
+      /pintados === 0/,
+      'si no hay mensajes publicados hay que decir dónde está el caso, no dejar el hilo vacío',
+    );
+    assert.match(
+      fuente,
+      /sesion\.escalamientoCerrado/,
+      'un caso cerrado se le dice al cliente en vez de devolverlo a él en silencio',
+    );
+  });
+});
+
 describe('actividad del agente', () => {
   it('se relee de Log_Agente__c y no de la respuesta del modelo', async () => {
     const fuente = await readFile(new URL('../../src/servidor/actividad.ts', import.meta.url), 'utf8');

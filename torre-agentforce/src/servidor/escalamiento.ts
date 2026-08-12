@@ -692,6 +692,28 @@ export interface OpcionesConversacion {
   soloPublicados?: boolean;
 }
 
+/**
+ * El estado real de un caso, sin traerse el expediente entero.
+ *
+ * Hace falta porque la sesión del visitante guarda su `caseId` y nunca volvía a
+ * preguntar por él: un cliente cuyo caso ya cerró el asesor seguía escribiendo en un
+ * expediente que había desaparecido de la bandeja —`bandejaAsesor` filtra
+ * `Status != 'Closed'`—, es decir, mandando mensajes que nadie iba a leer.
+ */
+export async function estadoDeCaso(
+  caseId: string,
+): Promise<{ caseNumber: string; estado: string | null; cerrado: boolean } | null> {
+  const op = 'escalamiento.estadoDeCaso';
+  const id = exigirId(caseId, 'caseId', op);
+  const r = await consultar<{ CaseNumber: string; Status: string | null; IsClosed: boolean }>(
+    `SELECT CaseNumber, Status, IsClosed FROM Case WHERE Id = '${lit(id)}'`,
+    op,
+  );
+  const c = r.records[0];
+  if (!c) return null;
+  return { caseNumber: c.CaseNumber, estado: c.Status, cerrado: Boolean(c.IsClosed) };
+}
+
 export async function conversacion(
   caseId: string,
   opciones: OpcionesConversacion = {},

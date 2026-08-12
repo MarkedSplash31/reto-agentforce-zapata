@@ -119,7 +119,18 @@
             <span id="punto" class="w-1.5 h-1.5 rounded-full bg-gray-600 shrink-0"></span>
             <p id="interlocutor" class="text-[10px] uppercase tracking-[0.3em] text-gray-400 truncate">Asistente de postventa</p>
           </div>
-          <div id="estado" class="shrink-0"></div>
+          <div class="flex items-center gap-2 shrink-0">
+            <div id="estado"></div>
+            <!--
+              Una conversación escalada dura lo que dure el caso. Sin esta salida, el
+              cliente que ya fue atendido no tenía forma de preguntar otra cosa: cada
+              recarga lo devolvía con el asesor, para siempre.
+            -->
+            <button id="nueva" type="button" hidden
+              class="border border-white/10 px-3 py-1.5 text-[10px] uppercase tracking-widest text-gray-400 hover:border-white/30 hover:text-white transition-colors duration-300">
+              Nueva consulta
+            </button>
+          </div>
         </div>
         <div id="hilo" role="log" aria-live="polite" aria-relevant="additions"
              class="flex-1 p-5 space-y-5 overflow-y-auto"></div>

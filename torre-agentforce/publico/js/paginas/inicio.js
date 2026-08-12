@@ -36,6 +36,24 @@ const punto = document.getElementById('punto');
 const interlocutor = document.getElementById('interlocutor');
 const pie = document.getElementById('pie');
 const aviso = document.getElementById('aviso');
+const nueva = document.getElementById('nueva');
+
+/**
+ * Termina la visita y arranca otra.
+ *
+ * `/publico/salir` destruye la sesión del visitante y cierra su conversación con el
+ * asistente; el caso que atendía el asesor sigue en Salesforce, con su folio y su
+ * historial. No se borra nada: se empieza una consulta nueva, que es lo que un
+ * cliente quiere cuando lo suyo ya se resolvió y ahora pregunta otra cosa.
+ */
+nueva?.addEventListener('click', async () => {
+  nueva.disabled = true;
+  try {
+    await fetch('/publico/salir', { method: 'POST' });
+  } finally {
+    location.reload();
+  }
+});
 
 /** Un número de serie que el cliente escribe: 11 o más alfanuméricos seguidos. */
 const POSIBLE_VIN = /\b[A-HJ-NPR-Z0-9]{11,17}\b/i;
@@ -135,6 +153,9 @@ function marcarInterlocutor(quien) {
     estado.innerHTML = chip('Con una persona', 'bloqueo');
     entrada.placeholder = 'Escríbele al asesor';
     pie.textContent = 'Tu conversación quedó asentada. El asesor la está leyendo completa.';
+    // Con una persona asignada, la salida deja de ser un adorno: es la única forma
+    // de volver al asistente para una consulta distinta.
+    if (nueva) nueva.hidden = false;
   } else {
     interlocutor.textContent = 'Asistente de postventa';
     punto.className = 'w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse shrink-0';
@@ -364,6 +385,19 @@ try {
     ? { disponible: false, causa: null, bienvenida: null }
     : await (await fetch('/publico/agente/abrir', { method: 'POST' })).json();
 
+  if (sesion.escalamientoCerrado) {
+    // El asesor cerró el caso. Antes esto no se miraba nunca: el cliente volvía a
+    // caer en la conversación con una persona que ya había terminado, y escribía en
+    // un expediente que había desaparecido de la bandeja del asesor.
+    nota(
+      `Tu caso ${sesion.escalamiento?.caseNumber ?? ''} quedó cerrado. Sigues con el asistente; si necesitas a una persona otra vez, pídelo.`.replace(
+        /\s+/g,
+        ' ',
+      ),
+      'ok',
+    );
+  }
+
   if (sesion.tieneEscalamiento) {
     // El cliente ya venía hablando con una persona: se retoma donde quedó, y con
     // conversación viva la pantalla arranca ya en el espacio de trabajo.
@@ -375,11 +409,23 @@ try {
       // creería que su conversación se perdió. Se dice, y se le deja escribir.
       nota(`No pudimos recuperar los mensajes anteriores: ${conv?.mensaje ?? `el servidor respondió ${resConv.status}`}`, 'error');
     }
+    let pintados = 0;
     for (const c of conv?.comentarios ?? []) {
       comentariosVistos.add(c.id);
       if (c.publicado === false) continue;
       const deAsesor = /^ASESOR:/i.test(c.cuerpo || '');
       turno(deAsesor ? 'asesor' : 'cliente', (c.cuerpo || '').replace(/^(ASESOR|CLIENTE):\s*/i, ''));
+      pintados++;
+    }
+    // Una ventana en blanco bajo «Con una persona» hace creer que se perdió todo lo
+    // dicho. Lo que el cliente contó vive en el expediente como contexto interno del
+    // asesor y no cruza a esta superficie a propósito, así que aquí no puede
+    // aparecer: lo que sí se puede decir es dónde está su caso.
+    if (resConv.ok && conv && pintados === 0) {
+      nota(
+        `Retomamos tu conversación${sesion.escalamiento?.caseNumber ? ` · caso ${sesion.escalamiento.caseNumber}` : ''}. Un asesor ya tiene todo lo que contaste; todavía no ha respondido. Escribe aquí si quieres añadir algo.`,
+        'neutro',
+      );
     }
     entrarAlEspacio({ animar: false });
     escucharAsesor();
