@@ -64,6 +64,19 @@ export function diaLegible(fecha) {
   return `${DIAS[d.getDay()]} ${d.getDate()} de ${MESES[d.getMonth()]}`;
 }
 
+/**
+ * El mismo día, en corto, para la tira de días: «jue 14».
+ *
+ * Se construye por partes igual que `diaLegible`, y por la misma razón: `new
+ * Date('2026-08-14')` es medianoche UTC, que en México cae el día 13. Una tira que
+ * rotule un día menos que el encabezado de abajo es peor que no tener tira.
+ */
+function diaCorto(fecha) {
+  const [anio, mes, dia] = String(fecha).slice(0, 10).split('-').map(Number);
+  const d = new Date(anio, mes - 1, dia);
+  return `${DIAS[d.getDay()].slice(0, 3)} ${d.getDate()}`;
+}
+
 function hora(iso) {
   const d = new Date(iso);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -100,6 +113,10 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
   /** Claves de taller que hoy tienen al menos una franja apartable. `null` mientras
    *  no se sepa: se prefiere no marcar nada antes que marcar mal. */
   let talleresConCupo = null;
+  /** El día que se está mirando, `YYYY-MM-DD`. `null` = que lo escoja `pintarDias`.
+   *  Se vuelve a `null` en cuanto cambia el taller o el tipo, porque el día bueno de
+   *  un taller no tiene por qué existir en el siguiente. */
+  let diaElegido = null;
 
   raiz.innerHTML = `
     <div data-agenda-talleres class="mb-5"></div>
@@ -293,41 +310,83 @@ export async function montarAgenda(raiz, { vin = null, sucursal = null, alAgenda
       porDia.get(dia).push(f);
     }
 
-    nodoDias.innerHTML = [...porDia.entries()]
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([dia, lista]) => {
-        const botones = lista
-          .sort((a, b) => a.inicio.localeCompare(b.inicio))
-          .map((f) => {
-            const pronto = new Date(f.inicio).getTime() < limite;
-            return `
-            <li>
-              <button type="button" data-franja="${escapar(f.id)}" ${pronto ? 'disabled' : ''}
-                class="w-full text-left border px-4 py-3 transition-colors duration-300 ${
-                  pronto
-                    ? 'border-white/5 texto-apagado cursor-not-allowed'
-                    : 'border-white/10 hover:border-amber-400/40 hover:bg-amber-400/5'
-                }">
-                <span class="block text-xs ${pronto ? 'texto-apagado' : 'text-white'} font-mono tracking-wide">${escapar(hora(f.inicio))}${f.fin ? `–${escapar(hora(f.fin))}` : ''}</span>
-                <span class="block text-[10px] uppercase tracking-widest ${pronto ? 'texto-apagado' : 'texto-tenue'} mt-1.5">${escapar(f.tipo || 'servicio')}</span>
-                ${
-                  pronto
-                    ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">Menos de ${anticipacion} h</span>`
-                    : f.libres != null
-                      ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">${escapar(String(f.libres))} lugares</span>`
-                      : ''
-                }
-              </button>
-            </li>`;
-          })
-          .join('');
+    // Un día a la vez.
+    //
+    // El escenario apilaba los DIAS_HORIZONTE días completos, uno debajo del otro.
+    // Con los talleres arriba y la conversación al lado, encontrar el horario que el
+    // asistente acababa de decir exigía bajar por un muro de franjas. Se pinta el día
+    // que se está mirando; los demás quedan a un toque en la tira de arriba. No se
+    // pierde ninguno: la lectura del catálogo sigue siendo de los mismos días.
+    const dias = [...porDia.keys()].sort((a, b) => a.localeCompare(b));
+    const tieneApartable = (d) => porDia.get(d).some((f) => new Date(f.inicio).getTime() >= limite);
+
+    // El día que se abre solo es el primero donde SÍ se puede apartar, que es el que
+    // el asistente ofrece: lee el mismo endpoint y ofrece lo más próximo apartable.
+    // Abrir en un día cuyas franjas están todas por debajo de la anticipación mínima
+    // deja al cliente mirando botones muertos y creyendo que no hay lugar en ninguno.
+    if (!diaElegido || !porDia.has(diaElegido)) {
+      diaElegido = dias.find(tieneApartable) ?? dias[0];
+    }
+
+    const tira =
+      dias.length > 1
+        ? `<div class="flex gap-2 overflow-x-auto pb-1 mb-4" role="tablist" aria-label="Días con horario">
+             ${dias
+               .map((d) => {
+                 const puede = tieneApartable(d);
+                 return `<button type="button" data-dia="${escapar(d)}" role="tab"
+                   aria-selected="${d === diaElegido ? 'true' : 'false'}"
+                   class="shrink-0 border px-3 py-2 text-[10px] uppercase tracking-widest transition-colors duration-300 ${
+                     d === diaElegido
+                       ? 'border-amber-400/40 bg-amber-400/10 text-amber-300'
+                       : puede
+                         ? 'border-white/10 text-gray-400 hover:border-white/30 hover:text-white'
+                         : 'border-white/5 texto-apagado hover:border-white/20'
+                   }">${escapar(diaCorto(d))}</button>`;
+               })
+               .join('')}
+           </div>`
+        : '';
+
+    const botones = (porDia.get(diaElegido) ?? [])
+      .sort((a, b) => a.inicio.localeCompare(b.inicio))
+      .map((f) => {
+        const pronto = new Date(f.inicio).getTime() < limite;
         return `
-          <div class="border-t border-white/5 pt-4 mt-4 first:border-0 first:pt-0 first:mt-0">
-            <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue mb-3">${escapar(diaLegible(dia))}</p>
-            <ul class="grid grid-cols-2 sm:grid-cols-3 gap-2">${botones}</ul>
-          </div>`;
+        <li>
+          <button type="button" data-franja="${escapar(f.id)}" ${pronto ? 'disabled' : ''}
+            class="w-full text-left border px-4 py-3 transition-colors duration-300 ${
+              pronto
+                ? 'border-white/5 texto-apagado cursor-not-allowed'
+                : 'border-white/10 hover:border-amber-400/40 hover:bg-amber-400/5'
+            }">
+            <span class="block text-xs ${pronto ? 'texto-apagado' : 'text-white'} font-mono tracking-wide">${escapar(hora(f.inicio))}${f.fin ? `–${escapar(hora(f.fin))}` : ''}</span>
+            <span class="block text-[10px] uppercase tracking-widest ${pronto ? 'texto-apagado' : 'texto-tenue'} mt-1.5">${escapar(f.tipo || 'servicio')}</span>
+            ${
+              pronto
+                ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">Menos de ${anticipacion} h</span>`
+                : f.libres != null
+                  ? `<span class="block text-[10px] uppercase tracking-widest texto-apagado mt-1.5">${escapar(String(f.libres))} lugares</span>`
+                  : ''
+            }
+          </button>
+        </li>`;
       })
       .join('');
+
+    nodoDias.innerHTML = `
+      ${tira}
+      <div>
+        <p class="text-[10px] uppercase tracking-[0.3em] texto-tenue mb-3">${escapar(diaLegible(diaElegido))}</p>
+        <ul class="grid grid-cols-2 sm:grid-cols-3 gap-2">${botones}</ul>
+      </div>`;
+
+    for (const boton of nodoDias.querySelectorAll('[data-dia]')) {
+      boton.addEventListener('click', () => {
+        diaElegido = boton.dataset.dia;
+        pintarDias();
+      });
+    }
 
     for (const boton of nodoDias.querySelectorAll('[data-franja]:not([disabled])')) {
       boton.addEventListener('click', () => confirmar(boton.dataset.franja));
