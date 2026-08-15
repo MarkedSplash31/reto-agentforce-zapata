@@ -10,6 +10,26 @@ Lo que pide la maestra para el viernes, en el formato que lo pide.
 
 Los `.pdf` al lado son la misma cosa, para revisar sin abrir Word.
 
+El nombre del agente —**Agente Postventa Zapata**— va en los tres archivos: en el nombre
+del archivo, en la portada y en los metadatos del documento. El guion además lo pide en
+pantalla y en el nombre del `.mp4`, porque el video es el único entregable donde el
+nombre no puede quedar escrito de antemano.
+
+## Estado del 14 de agosto de 2026
+
+- **Ficha técnica.** Regenerada desde la versión corregida del 13 de agosto. Cambian dos
+  directrices de `conocimiento_y_respuestas`: la procedencia se declara en una frase de
+  lenguaje natural al cierre, no con el encabezado fijo de tres líneas que traía la
+  versión anterior. Sigue en **3 páginas exactas**, como pide el punto B.
+- **Guion de rodaje.** La checklist de subida ahora exige el nombre del agente visible en
+  pantalla y nombra el archivo de video
+  `Video_Demo_Equipo35_Agente_Postventa_Zapata.mp4`. El minutaje no se tocó: la
+  corrección no añade narración y el margen de 3:00 sigue en cero.
+- **Pendiente por revisar.** El documento técnico todavía describe la redacción anterior
+  de procedencia («Todo resumen abre exactamente con “El material no verificado
+  consultado indica:”» y las tres líneas obligatorias). Si lo que está configurado en la
+  org es la versión nueva, esa sección hay que rehacerla antes de entregar.
+
 ## De dónde salen los contenidos
 
 Nada está transcrito de memoria:
