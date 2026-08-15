@@ -7,6 +7,7 @@ Lo que pide la maestra para el viernes, en el formato que lo pide.
 | `Ficha_Tecnica_Equipo35_Agente_Postventa_Zapata.docx` | Topics, Instructions y Actions | punto **B**, `.docx`, **3 páginas exactas** |
 | `Documento_Tecnico_Equipo35_Agente_Postventa_Zapata.docx` | Arquitectura, configuración de Topics, lógica de los Flows y artículos de Knowledge | punto **A**, documento técnico |
 | `Guion_Rodaje_Equipo35_Video_Demo.docx` | Libreto del video: qué se teclea, qué se narra, minutaje | apoyo para grabar el `.mp4` |
+| `Video_Demo_Equipo35_Agente_Postventa_Zapata.mp4` | La demostración grabada | `.mp4`, **2:58**, 1080p, 20 MB |
 
 Los `.pdf` al lado son la misma cosa, para revisar sin abrir Word.
 
@@ -25,6 +26,12 @@ nombre no puede quedar escrito de antemano.
   pantalla y nombra el archivo de video
   `Video_Demo_Equipo35_Agente_Postventa_Zapata.mp4`. El minutaje no se tocó: la
   corrección no añade narración y el margen de 3:00 sigue en cero.
+- **Video.** Grabado y entregado: **2:58.5**, 1920×1080 a 30 fps, H.264 con audio AAC,
+  20 MB — dentro del tope de 3:00 y de los 150 MB. Abre y cierra con la placa
+  «Equipo 35 · Agente Postventa Zapata» y los tres nombres. Revisado cuadro por cuadro
+  antes de publicarlo: sin credenciales, sin DevTools, sin pestañas de trabajo. La org
+  que se ve es la Developer Edition del reto y los datos son los sintéticos del
+  ejercicio.
 - **Pendiente por revisar.** El documento técnico todavía describe la redacción anterior
   de procedencia («Todo resumen abre exactamente con “El material no verificado
   consultado indica:”» y las tres líneas obligatorias). Si lo que está configurado en la
